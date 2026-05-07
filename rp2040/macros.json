@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "brightness": 0.5,
+    "debounce": 0.05
+  },
+  "macros": [
+    {"row": 0, "col": 0, "label": "Copy", "actions": [{"type": "keypress", "keys": ["CONTROL", "C"]}]},
+    {"row": 0, "col": 1, "label": "Paste", "actions": [{"type": "keypress", "keys": ["CONTROL", "V"]}]},
+    {"row": 0, "col": 2, "label": "Save", "actions": [{"type": "keypress", "keys": ["CONTROL", "S"]}]},
+    {"row": 1, "col": 0, "label": "Mute", "actions": [{"type": "consumer", "key": "MUTE"}]},
+    {"row": 1, "col": 1, "label": "Vol-", "actions": [{"type": "consumer", "key": "VOLUME_DECREMENT"}]},
+    {"row": 1, "col": 2, "label": "Vol+", "actions": [{"type": "consumer", "key": "VOLUME_INCREMENT"}]},
+    {"row": 2, "col": 0, "label": "Email", "actions": [{"type": "text", "text": "hello@example.com"}]},
+    {"row": 2, "col": 1, "label": "Dev", "actions": [{"type": "text", "text": "npm run dev\n"}]},
+    {"row": 2, "col": 2, "label": "Lock", "actions": [{"type": "keypress", "keys": ["GUI", "L"]}]}
+  ]
+}
