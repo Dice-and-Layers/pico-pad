@@ -12,8 +12,16 @@ function App() {
   const [settings, setSettings] = useState({ debounce: 0.05 });
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [status, setStatus] = useState("Disconnected");
+  const [theme, setTheme] = useState('dark');
 
-  // Load macros from file system
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   const connectKeyboard = async () => {
     try {
       const handle = await window.showDirectoryPicker();
@@ -29,7 +37,7 @@ function App() {
       setStatus("Connected");
     } catch (err) {
       console.error(err);
-      alert("Failed to connect to keyboard. Make sure to select the CIRCUITPY drive.");
+      alert("Failed to connect. Please select the CIRCUITPY drive.");
     }
   };
 
@@ -41,17 +49,11 @@ function App() {
       const data = { settings, macros };
       await writable.write(JSON.stringify(data, null, 2));
       await writable.close();
-      alert("Configuration saved!");
+      alert("Saved successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to save configuration.");
+      alert("Failed to save.");
     }
-  };
-
-  const updateMacro = (index, newData) => {
-    const newMacros = [...macros];
-    newMacros[index] = { ...newMacros[index], ...newData };
-    setMacros(newMacros);
   };
 
   const selectedMacro = macros.find(m => m.row === Math.floor(selectedIdx / 3) && m.col === selectedIdx % 3) || {
@@ -60,42 +62,46 @@ function App() {
     ...DEFAULT_MACRO
   };
 
-  const handleActionChange = (actionIdx, field, value) => {
-    const newActions = [...(selectedMacro.actions || [])];
-    newActions[actionIdx] = { ...newActions[actionIdx], [field]: value };
-    
-    // If it's a keypress, value might be a comma-separated string
-    if (field === 'keys' && typeof value === 'string') {
-        newActions[actionIdx].keys = value.split(',').map(k => k.trim().toUpperCase());
-    }
-
-    const macroExists = macros.some(m => m.row === selectedMacro.row && m.col === selectedMacro.col);
-    if (!macroExists) {
-        setMacros([...macros, { ...selectedMacro, actions: newActions }]);
+  const updateMacroInList = (updatedMacro) => {
+    const existingIdx = macros.findIndex(m => m.row === updatedMacro.row && m.col === updatedMacro.col);
+    if (existingIdx >= 0) {
+      const newMacros = [...macros];
+      newMacros[existingIdx] = updatedMacro;
+      setMacros(newMacros);
     } else {
-        updateMacro(macros.findIndex(m => m.row === selectedMacro.row && m.col === selectedMacro.col), { actions: newActions });
+      setMacros([...macros, updatedMacro]);
     }
   };
 
-  const handleLabelChange = (val) => {
-    const macroExists = macros.some(m => m.row === selectedMacro.row && m.col === selectedMacro.col);
-    if (!macroExists) {
-        setMacros([...macros, { ...selectedMacro, label: val }]);
-    } else {
-        updateMacro(macros.findIndex(m => m.row === selectedMacro.row && m.col === selectedMacro.col), { label: val });
+  const handleActionChange = (actionIdx, field, value) => {
+    const newActions = [...(selectedMacro.actions || [])];
+    let val = value;
+    if (field === 'keys' && typeof value === 'string') {
+        val = value.split(',').map(k => k.trim().toUpperCase());
     }
+    newActions[actionIdx] = { ...newActions[actionIdx], [field]: val };
+    updateMacroInList({ ...selectedMacro, actions: newActions });
+  };
+
+  const handleLabelChange = (val) => {
+    updateMacroInList({ ...selectedMacro, label: val });
   };
 
   return (
     <div className="container">
       <header>
-        <h1>Antigravity Macro Config</h1>
-        <div className={`status-badge ${status === 'Connected' ? 'connected' : ''}`}>
-          {status}
+        <h1>SS Key Config</h1>
+        <div className="header-actions">
+          <button className="theme-toggle" onClick={toggleTheme} title="Toggle Dark/Light Mode">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <div className={`status-badge ${status === 'Connected' ? 'connected' : ''}`}>
+            {status}
+          </div>
+          <button className="btn btn-primary" onClick={dirHandle ? saveConfig : connectKeyboard}>
+            {dirHandle ? '💾 Save Config' : '🔌 Connect'}
+          </button>
         </div>
-        <button className="btn btn-primary" onClick={dirHandle ? saveConfig : connectKeyboard}>
-          {dirHandle ? 'Save to Keyboard' : 'Connect Keyboard'}
-        </button>
       </header>
 
       <div className="main-layout">
@@ -111,75 +117,94 @@ function App() {
                   className={`key ${selectedIdx === i ? 'selected' : ''}`}
                   onClick={() => setSelectedIdx(i)}
                 >
-                  <span className="key-icon">{macro ? (macro.label[0] || '?') : (i + 1)}</span>
-                  <span className="key-label">{macro ? macro.label : 'Empty'}</span>
+                  <span className="key-icon">{macro?.label ? macro.label[0] : (i + 1)}</span>
+                  <span className="key-label">{macro?.label || 'Not Configured'}</span>
                 </div>
               );
             })}
           </div>
-          <p style={{color: 'var(--text-dim)', fontSize: '0.9rem'}}>Select a key to configure its macro</p>
+          <p style={{color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: '500'}}>
+            Click a key to edit its macro sequence
+          </p>
         </section>
 
         <aside className="editor-panel">
-          <h3>Edit Key {selectedIdx + 1}</h3>
+          <h2 style={{fontSize: '1.2rem'}}>Edit Key {selectedIdx + 1}</h2>
           
           <div className="input-group">
-            <label>Label</label>
+            <label>Macro Label</label>
             <input 
               type="text" 
               value={selectedMacro.label || ""} 
               onChange={(e) => handleLabelChange(e.target.value)}
-              placeholder="e.g. Copy"
+              placeholder="e.g. Photoshop Copy"
             />
           </div>
 
           <div className="action-list">
-            <label>Actions</label>
+            <label>Actions Sequence</label>
             {selectedMacro.actions?.map((action, ai) => (
               <div key={ai} className="action-item">
                 <select 
                   value={action.type} 
                   onChange={(e) => handleActionChange(ai, 'type', e.target.value)}
                 >
-                  <option value="keypress">Key Combination</option>
-                  <option value="text">Type Text</option>
-                  <option value="consumer">Media/Consumer Key</option>
+                  <option value="keypress">Hotkeys / Combinations</option>
+                  <option value="text">Type Text String</option>
+                  <option value="consumer">Media & System Keys</option>
                 </select>
 
                 {action.type === 'keypress' && (
-                  <input 
-                    type="text" 
-                    value={action.keys?.join(', ') || ""} 
-                    onChange={(e) => handleActionChange(ai, 'keys', e.target.value)}
-                    placeholder="CONTROL, C"
-                  />
+                  <div className="input-group">
+                    <label style={{fontSize: '0.75rem'}}>Keys (comma separated)</label>
+                    <input 
+                      type="text" 
+                      value={action.keys?.join(', ') || ""} 
+                      onChange={(e) => handleActionChange(ai, 'keys', e.target.value)}
+                      placeholder="CONTROL, C"
+                    />
+                  </div>
                 )}
 
                 {action.type === 'text' && (
-                  <input 
-                    type="text" 
-                    value={action.text || ""} 
-                    onChange={(e) => handleActionChange(ai, 'text', e.target.value)}
-                    placeholder="Hello World"
-                  />
+                  <div className="input-group">
+                    <label style={{fontSize: '0.75rem'}}>Text to Type</label>
+                    <input 
+                      type="text" 
+                      value={action.text || ""} 
+                      onChange={(e) => handleActionChange(ai, 'text', e.target.value)}
+                      placeholder="Enter your text here..."
+                    />
+                  </div>
                 )}
 
                 {action.type === 'consumer' && (
-                  <select 
-                    value={action.key} 
-                    onChange={(e) => handleActionChange(ai, 'key', e.target.value)}
-                  >
-                    <option value="VOLUME_INCREMENT">Volume Up</option>
-                    <option value="VOLUME_DECREMENT">Volume Down</option>
-                    <option value="MUTE">Mute</option>
-                    <option value="PLAY_PAUSE">Play/Pause</option>
-                    <option value="SCAN_NEXT_TRACK">Next Track</option>
-                    <option value="SCAN_PREVIOUS_TRACK">Previous Track</option>
-                  </select>
+                  <div className="input-group">
+                    <label style={{fontSize: '0.75rem'}}>Select Command</label>
+                    <select 
+                      value={action.key} 
+                      onChange={(e) => handleActionChange(ai, 'key', e.target.value)}
+                    >
+                      <option value="">Select an action...</option>
+                      <option value="VOLUME_INCREMENT">Volume Up</option>
+                      <option value="VOLUME_DECREMENT">Volume Down</option>
+                      <option value="MUTE">Mute Audio</option>
+                      <option value="PLAY_PAUSE">Play / Pause</option>
+                      <option value="SCAN_NEXT_TRACK">Next Track</option>
+                      <option value="SCAN_PREVIOUS_TRACK">Previous Track</option>
+                    </select>
+                  </div>
                 )}
               </div>
             ))}
           </div>
+          
+          <button className="btn btn-secondary" style={{marginTop: 'auto'}} onClick={() => {
+            const newActions = [...(selectedMacro.actions || []), { type: 'keypress', keys: [] }];
+            updateMacroInList({ ...selectedMacro, actions: newActions });
+          }}>
+            ➕ Add Action
+          </button>
         </aside>
       </div>
     </div>
