@@ -1,7 +1,9 @@
 {
-  "name": "key-config",
-  "private": true,
-  "version": "0.0.0",
+  "name": "macro-keyboard-configurator",
+  "description": "A web-based configurator for RP2040 macro keyboards using the File System Access API",
+  "version": "1.0.0",
+  "author": "Sathish",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",

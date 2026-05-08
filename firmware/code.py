@@ -1,3 +1,7 @@
+# RP2040 Macro Keyboard Firmware
+# A simple 3x3 macro matrix with CircuitPython
+# Supports hotkeys, text strings, and media controls
+
 import board
 import time
 import usb_hid
@@ -10,7 +14,7 @@ from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 from adafruit_hid.consumer_control import ConsumerControl
 from adafruit_hid.consumer_control_code import ConsumerControlCode
 
-# Initialize HID devices
+# --- HID Setup ---
 kbd = Keyboard(usb_hid.devices)
 layout = KeyboardLayoutUS(kbd)
 cc = ConsumerControl(usb_hid.devices)
