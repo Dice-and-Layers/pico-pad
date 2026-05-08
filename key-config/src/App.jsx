@@ -8,11 +8,25 @@ const DEFAULT_MACRO = {
 
 function App() {
   const [dirHandle, setDirHandle] = useState(null);
-  const [macros, setMacros] = useState([]);
-  const [settings, setSettings] = useState({ debounce: 0.05 });
+  const [theme, setTheme] = useState('light');
+  const [showHelp, setShowHelp] = useState(false);
+  const [profiles, setProfiles] = useState(() => {
+    try {
+      const saved = localStorage.getItem('macro_profiles');
+      return saved ? JSON.parse(saved) : { "Default": { macros: [], settings: { debounce: 0.05 } } };
+    } catch (e) {
+      console.error("Failed to parse profiles", e);
+      return { "Default": { macros: [], settings: { debounce: 0.05 } } };
+    }
+  });
+  const [activeProfile, setActiveProfile] = useState(() => localStorage.getItem('active_profile') || 'Default');
+  const [macros, setMacros] = useState(profiles[activeProfile]?.macros || []);
+  const [settings, setSettings] = useState(profiles[activeProfile]?.settings || { debounce: 0.05 });
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [status, setStatus] = useState("Disconnected");
-  const [theme, setTheme] = useState('dark');
+
+  // Modal State
+  const [modal, setModal] = useState({ open: false, title: '', value: '', type: '', onConfirm: null });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -22,16 +36,103 @@ function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  useEffect(() => {
+    localStorage.setItem('macro_profiles', JSON.stringify(profiles));
+  }, [profiles]);
+
+  useEffect(() => {
+    localStorage.setItem('active_profile', activeProfile);
+  }, [activeProfile]);
+
+  const updateCurrentProfile = (newMacros, newSettings) => {
+    setProfiles(prev => ({
+      ...prev,
+      [activeProfile]: { 
+        macros: newMacros || macros, 
+        settings: newSettings || settings 
+      }
+    }));
+  };
+
+  const createProfile = () => {
+    setModal({
+      open: true,
+      title: 'New Profile Name',
+      value: '',
+      type: 'input',
+      onConfirm: (name) => {
+        const trimmedName = name.trim();
+        if (!trimmedName) return;
+        if (profiles[trimmedName]) return alert("Profile already exists!");
+        
+        const newProfileData = { macros: [], settings: { debounce: 0.05 } };
+        setProfiles(prev => ({ ...prev, [trimmedName]: newProfileData }));
+        setActiveProfile(trimmedName);
+        setMacros([]);
+        setSettings({ debounce: 0.05 });
+        setModal(m => ({ ...m, open: false }));
+      }
+    });
+  };
+
+  const saveAsProfile = () => {
+    setModal({
+      open: true,
+      title: 'Save Profile As',
+      value: activeProfile + ' (Copy)',
+      type: 'input',
+      onConfirm: (name) => {
+        const trimmedName = name.trim();
+        if (!trimmedName) return;
+        if (profiles[trimmedName]) return alert("Profile already exists!");
+
+        const newProfileData = { macros: [...macros], settings: { ...settings } };
+        setProfiles(prev => ({ ...prev, [trimmedName]: newProfileData }));
+        setActiveProfile(trimmedName);
+        setModal(m => ({ ...m, open: false }));
+      }
+    });
+  };
+
+  const switchProfile = (name) => {
+    setActiveProfile(name);
+    const p = profiles[name] || { macros: [], settings: { debounce: 0.05 } };
+    setMacros(p.macros || []);
+    setSettings(p.settings || { debounce: 0.05 });
+  };
+
+  const deleteProfile = (name) => {
+    if (name === "Default") return alert("Cannot delete Default profile.");
+    
+    setModal({
+      open: true,
+      title: `Delete profile "${name}"?`,
+      value: '',
+      type: 'confirm',
+      onConfirm: () => {
+        const newProfiles = { ...profiles };
+        delete newProfiles[name];
+        setProfiles(newProfiles);
+        if (activeProfile === name) {
+          switchProfile("Default");
+        }
+        setModal(m => ({ ...m, open: false }));
+      }
+    });
+  };
+
+
+
   const connectKeyboard = async () => {
     try {
       const handle = await window.showDirectoryPicker();
       setDirHandle(handle);
-      
+
       const fileHandle = await handle.getFileHandle("macros.json");
       const file = await fileHandle.getFile();
       const content = await file.text();
       const data = JSON.parse(content);
-      
+
       setMacros(data.macros || []);
       setSettings(data.settings || { debounce: 0.05 });
       setStatus("Connected");
@@ -64,22 +165,29 @@ function App() {
 
   const updateMacroInList = (updatedMacro) => {
     const existingIdx = macros.findIndex(m => m.row === updatedMacro.row && m.col === updatedMacro.col);
+    let newMacros;
     if (existingIdx >= 0) {
-      const newMacros = [...macros];
+      newMacros = [...macros];
       newMacros[existingIdx] = updatedMacro;
-      setMacros(newMacros);
     } else {
-      setMacros([...macros, updatedMacro]);
+      newMacros = [...macros, updatedMacro];
     }
+    setMacros(newMacros);
+    updateCurrentProfile(newMacros, null);
   };
 
   const handleActionChange = (actionIdx, field, value) => {
     const newActions = [...(selectedMacro.actions || [])];
     let val = value;
     if (field === 'keys' && typeof value === 'string') {
-        val = value.split(',').map(k => k.trim().toUpperCase());
+      val = value.split(',').map(k => k.trim().toUpperCase());
     }
     newActions[actionIdx] = { ...newActions[actionIdx], [field]: val };
+    updateMacroInList({ ...selectedMacro, actions: newActions });
+  };
+
+  const removeAction = (actionIdx) => {
+    const newActions = (selectedMacro.actions || []).filter((_, i) => i !== actionIdx);
     updateMacroInList({ ...selectedMacro, actions: newActions });
   };
 
@@ -92,6 +200,19 @@ function App() {
       <header>
         <h1>SS Key Config</h1>
         <div className="header-actions">
+          <div className="profile-manager">
+            <select value={activeProfile} onChange={(e) => switchProfile(e.target.value)}>
+              {Object.keys(profiles).map(name => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+            <button className="icon-btn" onClick={createProfile} title="New Empty Profile">➕</button>
+            <button className="icon-btn" onClick={saveAsProfile} title="Save Current As New Profile">💾</button>
+            <button className="icon-btn delete" onClick={() => deleteProfile(activeProfile)} title="Delete Profile">🗑️</button>
+          </div>
+          <button className="help-toggle" onClick={() => setShowHelp(!showHelp)} title="How to use">
+            ❓ Help
+          </button>
           <button className="theme-toggle" onClick={toggleTheme} title="Toggle Dark/Light Mode">
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
@@ -104,109 +225,199 @@ function App() {
         </div>
       </header>
 
-      <div className="main-layout">
-        <section className="keyboard-section">
-          <div className="grid">
-            {[...Array(9)].map((_, i) => {
-              const r = Math.floor(i / 3);
-              const c = i % 3;
-              const macro = macros.find(m => m.row === r && m.col === c);
-              return (
-                <div 
-                  key={i} 
-                  className={`key ${selectedIdx === i ? 'selected' : ''}`}
-                  onClick={() => setSelectedIdx(i)}
-                >
-                  <span className="key-icon">{macro?.label ? macro.label[0] : (i + 1)}</span>
-                  <span className="key-label">{macro?.label || 'Not Configured'}</span>
+      {showHelp ? (
+        <div className="help-view">
+          <div className="help-card">
+            <div className="help-header">
+              <h2>Configurator Help & Reference</h2>
+              <button className="btn btn-primary" onClick={() => setShowHelp(false)}>Close Help</button>
+            </div>
+
+            <div className="help-grid">
+              <section className="help-section">
+                <h3>🚀 Quick Start</h3>
+                <ol>
+                  <li>Click <b>Connect</b> and select your <b>CIRCUITPY</b> drive.</li>
+                  <li>Select a key in the grid to edit.</li>
+                  <li>Add actions to the sequence.</li>
+                  <li>Click <b>Save Config</b> to update the keyboard.</li>
+                </ol>
+              </section>
+
+              <section className="help-section">
+                <h3>⌨️ Special Keys Reference</h3>
+                <p>Use these exact names in the "Keys" field (comma separated):</p>
+                <div className="key-ref-grid">
+                  <code>CONTROL</code> <code>ALT</code> <code>SHIFT</code>
+                  <code>GUI</code> (Win) <code>ENTER</code> <code>SPACE</code>
+                  <code>TAB</code> <code>ESCAPE</code> <code>DELETE</code>
+                  <code>BACKSPACE</code> <code>UP_ARROW</code> <code>DOWN_ARROW</code>
                 </div>
-              );
-            })}
+              </section>
+
+              <section className="help-section">
+                <h3>💡 Common Shortcuts</h3>
+                <ul className="help-list">
+                  <li><b>Copy:</b> <code>CONTROL, C</code></li>
+                  <li><b>Paste:</b> <code>CONTROL, V</code></li>
+                  <li><b>Task Manager:</b> <code>CONTROL, SHIFT, ESCAPE</code></li>
+                  <li><b>Lock PC:</b> <code>GUI, L</code></li>
+                </ul>
+              </section>
+
+              <section className="help-section">
+                <h3>🖥️ Opening Applications</h3>
+                <p>You can chain multiple actions to launch apps:</p>
+                <div className="example-box">
+                  <strong>Example: Open VS Code</strong>
+                  <ol>
+                    <li>Action 1 (Keypress): <code>GUI</code></li>
+                    <li>Action 2 (Text): <code>code</code></li>
+                    <li>Action 3 (Keypress): <code>ENTER</code></li>
+                  </ol>
+                </div>
+                <div className="example-box">
+                  <strong>Example: Open Notepad</strong>
+                  <ol>
+                    <li>Action 1 (Keypress): <code>GUI</code></li>
+                    <li>Action 2 (Text): <code>notepad</code></li>
+                    <li>Action 3 (Keypress): <code>ENTER</code></li>
+                  </ol>
+                </div>
+              </section>
+            </div>
           </div>
-          <p style={{color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: '500'}}>
-            Click a key to edit its macro sequence
-          </p>
-        </section>
-
-        <aside className="editor-panel">
-          <h2 style={{fontSize: '1.2rem'}}>Edit Key {selectedIdx + 1}</h2>
-          
-          <div className="input-group">
-            <label>Macro Label</label>
-            <input 
-              type="text" 
-              value={selectedMacro.label || ""} 
-              onChange={(e) => handleLabelChange(e.target.value)}
-              placeholder="e.g. Photoshop Copy"
-            />
-          </div>
-
-          <div className="action-list">
-            <label>Actions Sequence</label>
-            {selectedMacro.actions?.map((action, ai) => (
-              <div key={ai} className="action-item">
-                <select 
-                  value={action.type} 
-                  onChange={(e) => handleActionChange(ai, 'type', e.target.value)}
-                >
-                  <option value="keypress">Hotkeys / Combinations</option>
-                  <option value="text">Type Text String</option>
-                  <option value="consumer">Media & System Keys</option>
-                </select>
-
-                {action.type === 'keypress' && (
-                  <div className="input-group">
-                    <label style={{fontSize: '0.75rem'}}>Keys (comma separated)</label>
-                    <input 
-                      type="text" 
-                      value={action.keys?.join(', ') || ""} 
-                      onChange={(e) => handleActionChange(ai, 'keys', e.target.value)}
-                      placeholder="CONTROL, C"
-                    />
+        </div>
+      ) : (
+        <div className="main-layout">
+          <section className="keyboard-section">
+            <div className="grid">
+              {[...Array(9)].map((_, i) => {
+                const r = Math.floor(i / 3);
+                const c = i % 3;
+                const macro = macros.find(m => m.row === r && m.col === c);
+                return (
+                  <div
+                    key={i}
+                    className={`key ${selectedIdx === i ? 'selected' : ''}`}
+                    onClick={() => setSelectedIdx(i)}
+                  >
+                    <span className="key-icon">{macro?.label ? macro.label[0] : (i + 1)}</span>
+                    <span className="key-label">{macro?.label || 'Not Configured'}</span>
                   </div>
-                )}
+                );
+              })}
+            </div>
+            <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: '500' }}>
+              Click a key to edit its macro sequence
+            </p>
+          </section>
 
-                {action.type === 'text' && (
-                  <div className="input-group">
-                    <label style={{fontSize: '0.75rem'}}>Text to Type</label>
-                    <input 
-                      type="text" 
-                      value={action.text || ""} 
-                      onChange={(e) => handleActionChange(ai, 'text', e.target.value)}
-                      placeholder="Enter your text here..."
-                    />
-                  </div>
-                )}
+          <aside className="editor-panel">
+            <h2 style={{ fontSize: '1.2rem' }}>Edit Key {selectedIdx + 1}</h2>
 
-                {action.type === 'consumer' && (
-                  <div className="input-group">
-                    <label style={{fontSize: '0.75rem'}}>Select Command</label>
-                    <select 
-                      value={action.key} 
-                      onChange={(e) => handleActionChange(ai, 'key', e.target.value)}
+            <div className="input-group">
+              <label>Macro Label</label>
+              <input
+                type="text"
+                value={selectedMacro.label || ""}
+                onChange={(e) => handleLabelChange(e.target.value)}
+                placeholder="e.g. Photoshop Copy"
+              />
+            </div>
+
+            <div className="action-list">
+              <label>Actions Sequence</label>
+              {selectedMacro.actions?.map((action, ai) => (
+                <div key={ai} className="action-item">
+                  <div className="action-header">
+                    <select
+                      value={action.type}
+                      onChange={(e) => handleActionChange(ai, 'type', e.target.value)}
                     >
-                      <option value="">Select an action...</option>
-                      <option value="VOLUME_INCREMENT">Volume Up</option>
-                      <option value="VOLUME_DECREMENT">Volume Down</option>
-                      <option value="MUTE">Mute Audio</option>
-                      <option value="PLAY_PAUSE">Play / Pause</option>
-                      <option value="SCAN_NEXT_TRACK">Next Track</option>
-                      <option value="SCAN_PREVIOUS_TRACK">Previous Track</option>
+                      <option value="keypress">Hotkeys / Combinations</option>
+                      <option value="text">Type Text String</option>
+                      <option value="consumer">Media & System Keys</option>
                     </select>
+                    <button className="remove-btn" onClick={() => removeAction(ai)} title="Remove Action">×</button>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {action.type === 'keypress' && (
+                    <div className="input-group">
+                      <label style={{ fontSize: '0.75rem' }}>Keys (comma separated)</label>
+                      <input
+                        type="text"
+                        value={action.keys?.join(', ') || ""}
+                        onChange={(e) => handleActionChange(ai, 'keys', e.target.value)}
+                        placeholder="CONTROL, C"
+                      />
+                    </div>
+                  )}
+
+                  {action.type === 'text' && (
+                    <div className="input-group">
+                      <label style={{ fontSize: '0.75rem' }}>Text to Type</label>
+                      <input
+                        type="text"
+                        value={action.text || ""}
+                        onChange={(e) => handleActionChange(ai, 'text', e.target.value)}
+                        placeholder="Enter your text here..."
+                      />
+                    </div>
+                  )}
+
+                  {action.type === 'consumer' && (
+                    <div className="input-group">
+                      <label style={{ fontSize: '0.75rem' }}>Select Command</label>
+                      <select
+                        value={action.key}
+                        onChange={(e) => handleActionChange(ai, 'key', e.target.value)}
+                      >
+                        <option value="">Select an action...</option>
+                        <option value="VOLUME_INCREMENT">Volume Up</option>
+                        <option value="VOLUME_DECREMENT">Volume Down</option>
+                        <option value="MUTE">Mute Audio</option>
+                        <option value="PLAY_PAUSE">Play / Pause</option>
+                        <option value="SCAN_NEXT_TRACK">Next Track</option>
+                        <option value="SCAN_PREVIOUS_TRACK">Previous Track</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <button className="btn btn-secondary" style={{ marginTop: 'auto' }} onClick={() => {
+              const newActions = [...(selectedMacro.actions || []), { type: 'keypress', keys: [] }];
+              updateMacroInList({ ...selectedMacro, actions: newActions });
+            }}>
+              ➕ Add Action
+            </button>
+          </aside>
+        </div>
+      )}
+      {modal.open && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{modal.title}</h3>
+            {modal.type === 'input' && (
+              <input 
+                type="text" 
+                value={modal.value} 
+                onChange={(e) => setModal({ ...modal, value: e.target.value })}
+                autoFocus
+                onKeyDown={(e) => e.key === 'Enter' && modal.onConfirm(modal.value)}
+              />
+            )}
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setModal({ ...modal, open: false })}>Cancel</button>
+              <button className="btn btn-primary" onClick={() => modal.onConfirm(modal.value)}>
+                {modal.type === 'confirm' ? 'Delete' : 'Confirm'}
+              </button>
+            </div>
           </div>
-          
-          <button className="btn btn-secondary" style={{marginTop: 'auto'}} onClick={() => {
-            const newActions = [...(selectedMacro.actions || []), { type: 'keypress', keys: [] }];
-            updateMacroInList({ ...selectedMacro, actions: newActions });
-          }}>
-            ➕ Add Action
-          </button>
-        </aside>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
