@@ -25,6 +25,19 @@ A professional, open-source 3x3 macro keyboard project featuring an RP2040-based
 |:---:|:---:|
 | ![Prototype 1](pcb/working%20prototype.jpeg) | ![Prototype 2](pcb/working%20prototype2.jpeg) |
 
+---
+
+## 🛒 Purchase Official Prebuilt Kit (Amazon.in)
+Don't want to source parts and solder it yourself? You can buy a fully assembled, tested, and ready-to-use **SS Macro Keyboard** on Amazon India.
+
+*   **Premium Build**: High-quality mechanical switches and custom PCB.
+*   **Plug & Play**: Comes pre-flashed with the latest firmware.
+*   **Official Support**: Buyers of the prebuilt kit receive priority technical support.
+
+[**👉 Buy on Amazon.in (Coming Soon)**](https://www.amazon.in/dp/YOUR_PRODUCT_ID)
+
+---
+
 ## 🚀 Features
 
 - **Web-Based Configurator**: Remap keys directly from your browser using the File System Access API. No software installation required!
@@ -69,3 +82,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙌 Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests to improve the firmware or the configurator.
+
+## 📞 Support
+
+- **For DIY Users**: Please open a [GitHub Issue](https://github.com/sathishrazor/mackro-keyz/issues) for community support.
+- **For Amazon Buyers**: Please contact us via the Amazon Messaging System for priority support and warranty claims.
+
+## ⚖️ Legal Disclaimer
+
+*   **Trademarks**: "RP2040" is a trademark of Raspberry Pi Ltd. "CircuitPython" is a trademark of Adafruit Industries.
+*   **Safety**: This is a DIY hardware project. While the prebuilt kit is tested, use it at your own risk. The authors are not responsible for any damage to your computer or hardware.
+*   **Software**: The configurator uses the [Web Serial / File System API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API) which is currently supported in Chromium-based browsers (Chrome, Edge, Opera).
