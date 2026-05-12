@@ -6,6 +6,25 @@ A professional, open-source 3x3 macro keyboard project featuring an RP2040-based
 ![CircuitPython](https://img.shields.io/badge/CircuitPython-9.x-orange.svg)
 ![React](https://img.shields.io/badge/React-18.x-61dafb.svg)
 
+![Configurator Interface](pcb/configurator.png)
+
+## 📸 Project Gallery
+
+### 🖥️ Web Configurator
+| Main Interface | Help & Reference |
+|:---:|:---:|
+| ![Configurator](pcb/configurator.png) | ![Help](pcb/configurator-help.png) |
+
+### 🔌 Hardware & PCB
+| PCB Front | PCB Back |
+|:---:|:---:|
+| ![Front](pcb/pcb%20front.png) | ![Back](pcb/pcb%20back.png) |
+
+### 🛠️ Working Prototype
+| Front View | Side View |
+|:---:|:---:|
+| ![Prototype 1](pcb/working%20prototype.jpeg) | ![Prototype 2](pcb/working%20prototype2.jpeg) |
+
 ## 🚀 Features
 
 - **Web-Based Configurator**: Remap keys directly from your browser using the File System Access API. No software installation required!
@@ -19,6 +38,7 @@ A professional, open-source 3x3 macro keyboard project featuring an RP2040-based
 - **Microcontroller**: Any RP2040-based board (e.g., Raspberry Pi Pico, Adafruit KB2040, Seeed Studio XIAO RP2040).
 - **Matrix**: 3x3 mechanical switch matrix (or any configuration, adjustable in `firmware/code.py`).
 - **Connection**: USB-C/Micro-USB cable.
+- **PCB**: Custom designed PCB (files in `pcb/` folder). [View Schematic](pcb/Schematic_MacroKeyboard_2026-05-12.png)
 
 ## 💾 Installation
 
