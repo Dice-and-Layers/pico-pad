@@ -37,7 +37,7 @@ If you want to host your own configurator:
 ## ⚙️ Usage Guide
 
 1. Connect your macro keyboard via USB.
-2. Open the [Macro Keyboard Configurator](https://your-deployment-url.com) in a modern browser (Chrome, Edge, or Opera).
+2. Open the [Macro Keyboard Configurator](https://sathishrazor.github.io/mackro-keyz/) in a modern browser (Chrome, Edge, or Opera).
 3. Click **Connect** and select the `CIRCUITPY` drive.
 4. Select a key in the grid, add your macro actions, and click **Save Config**.
 5. Your keyboard will immediately reflect the changes!
