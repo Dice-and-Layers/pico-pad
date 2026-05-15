@@ -56,13 +56,27 @@ def execute_macro(macro):
             layout.write(action.get("text", ""))
         elif atype == "consumer":
             ckey = action.get("key")
+            # Handle common aliases for better compatibility
+            aliases = {
+                "VOLUME_UP": "VOLUME_INCREMENT",
+                "VOLUME_DOWN": "VOLUME_DECREMENT",
+                "BRIGHTNESS_UP": "BRIGHTNESS_INCREMENT",
+                "BRIGHTNESS_DOWN": "BRIGHTNESS_DECREMENT"
+            }
+            if ckey in aliases and not hasattr(ConsumerControlCode, ckey):
+                ckey = aliases[ckey]
+            elif ckey == "VOLUME_INCREMENT" and not hasattr(ConsumerControlCode, ckey):
+                if hasattr(ConsumerControlCode, "VOLUME_UP"): ckey = "VOLUME_UP"
+            elif ckey == "VOLUME_DECREMENT" and not hasattr(ConsumerControlCode, ckey):
+                if hasattr(ConsumerControlCode, "VOLUME_DOWN"): ckey = "VOLUME_DOWN"
+
             if hasattr(ConsumerControlCode, ckey):
                 cc.send(getattr(ConsumerControlCode, ckey))
+            else:
+                print(f"Error: Consumer key '{ckey}' not found in ConsumerControlCode")
         time.sleep(0.01)
 
 import utils
-
-# ... (Previous code)
 
 def run_macros(display, get_keys):
     load_config()

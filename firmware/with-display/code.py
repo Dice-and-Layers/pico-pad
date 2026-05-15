@@ -17,16 +17,8 @@ from digitalio import DigitalInOut, Direction, Pull
 
 import utils
 import macros
-# Import rebranded games
-import starroids
-import retro_paddle
-import geo_stack
-import neon_snake
-import wall_buster
-import winged_jump
-import alien_siege
-import primal_dash
-import chess_clock
+# Import rebranded games from the games folder
+from games import starroids, retro_paddle, geo_stack, neon_snake, wall_buster, winged_jump, alien_siege, primal_dash, chess_clock
 
 # --- Hardware Configuration ---
 try:
