@@ -16,14 +16,19 @@ A professional, open-source 3x3 macro keyboard project featuring an RP2040-based
 | ![Configurator](pcb/configurator.png) | ![Help](pcb/configurator-help.png) |
 
 ### 🔌 Hardware & PCB
-| PCB Front | PCB Back |
-|:---:|:---:|
-| ![Front](pcb/pcb%20front.png) | ![Back](pcb/pcb%20back.png) |
+| PCB Front | PCB Back | Assembly View |
+|:---:|:---:|:---:|
+| ![Front](pcb/pcb%20front.png) | ![Back](pcb/pcb%20back.png) | ![Assembly](pcb/assembly_view_1.jpeg) |
 
 ### 🛠️ Working Prototype
-| Front View | Side View |
-|:---:|:---:|
-| ![Prototype 1](pcb/working%20prototype.jpeg) | ![Prototype 2](pcb/working%20prototype2.jpeg) |
+| Side View | Top View | Gameplay Demo |
+|:---:|:---:|:---:|
+| ![Prototype 1](pcb/working%20prototype.jpeg) | ![Prototype 2](pcb/working%20prototype2.jpeg) | [🎥 Gameplay Demo](pcb/gameplay_demo.mp4) <br> [🎥 Early Prototype](pcb/prototype_v1_demo.mp4) |
+
+### 📸 Assembly Gallery
+| Final Build | Internal Wiring | Complete Unit |
+|:---:|:---:|:---:|
+| ![Assembly 1](pcb/assembly_view_1.jpeg) | ![Assembly 2](pcb/assembly_view_2.jpeg) | ![Assembly 3](pcb/assembly_view_3.jpeg) |
 
 ---
 
