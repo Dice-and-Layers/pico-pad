@@ -9,6 +9,11 @@ import asteroids
 import pong
 import tetris
 import macros
+import snake
+import breakout
+import flappy
+import invaders
+import dino
 
 # --- Hardware Setup ---
 try:
@@ -50,17 +55,19 @@ menu_items = [
     ("ASTEROIDS", asteroids.run_game),
     ("PONG", pong.run_game),
     ("TETRIS", tetris.run_game),
-    ("ABOUT", None)
+    ("SNAKE", snake.run_game),
+    ("BREAKOUT", breakout.run_game),
+    ("FLAPPY", flappy.run_game),
+    ("INVADERS", invaders.run_game),
+    ("DINO RUN", dino.run_game),
 ]
 selected = 0
 
 def draw_menu(selected_idx):
     display.fill(0)
-    # Bigger Title
     utils.draw_text(display, "GAME BOX", 20, 2, scale=2)
     display.hline(0, 18, 128, 1)
     
-    # Scrollable list
     visible_count = 4
     start_idx = max(0, min(selected_idx, len(menu_items) - visible_count))
     
@@ -73,23 +80,22 @@ def draw_menu(selected_idx):
         utils.draw_text(display, prefix + menu_items[idx][0], 10, y)
 
     # Scroll Bar
-    bar_h = 40
-    scroll_pos = (selected_idx / (len(menu_items) - 1)) * (bar_h - 10) if len(menu_items) > 1 else 0
-    display.rect(120, 22, 4, bar_h, 1)
-    display.fill_rect(121, 23 + int(scroll_pos), 2, 8, 1)
+    if len(menu_items) > visible_count:
+        bar_h = 40
+        scroll_pos = (selected_idx / (len(menu_items) - 1)) * (bar_h - 8)
+        display.rect(120, 22, 4, bar_h, 1)
+        display.fill_rect(121, 23 + int(scroll_pos), 2, 8, 1)
     
     display.show()
 
-# Main Entry
 if display is None:
     macros.run_macros(None, get_keys)
 else:
     while True:
         draw_menu(selected)
         
-        # Polling keys with minimal delay for snappiness
         start_poll = time.monotonic()
-        while time.monotonic() - start_poll < 0.1: # 100ms window
+        while time.monotonic() - start_poll < 0.1:
             keys = get_keys()
             if (0, 1) in keys: # Up
                 selected = (selected - 1) % len(menu_items)
@@ -100,13 +106,12 @@ else:
                 time.sleep(0.15)
                 break
             elif (1, 1) in keys: # Launch
-                if menu_items[selected][1]:
-                    display.fill(0)
-                    utils.draw_text(display, "LAUNCHING...", 20, 25, scale=2)
-                    display.show()
-                    time.sleep(0.5)
-                    menu_items[selected][1](display, get_keys)
-                    time.sleep(0.2)
+                display.fill(0)
+                utils.draw_text(display, "LAUNCHING...", 20, 25, scale=2)
+                display.show()
+                time.sleep(0.5)
+                menu_items[selected][1](display, get_keys)
+                time.sleep(0.2)
                 break
         
         time.sleep(0.01)
