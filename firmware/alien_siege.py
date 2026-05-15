@@ -1,27 +1,45 @@
+"""
+ALIEN SIEGE - Planetary Defense Game
+------------------------------------
+Defend your base from a wave of descending extraterrestrial threats. 
+Move and fire to eliminate all hostiles before they reach your position.
+
+DISCLAIMER: THIS CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED. USE AT YOUR OWN RISK.
+"""
+
 import time
 import random
 import utils
 
+# --- Constants ---
 WIDTH, HEIGHT = 128, 64
 
 def run_game(display, get_keys):
+    """Main game loop for Alien Siege."""
     player_x, aliens, bullets, score, state, last_fire, last_alien_move = WIDTH // 2, [], [], 0, "START", 0, 0
+    # Initialize the wave
     for r in range(3):
         for c in range(8): aliens.append([c * 12 + 10, r * 10 + 10, 1])
-    high_score = utils.get_high_score("invaders")
+    high_score = utils.get_high_score("alien_siege")
+    
     while True:
         keys = get_keys()
         if (0, 0) in keys and (0, 2) in keys: return
+        
         if state == "START":
-            display.fill(0); utils.draw_text(display, "INVADERS", 30, 15, scale=2)
+            display.fill(0); utils.draw_text(display, "ALIEN SIEGE", 25, 15, scale=2)
             utils.draw_text(display, f"HI:{high_score}", 50, 35); utils.draw_text(display, "CENTER TO START", 35, 50); display.show()
             if (1, 1) in keys:
                 state, score, player_x, bullets = "PLAYING", 0, WIDTH // 2, []
                 aliens = [[c * 12 + 10, r * 10 + 10, 1] for r in range(3) for c in range(8)]; time.sleep(0.3)
+                
         elif state == "PLAYING":
             if (1, 0) in keys: player_x = max(0, player_x - 3)
             if (1, 2) in keys: player_x = min(WIDTH - 8, player_x + 3)
             if (1, 1) in keys and time.monotonic() - last_fire > 0.4: bullets.append([player_x + 4, HEIGHT - 10]); last_fire = time.monotonic()
+            
+            # Move the alien wave
             if time.monotonic() - last_alien_move > 0.5:
                 shift_down = False
                 for a in aliens:
@@ -30,6 +48,8 @@ def run_game(display, get_keys):
                 if shift_down:
                     for a in aliens: a[2], a[1] = -a[2], a[1] + 4
                 last_alien_move = time.monotonic()
+            
+            # Projectile logic
             for b in bullets[:]:
                 b[1] -= 4
                 if b[1] < 0: bullets.remove(b)
@@ -37,12 +57,16 @@ def run_game(display, get_keys):
                     for a in aliens[:]:
                         if a[0] <= b[0] <= a[0] + 8 and a[1] <= b[1] <= a[1] + 8:
                             aliens.remove(a); bullets.remove(b); score += 10; break
+            
+            # Game win/loss logic
             if not aliens or any(a[1] > HEIGHT - 15 for a in aliens):
-                state = "GAMEOVER"; utils.save_high_score("invaders", score); high_score = utils.get_high_score("invaders")
+                state = "GAMEOVER"; utils.save_high_score("alien_siege", score); high_score = utils.get_high_score("alien_siege")
+            
             display.fill(0); utils.draw_icon(display, 'SHIP', player_x, HEIGHT - 10)
             for a in aliens: utils.draw_icon(display, 'ALIEN', a[0], a[1])
             for b in bullets: display.fill_rect(int(b[0]), int(b[1]), 1, 3, 1)
             utils.draw_text(display, f"SC:{score}", 0, 0); display.show()
+            
         elif state == "GAMEOVER":
             display.fill(0); utils.draw_text(display, "GAME OVER", 20, 10, scale=2)
             utils.draw_text(display, f"SCORE: {score}", 35, 30); utils.draw_text(display, f"HIGH: {high_score}", 35, 42)

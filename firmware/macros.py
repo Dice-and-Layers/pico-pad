@@ -1,3 +1,13 @@
+"""
+PICO BOY - Macro Keyboard Module
+--------------------------------
+Handles HID keyboard emulation and media controls using a 3x3 matrix.
+Reads configuration from macros.json.
+
+DISCLAIMER: THIS CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED. USE AT YOUR OWN RISK.
+"""
+
 import time
 import usb_hid
 import json

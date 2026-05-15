@@ -1,14 +1,28 @@
+"""
+GEO STACK - Block Alignment Game
+--------------------------------
+A puzzle game where the player must align falling shapes to clear horizontal 
+lines. Includes rotation and gravity mechanics.
+
+DISCLAIMER: THIS CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED. USE AT YOUR OWN RISK.
+"""
+
 import time
 import random
 import utils
 
+# --- Constants ---
 COLS, ROWS, BLOCK = 10, 20, 3
 BOARD_X, BOARD_Y = (128 - (COLS * BLOCK)) // 2, 2
 SHAPES = [[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[0,1,1],[1,1,0]],[[1,1,0],[0,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]]]
 
-class Tetris:
+class StackGame:
+    """Core logic for the block stacking game."""
     def __init__(self): self.reset()
-    def reset(self): self.grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]; self.new_piece(); self.score, self.game_over = 0, False
+    def reset(self): 
+        self.grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+        self.new_piece(); self.score, self.game_over = 0, False
     def new_piece(self):
         self.piece = random.choice(SHAPES); self.px, self.py = COLS // 2 - len(self.piece[0]) // 2, 0
         if self.check_collision(self.px, self.py, self.piece): self.game_over = True
@@ -47,15 +61,19 @@ class Tetris:
         utils.draw_text(d, f"SC:{self.score}", 0, 0)
 
 def run_game(display, get_keys):
-    game, last_fall, last_in, state = Tetris(), time.monotonic(), 0, "START"
-    high_score = utils.get_high_score("tetris")
+    """Main game loop for Geo Stack."""
+    game, last_fall, last_in, state = StackGame(), time.monotonic(), 0, "START"
+    high_score = utils.get_high_score("geo_stack")
+    
     while True:
         keys = get_keys()
         if (0, 0) in keys and (0, 2) in keys: return
+        
         if state == "START":
-            display.fill(0); utils.draw_text(display, "TETRIS", 35, 15, scale=2)
+            display.fill(0); utils.draw_text(display, "GEO STACK", 30, 15, scale=2)
             utils.draw_text(display, f"HI:{high_score}", 50, 35); utils.draw_text(display, "CENTER TO START", 35, 50); display.show()
             if (1, 1) in keys: game.reset(); state = "PLAYING"; time.sleep(0.3)
+            
         elif state == "PLAYING":
             now = time.monotonic()
             if (1, 1) in keys and now - last_in > 0.2: game.rotate_piece(); last_in = now
@@ -65,16 +83,17 @@ def run_game(display, get_keys):
             if (0, 1) in keys: state, last_in = "PAUSED", now; time.sleep(0.3)
             if now - last_fall > max(0.1, 0.6 - (game.score // 100) * 0.05): game.move(0, 1); last_fall = now
             if game.game_over:
-                state = "GAMEOVER"; utils.save_high_score("tetris", game.score); high_score = utils.get_high_score("tetris")
+                state = "GAMEOVER"; utils.save_high_score("geo_stack", game.score); high_score = utils.get_high_score("geo_stack")
             display.fill(0); game.draw(display); display.show()
+            
         elif state == "PAUSED":
             display.fill(0); utils.draw_text(display, "PAUSED", 40, 25, scale=2); display.show()
             if (1, 1) in keys: state = "PLAYING"; time.sleep(0.3)
             if (0, 1) in keys: state = "START"; time.sleep(0.3)
+            
         elif state == "GAMEOVER":
             display.fill(0); utils.draw_text(display, "GAME OVER", 20, 10, scale=2)
-            utils.draw_text(display, f"SCORE: {game.score}", 35, 30)
-            utils.draw_text(display, f"HIGH: {high_score}", 35, 42)
+            utils.draw_text(display, f"SCORE: {game.score}", 35, 30); utils.draw_text(display, f"HIGH: {high_score}", 35, 42)
             utils.draw_text(display, "CENTER TO RESTART", 30, 54); display.show()
             if (1, 1) in keys: state = "START"; time.sleep(0.3)
             if (0, 1) in keys: return
