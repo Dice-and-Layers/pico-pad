@@ -1,4 +1,4 @@
-# --- UI Helpers (Custom Bitmapped Font) ---
+# --- UI Helpers ---
 FONT = {
     '0': [0x1F, 0x11, 0x1F], '1': [0x00, 0x1F, 0x00], '2': [0x1D, 0x15, 0x17],
     '3': [0x15, 0x15, 0x1F], '4': [0x07, 0x04, 0x1F], '5': [0x17, 0x15, 0x1D],
@@ -15,15 +15,19 @@ FONT = {
     ' ': [0x00, 0x00, 0x00], '.': [0x10, 0x00, 0x00], '>': [0x04, 0x0A, 0x11]
 }
 
-def draw_char(d, char, x, y):
-    if char.upper() in FONT:
-        cols_data = FONT[char.upper()]
-        for c_idx, col in enumerate(cols_data):
-            for r_idx in range(5):
-                if (col >> r_idx) & 1:
-                    d.pixel(x + c_idx, y + r_idx, 1)
+# --- Game Sprites (8x8) ---
+ICONS = {
+    'SHIP': [0x18, 0x3C, 0x7E, 0xDB, 0xFF, 0x24, 0x5A, 0xA5],
+    'ASTEROID': [0x3C, 0x7E, 0xFF, 0xE7, 0xC3, 0xFF, 0x7E, 0x3C],
+    'SNAKE_HEAD': [0x3C, 0x42, 0x99, 0xA5, 0xA5, 0x99, 0x42, 0x3C],
+    'FOOD': [0x00, 0x18, 0x3C, 0x3C, 0x18, 0x00, 0x00, 0x00],
+    'BIRD': [0x00, 0x70, 0xD8, 0xF8, 0x78, 0x00, 0x00, 0x00],
+    'ALIEN': [0x18, 0x3C, 0x7E, 0xDB, 0xFF, 0x24, 0x5A, 0xA5],
+    'DINO': [0x07, 0x05, 0x07, 0x16, 0x1F, 0x0E, 0x0A, 0x0A],
+    'CACTUS': [0x04, 0x05, 0x15, 0x15, 0x1F, 0x04, 0x04, 0x04]
+}
 
-def draw_text(d, text, x, y, scale=1):
+def draw_text(d, text, x, y, scale=1, color=1):
     curr_x = x
     for char in text:
         if char.upper() in FONT:
@@ -32,7 +36,18 @@ def draw_text(d, text, x, y, scale=1):
                 for r_idx in range(5):
                     if (col >> r_idx) & 1:
                         if scale == 1:
-                            d.pixel(curr_x + c_idx, y + r_idx, 1)
+                            d.pixel(curr_x + c_idx, y + r_idx, color)
                         else:
-                            d.fill_rect(curr_x + c_idx*scale, y + r_idx*scale, scale, scale, 1)
+                            d.fill_rect(curr_x + c_idx*scale, y + r_idx*scale, scale, scale, color)
         curr_x += 4 * scale
+
+def draw_icon(d, name, x, y, color=1, scale=1):
+    if name in ICONS:
+        data = ICONS[name]
+        for r_idx, row in enumerate(data):
+            for c_idx in range(8):
+                if (row >> (7 - c_idx)) & 1:
+                    if scale == 1:
+                        d.pixel(int(x) + c_idx, int(y) + r_idx, color)
+                    else:
+                        d.fill_rect(int(x) + c_idx*scale, int(y) + r_idx*scale, scale, scale, color)

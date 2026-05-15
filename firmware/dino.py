@@ -4,10 +4,10 @@ import utils
 
 WIDTH = 128
 HEIGHT = 64
-GROUND_Y = 50
+GROUND_Y = 54
 
 def run_game(display, get_keys):
-    dino_y = GROUND_Y - 10
+    dino_y = GROUND_Y - 8
     dino_v = 0
     obstacles = [[128, GROUND_Y - 8]]
     score = 0
@@ -24,23 +24,22 @@ def run_game(display, get_keys):
             utils.draw_text(display, "CENTER TO JUMP", 35, 45)
             display.show()
             if (1, 1) in keys:
-                state = "PLAYING"; score = 0; dino_y = GROUND_Y - 10; dino_v = 0; obstacles = [[128, GROUND_Y - 8]]; time.sleep(0.3)
+                state = "PLAYING"; score = 0; dino_y = GROUND_Y - 8; dino_v = 0; obstacles = [[128, GROUND_Y - 8]]; time.sleep(0.3)
 
         elif state == "PLAYING":
-            if (1, 1) in keys and dino_y == GROUND_Y - 10:
+            if (1, 1) in keys and dino_y == GROUND_Y - 8:
                 dino_v = -6
             
             dino_y += dino_v
-            dino_v += 0.8 # Gravity
-            if dino_y > GROUND_Y - 10:
-                dino_y = GROUND_Y - 10
+            dino_v += 0.8
+            if dino_y > GROUND_Y - 8:
+                dino_y = GROUND_Y - 8
                 dino_v = 0
 
             for obs in obstacles:
                 obs[0] -= 4
-                # Collision
                 if obs[0] < 20 + 8 and obs[0] + 6 > 20:
-                    if dino_y + 10 > obs[1]:
+                    if dino_y + 8 > obs[1]:
                         state = "GAMEOVER"; time.sleep(0.5)
 
             if obstacles[-1][0] < 128 - random.randint(40, 80):
@@ -54,11 +53,11 @@ def run_game(display, get_keys):
 
             display.fill(0)
             display.hline(0, GROUND_Y, 128, 1)
-            # Draw Dino
-            display.fill_rect(20, int(dino_y), 8, 10, 1)
-            # Draw Obstacles
+            # Draw Dino Icon
+            utils.draw_icon(display, 'DINO', 20, int(dino_y))
+            # Draw Cactus Icons
             for obs in obstacles:
-                display.fill_rect(obs[0], obs[1], 6, 8, 1)
+                utils.draw_icon(display, 'CACTUS', obs[0], obs[1])
             utils.draw_text(display, f"SC:{score}", 0, 0)
             display.show()
 

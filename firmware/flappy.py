@@ -4,11 +4,11 @@ import utils
 
 WIDTH = 128
 HEIGHT = 64
-BIRD_SIZE = 4
-GRAVITY = 0.6
-JUMP = -4
-PIPE_W = 10
-GAP = 24
+BIRD_SIZE = 8
+GRAVITY = 0.5
+JUMP = -3.5
+PIPE_W = 12
+GAP = 28
 
 def run_game(display, get_keys):
     bird_y = HEIGHT // 2
@@ -35,11 +35,10 @@ def run_game(display, get_keys):
             bird_v += GRAVITY
             bird_y += bird_v
             
-            if bird_y < 0 or bird_y > HEIGHT: state = "GAMEOVER"; time.sleep(0.5)
+            if bird_y < 0 or bird_y > HEIGHT - BIRD_SIZE: state = "GAMEOVER"; time.sleep(0.5)
 
             for p in pipes:
                 p[0] -= 2
-                # Collision
                 if p[0] < 20 + BIRD_SIZE and p[0] + PIPE_W > 20:
                     if bird_y < p[1] or bird_y + BIRD_SIZE > p[1] + GAP:
                         state = "GAMEOVER"; time.sleep(0.5)
@@ -51,10 +50,14 @@ def run_game(display, get_keys):
                 pipes.pop(0)
 
             display.fill(0)
-            display.fill_rect(20, int(bird_y), BIRD_SIZE, BIRD_SIZE, 1)
+            # Draw Bird Icon
+            utils.draw_icon(display, 'BIRD', 20, int(bird_y))
+            # Draw Textured Pipes
             for p in pipes:
                 display.fill_rect(p[0], 0, PIPE_W, p[1], 1)
+                display.fill_rect(p[0]-1, p[1]-3, PIPE_W+2, 3, 1) # Pipe cap
                 display.fill_rect(p[0], p[1] + GAP, PIPE_W, HEIGHT - p[1] - GAP, 1)
+                display.fill_rect(p[0]-1, p[1] + GAP, PIPE_W+2, 3, 1) # Pipe cap
             utils.draw_text(display, f"SC:{score}", 0, 0)
             display.show()
 

@@ -4,12 +4,12 @@ import utils
 
 WIDTH = 128
 HEIGHT = 64
-BLOCK = 4
+BLOCK = 8 # Larger blocks for icons
 
 def run_game(display, get_keys):
-    snake = [(10, 8), (9, 8), (8, 8)]
+    snake = [(5, 4), (4, 4), (3, 4)]
     dir = (1, 0)
-    food = (20, 8)
+    food = (10, 4)
     score = 0
     state = "START"
     last_move = time.monotonic()
@@ -24,7 +24,7 @@ def run_game(display, get_keys):
             utils.draw_text(display, "CENTER TO START", 35, 45)
             display.show()
             if (1, 1) in keys:
-                state = "PLAYING"; snake = [(10, 8), (9, 8), (8, 8)]; dir = (1, 0); score = 0; time.sleep(0.3)
+                state = "PLAYING"; snake = [(5, 4), (4, 4), (3, 4)]; dir = (1, 0); score = 0; time.sleep(0.3)
 
         elif state == "PLAYING":
             if (0, 1) in keys and dir != (0, 1): dir = (0, -1)
@@ -32,7 +32,7 @@ def run_game(display, get_keys):
             if (1, 0) in keys and dir != (1, 0): dir = (-1, 0)
             if (1, 2) in keys and dir != (-1, 0): dir = (1, 0)
 
-            speed = max(0.05, 0.15 - (score // 5) * 0.01)
+            speed = max(0.05, 0.2 - (score // 5) * 0.02)
             if time.monotonic() - last_move > speed:
                 head = (snake[0][0] + dir[0], snake[0][1] + dir[1])
                 if head[0] < 0 or head[0] >= WIDTH//BLOCK or head[1] < 0 or head[1] >= HEIGHT//BLOCK or head in snake:
@@ -47,8 +47,14 @@ def run_game(display, get_keys):
                 last_move = time.monotonic()
 
             display.fill(0)
-            for b in snake: display.fill_rect(b[0]*BLOCK, b[1]*BLOCK, BLOCK-1, BLOCK-1, 1)
-            display.fill_rect(food[0]*BLOCK, food[1]*BLOCK, BLOCK-1, BLOCK-1, 1)
+            # Draw Snake
+            for i, b in enumerate(snake):
+                if i == 0:
+                    utils.draw_icon(display, 'SNAKE_HEAD', b[0]*BLOCK, b[1]*BLOCK)
+                else:
+                    display.fill_rect(b[0]*BLOCK + 1, b[1]*BLOCK + 1, BLOCK-2, BLOCK-2, 1)
+            # Draw Food
+            utils.draw_icon(display, 'FOOD', food[0]*BLOCK, food[1]*BLOCK)
             utils.draw_text(display, f"SC:{score}", 0, 0)
             display.show()
 

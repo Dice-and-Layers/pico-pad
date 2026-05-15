@@ -9,8 +9,7 @@ def run_game(display, get_keys):
     player_x = WIDTH // 2
     aliens = []
     for r in range(3):
-        for c in range(8):
-            aliens.append([c * 12 + 10, r * 10 + 10, 1]) # x, y, dir
+        for c in range(8): aliens.append([c * 12 + 10, r * 10 + 10, 1])
     bullets = []
     score = 0
     state = "START"
@@ -39,7 +38,6 @@ def run_game(display, get_keys):
                 bullets.append([player_x + 4, HEIGHT - 10])
                 last_fire = time.monotonic()
 
-            # Move aliens
             if time.monotonic() - last_alien_move > 0.5:
                 shift_down = False
                 for a in aliens:
@@ -47,8 +45,7 @@ def run_game(display, get_keys):
                     if a[0] < 5 or a[0] > WIDTH - 15: shift_down = True
                 if shift_down:
                     for a in aliens:
-                        a[2] = -a[2]
-                        a[1] += 4
+                        a[2] = -a[2]; a[1] += 4
                 last_alien_move = time.monotonic()
 
             for b in bullets[:]:
@@ -56,21 +53,19 @@ def run_game(display, get_keys):
                 if b[1] < 0: bullets.remove(b)
                 else:
                     for a in aliens[:]:
-                        if a[0] <= b[0] <= a[0] + 8 and a[1] <= b[1] <= a[1] + 6:
+                        if a[0] <= b[0] <= a[0] + 8 and a[1] <= b[1] <= a[1] + 8:
                             aliens.remove(a); bullets.remove(b); score += 10; break
 
-            if not aliens or any(a[1] > HEIGHT - 15 for a in aliens):
-                state = "GAMEOVER"
+            if not aliens or any(a[1] > HEIGHT - 15 for a in aliens): state = "GAMEOVER"
 
             display.fill(0)
-            # Draw Player
-            display.fill_rect(player_x, HEIGHT - 8, 8, 4, 1)
-            # Draw Aliens
+            # Draw Player Icon (Modified from SHIP)
+            utils.draw_icon(display, 'SHIP', player_x, HEIGHT - 10)
+            # Draw Alien Icons
             for a in aliens:
-                display.rect(a[0], a[1], 8, 6, 1)
-                display.pixel(a[0]+2, a[1]+2, 1); display.pixel(a[0]+5, a[1]+2, 1)
+                utils.draw_icon(display, 'ALIEN', a[0], a[1])
             # Draw Bullets
-            for b in bullets: display.fill_rect(b[0], b[1], 2, 4, 1)
+            for b in bullets: display.fill_rect(int(b[0]), int(b[1]), 1, 3, 1)
             utils.draw_text(display, f"SC:{score}", 0, 0)
             display.show()
 
