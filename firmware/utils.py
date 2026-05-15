@@ -1,3 +1,37 @@
+"""
+PICO BOY - Utility Module
+-------------------------
+Shared functions for font rendering, icon drawing, and high score management.
+
+DISCLAIMER: THIS CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED. USE AT YOUR OWN RISK.
+"""
+
+import json
+
+def get_high_score(game_name):
+    try:
+        with open("scores.json", "r") as f:
+            scores = json.load(f)
+            return scores.get(game_name, 0)
+    except:
+        return 0
+
+def save_high_score(game_name, score):
+    scores = {}
+    try:
+        with open("scores.json", "r") as f:
+            scores = json.load(f)
+    except:
+        pass
+    if score > scores.get(game_name, 0):
+        scores[game_name] = score
+        try:
+            with open("scores.json", "w") as f:
+                json.dump(scores, f)
+        except:
+            pass
+
 # --- UI Helpers ---
 FONT = {
     '0': [0x1F, 0x11, 0x1F], '1': [0x00, 0x1F, 0x00], '2': [0x1D, 0x15, 0x17],

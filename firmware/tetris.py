@@ -34,9 +34,7 @@ class Tetris:
         if not self.check_collision(self.px+dx, self.py+dy, self.piece): self.px, self.py = self.px+dx, self.py+dy; return True
         elif dy > 0: self.lock_piece(); return False
     def draw_block(self, d, x, y):
-        # Textured Block
-        d.fill_rect(BOARD_X + x*BLOCK, BOARD_Y + y*BLOCK, BLOCK, BLOCK, 1)
-        d.pixel(BOARD_X + x*BLOCK + 1, BOARD_Y + y*BLOCK + 1, 0)
+        d.fill_rect(BOARD_X + x*BLOCK, BOARD_Y + y*BLOCK, BLOCK, BLOCK, 1); d.pixel(BOARD_X + x*BLOCK + 1, BOARD_Y + y*BLOCK + 1, 0)
     def draw(self, d):
         d.rect(BOARD_X-1, BOARD_Y-1, COLS*BLOCK+2, ROWS*BLOCK+2, 1)
         for y in range(ROWS):
@@ -50,11 +48,13 @@ class Tetris:
 
 def run_game(display, get_keys):
     game, last_fall, last_in, state = Tetris(), time.monotonic(), 0, "START"
+    high_score = utils.get_high_score("tetris")
     while True:
         keys = get_keys()
         if (0, 0) in keys and (0, 2) in keys: return
         if state == "START":
-            display.fill(0); utils.draw_text(display, "TETRIS", 35, 15, scale=2); utils.draw_text(display, "CENTER TO START", 35, 45); display.show()
+            display.fill(0); utils.draw_text(display, "TETRIS", 35, 15, scale=2)
+            utils.draw_text(display, f"HI:{high_score}", 50, 35); utils.draw_text(display, "CENTER TO START", 35, 50); display.show()
             if (1, 1) in keys: game.reset(); state = "PLAYING"; time.sleep(0.3)
         elif state == "PLAYING":
             now = time.monotonic()
@@ -64,14 +64,18 @@ def run_game(display, get_keys):
             if (2, 1) in keys: game.move(0, 1)
             if (0, 1) in keys: state, last_in = "PAUSED", now; time.sleep(0.3)
             if now - last_fall > max(0.1, 0.6 - (game.score // 100) * 0.05): game.move(0, 1); last_fall = now
-            if game.game_over: state = "GAMEOVER"
+            if game.game_over:
+                state = "GAMEOVER"; utils.save_high_score("tetris", game.score); high_score = utils.get_high_score("tetris")
             display.fill(0); game.draw(display); display.show()
         elif state == "PAUSED":
             display.fill(0); utils.draw_text(display, "PAUSED", 40, 25, scale=2); display.show()
             if (1, 1) in keys: state = "PLAYING"; time.sleep(0.3)
             if (0, 1) in keys: state = "START"; time.sleep(0.3)
         elif state == "GAMEOVER":
-            display.fill(0); utils.draw_text(display, "GAME OVER", 30, 25, scale=2); display.show()
+            display.fill(0); utils.draw_text(display, "GAME OVER", 20, 10, scale=2)
+            utils.draw_text(display, f"SCORE: {game.score}", 35, 30)
+            utils.draw_text(display, f"HIGH: {high_score}", 35, 42)
+            utils.draw_text(display, "CENTER TO RESTART", 30, 54); display.show()
             if (1, 1) in keys: state = "START"; time.sleep(0.3)
             if (0, 1) in keys: return
         time.sleep(0.01)
