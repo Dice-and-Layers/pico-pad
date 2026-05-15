@@ -1,25 +1,22 @@
-# RP2040 Macro Keyboard Firmware
-# A simple 3x3 macro matrix with CircuitPython
-# Supports hotkeys, text strings, and media controls
-
 import board
+import busio
 import time
-import usb_hid
-import json
-import storage
+import adafruit_ssd1306
 from digitalio import DigitalInOut, Direction, Pull
-from adafruit_hid.keyboard import Keyboard
-from adafruit_hid.keycode import Keycode
-from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
-from adafruit_hid.consumer_control import ConsumerControl
-from adafruit_hid.consumer_control_code import ConsumerControlCode
 
-# --- HID Setup ---
-kbd = Keyboard(usb_hid.devices)
-layout = KeyboardLayoutUS(kbd)
-cc = ConsumerControl(usb_hid.devices)
+import utils
+import asteroids
+import pong
+import tetris
+import macros
 
-# Pins for 3x3 Matrix
+# --- Hardware Setup ---
+try:
+    i2c = busio.I2C(board.GP17, board.GP16)
+    display = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
+except Exception as e:
+    display = None
+
 COL_PINS = [board.GP5, board.GP6, board.GP7]
 ROW_PINS = [board.GP2, board.GP3, board.GP4]
 
@@ -37,76 +34,79 @@ for pin in ROW_PINS:
     r.pull = Pull.DOWN
     rows.append(r)
 
-# Load configuration
-config = {}
-def load_config():
-    global config
-    try:
-        with open("macros.json", "r") as f:
-            config = json.load(f)
-    except Exception as e:
-        print("Error loading macros.json:", e)
-        # Fallback empty config
-        config = {"macros": []}
-
-load_config()
-
-def get_macro(r, c):
-    for m in config.get("macros", []):
-        if m.get("row") == r and m.get("col") == c:
-            return m
-    return None
-
-def execute_macro(macro):
-    if not macro: return
-    print(f"Executing: {macro.get('label', 'Unnamed')}")
-    
-    for action in macro.get("actions", []):
-        atype = action.get("type")
-        
-        if atype == "keypress":
-            keys = []
-            for k in action.get("keys", []):
-                if hasattr(Keycode, k):
-                    keys.append(getattr(Keycode, k))
-            if keys:
-                kbd.press(*keys)
-                kbd.release_all()
-        
-        elif atype == "text":
-            layout.write(action.get("text", ""))
-            
-        elif atype == "consumer":
-            ckey = action.get("key")
-            if hasattr(ConsumerControlCode, ckey):
-                cc.send(getattr(ConsumerControlCode, ckey))
-        
-        time.sleep(0.01)
-
-# State tracking for debouncing
-last_state = [[False for _ in range(len(cols))] for _ in range(len(rows))]
-debounce_time = config.get("settings", {}).get("debounce", 0.05)
-
-print("Macro Keyboard Ready")
-
-while True:
+def get_keys():
+    pressed = []
     for c_idx, col in enumerate(cols):
         col.value = True
-        
         for r_idx, row in enumerate(rows):
-            current_val = row.value
-            
-            if current_val and not last_state[r_idx][c_idx]:
-                # Key Pressed
-                macro = get_macro(r_idx, c_idx)
-                if macro:
-                    execute_macro(macro)
-                time.sleep(debounce_time) # Simple debounce
-                
-            last_state[r_idx][c_idx] = current_val
-            
+            if row.value:
+                pressed.append((r_idx, c_idx))
         col.value = False
+    return pressed
+
+# --- Menu Logic ---
+menu_items = [
+    ("MACROS", macros.run_macros),
+    ("ASTEROIDS", asteroids.run_game),
+    ("PONG", pong.run_game),
+    ("TETRIS", tetris.run_game),
+    ("ABOUT", None)
+]
+selected = 0
+
+def draw_menu(selected_idx):
+    display.fill(0)
+    # Bigger Title
+    utils.draw_text(display, "GAME BOX", 20, 2, scale=2)
+    display.hline(0, 18, 128, 1)
     
-    # Check for file changes (simple way: check if file was modified)
-    # For now, let's just loop. Real-time reloading could be added later.
-    time.sleep(0.01)
+    # Scrollable list
+    visible_count = 4
+    start_idx = max(0, min(selected_idx, len(menu_items) - visible_count))
+    
+    for i in range(visible_count):
+        idx = start_idx + i
+        if idx >= len(menu_items): break
+        
+        y = 22 + i * 10
+        prefix = ">" if idx == selected_idx else " "
+        utils.draw_text(display, prefix + menu_items[idx][0], 10, y)
+
+    # Scroll Bar
+    bar_h = 40
+    scroll_pos = (selected_idx / (len(menu_items) - 1)) * (bar_h - 10) if len(menu_items) > 1 else 0
+    display.rect(120, 22, 4, bar_h, 1)
+    display.fill_rect(121, 23 + int(scroll_pos), 2, 8, 1)
+    
+    display.show()
+
+# Main Entry
+if display is None:
+    macros.run_macros(None, get_keys)
+else:
+    while True:
+        draw_menu(selected)
+        
+        # Polling keys with minimal delay for snappiness
+        start_poll = time.monotonic()
+        while time.monotonic() - start_poll < 0.1: # 100ms window
+            keys = get_keys()
+            if (0, 1) in keys: # Up
+                selected = (selected - 1) % len(menu_items)
+                time.sleep(0.15)
+                break
+            elif (2, 1) in keys: # Down
+                selected = (selected + 1) % len(menu_items)
+                time.sleep(0.15)
+                break
+            elif (1, 1) in keys: # Launch
+                if menu_items[selected][1]:
+                    display.fill(0)
+                    utils.draw_text(display, "LAUNCHING...", 20, 25, scale=2)
+                    display.show()
+                    time.sleep(0.5)
+                    menu_items[selected][1](display, get_keys)
+                    time.sleep(0.2)
+                break
+        
+        time.sleep(0.01)
