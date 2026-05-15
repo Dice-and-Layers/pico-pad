@@ -26,6 +26,7 @@ import wall_buster
 import winged_jump
 import alien_siege
 import primal_dash
+import chess_clock
 
 # --- Hardware Configuration ---
 try:
@@ -74,6 +75,7 @@ menu_items = [
     ("WINGED JUMP", winged_jump.run_game),
     ("ALIEN SIEGE", alien_siege.run_game),
     ("PRIMAL DASH", primal_dash.run_game),
+    ("CHESS CLOCK", chess_clock.run_game),
 ]
 selected = 0
 scroll_offset = 0
