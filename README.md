@@ -45,7 +45,9 @@ Don't want to source parts and solder it yourself? You can buy a fully assembled
 
 ## 🚀 Features
 
-- **Web-Based Configurator**: Remap keys directly from your browser using the File System Access API. No software installation required!
+- **Web-Based Configurator**: Remap keys directly from your browser using the File System Access API. Configures both 3x3 and 1x3 layouts!
+- **Dynamic Board Support**: Supports both the standard 3x3 matrix layout and the new 1x3 direct-pin layout out-of-the-box.
+- **Visual Feedback**: Supports a 1x3 layout with 3 key-matching status LEDs and an onboard NeoPixel that cycles colors dynamically on button press.
 - **Multi-Action Macros**: Each key can trigger a sequence of actions including hotkeys, text strings, and media controls.
 - **Profile Management**: Save and switch between different macro profiles.
 - **Dark Mode Support**: Sleek, modern UI with theme persistence.
@@ -53,10 +55,13 @@ Don't want to source parts and solder it yourself? You can buy a fully assembled
 
 ## 🛠️ Hardware Requirements
 
-- **Microcontroller**: Any RP2040-based board (e.g., Raspberry Pi Pico, Adafruit KB2040, Seeed Studio XIAO RP2040).
-- **Matrix**: 3x3 mechanical switch matrix (or any configuration, adjustable in `firmware/code.py`).
+- **Microcontroller**: Any RP2040-based board (e.g., Raspberry Pi Pico, Adafruit KB2040, WaveShare RP2040 Zero).
+- **Supported Board Layouts**:
+  - **3x3 Matrix Model**: 3x3 mechanical switch matrix (with optional SSD1306 OLED display).
+  - **1x3 Direct Model**: 3 mechanical switches, 3 status LEDs, and an onboard NeoPixel RGB LED.
 - **Connection**: USB-C/Micro-USB cable.
 - **PCB**: Custom designed PCB (files in `pcb/` folder). [View Schematic](pcb/Schematic_MacroKeyboard_2026-05-12.png)
+
 
 ## 💾 Installation
 

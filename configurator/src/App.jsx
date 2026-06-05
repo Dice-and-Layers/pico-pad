@@ -13,15 +13,15 @@ function App() {
   const [profiles, setProfiles] = useState(() => {
     try {
       const saved = localStorage.getItem('macro_profiles');
-      return saved ? JSON.parse(saved) : { "Default": { macros: [], settings: { debounce: 0.05 } } };
+      return saved ? JSON.parse(saved) : { "Default": { macros: [], settings: { debounce: 0.05, board_model: '3x3' } } };
     } catch (e) {
       console.error("Failed to parse profiles", e);
-      return { "Default": { macros: [], settings: { debounce: 0.05 } } };
+      return { "Default": { macros: [], settings: { debounce: 0.05, board_model: '3x3' } } };
     }
   });
   const [activeProfile, setActiveProfile] = useState(() => localStorage.getItem('active_profile') || 'Default');
   const [macros, setMacros] = useState(profiles[activeProfile]?.macros || []);
-  const [settings, setSettings] = useState(profiles[activeProfile]?.settings || { debounce: 0.05 });
+  const [settings, setSettings] = useState(profiles[activeProfile]?.settings || { debounce: 0.05, board_model: '3x3' });
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [status, setStatus] = useState("Disconnected");
 
@@ -96,9 +96,9 @@ function App() {
 
   const switchProfile = (name) => {
     setActiveProfile(name);
-    const p = profiles[name] || { macros: [], settings: { debounce: 0.05 } };
+    const p = profiles[name] || { macros: [], settings: { debounce: 0.05, board_model: '3x3' } };
     setMacros(p.macros || []);
-    setSettings(p.settings || { debounce: 0.05 });
+    setSettings(p.settings || { debounce: 0.05, board_model: '3x3' });
   };
 
   const deleteProfile = (name) => {
@@ -134,7 +134,7 @@ function App() {
       const data = JSON.parse(content);
 
       setMacros(data.macros || []);
-      setSettings(data.settings || { debounce: 0.05 });
+      setSettings(data.settings || { debounce: 0.05, board_model: '3x3' });
       setStatus("Connected");
     } catch (err) {
       console.error(err);
@@ -157,9 +157,15 @@ function App() {
     }
   };
 
-  const selectedMacro = macros.find(m => m.row === Math.floor(selectedIdx / 3) && m.col === selectedIdx % 3) || {
-    row: Math.floor(selectedIdx / 3),
-    col: selectedIdx % 3,
+  const is1x3 = settings.board_model === '1x3';
+
+  const selectedMacro = macros.find(m => {
+    const r = is1x3 ? 0 : Math.floor(selectedIdx / 3);
+    const c = is1x3 ? selectedIdx : selectedIdx % 3;
+    return m.row === r && m.col === c;
+  }) || {
+    row: is1x3 ? 0 : Math.floor(selectedIdx / 3),
+    col: is1x3 ? selectedIdx : selectedIdx % 3,
     ...DEFAULT_MACRO
   };
 
@@ -292,9 +298,9 @@ function App() {
         <div className="main-layout">
           <section className="keyboard-section">
             <div className="grid">
-              {[...Array(9)].map((_, i) => {
-                const r = Math.floor(i / 3);
-                const c = i % 3;
+              {[...Array(is1x3 ? 3 : 9)].map((_, i) => {
+                const r = is1x3 ? 0 : Math.floor(i / 3);
+                const c = is1x3 ? i : i % 3;
                 const macro = macros.find(m => m.row === r && m.col === c);
                 return (
                   <div
@@ -314,6 +320,48 @@ function App() {
           </section>
 
           <aside className="editor-panel">
+            {/* Global Settings Section */}
+            <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1.25rem', marginBottom: '0.75rem' }}>
+              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.8rem', color: 'var(--accent-color)' }}>Keyboard Config</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="input-group">
+                  <label>Board Model</label>
+                  <select
+                    value={settings.board_model || '3x3'}
+                    onChange={(e) => {
+                      const modelVal = e.target.value;
+                      const newSettings = { ...settings, board_model: modelVal };
+                      setSettings(newSettings);
+                      updateCurrentProfile(null, newSettings);
+                      if (modelVal === '1x3' && selectedIdx >= 3) {
+                        setSelectedIdx(0);
+                      }
+                    }}
+                    style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem' }}
+                  >
+                    <option value="3x3">3x3 Model</option>
+                    <option value="1x3">1x3 Model</option>
+                  </select>
+                </div>
+                <div className="input-group">
+                  <label>Debounce (s)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    max="1.0"
+                    value={settings.debounce || 0.05}
+                    onChange={(e) => {
+                      const newSettings = { ...settings, debounce: parseFloat(e.target.value) || 0.05 };
+                      setSettings(newSettings);
+                      updateCurrentProfile(null, newSettings);
+                    }}
+                    style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+            </div>
+
             <h2 style={{ fontSize: '1.2rem' }}>Edit Key {selectedIdx + 1}</h2>
 
             <div className="input-group">

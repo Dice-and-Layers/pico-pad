@@ -69,3 +69,44 @@ P  +------------------+------------------+------------------+
 * **Menu Navigation**: Press Row 0, Col 1 `(0, 1)` for **Up**, Row 2, Col 1 `(2, 1)` for **Down**, and Row 1, Col 1 `(1, 1)` to **Select**.
 * **Exit Macro Mode**: Hold the top-left key `(0, 0)` and top-right key `(0, 2)` together to return to the launcher.
 
+---
+
+### ⌨️ 1x3 Direct Keyboard & LED Layout (RP2040 Zero)
+
+This model utilizes direct-to-pin connections for high responsiveness, three status LEDs, and an onboard NeoPixel for dynamic RGB color cycling.
+
+#### **Key Inputs (Inputs with Pull-Up / Active Low)**
+| Switch | Pico/Zero GP Pin | Pico Physical Pin | Physical Position | Macro Coordinate |
+| :--- | :--- | :--- | :--- | :--- |
+| **K1 (Key 1)** | `GP0` | **Pin 1** | **Left** | Row 0, Col 0 `(0, 0)` |
+| **K3 (Key 3)** | `GP2` | **Pin 3** | **Middle** | Row 0, Col 1 `(0, 1)` |
+| **K2 (Key 2)** | `GP1` | **Pin 2** | **Right** | Row 0, Col 2 `(0, 2)` |
+
+#### **Single LEDs (Outputs / Active High)**
+| Net Label | Pico/Zero GP Pin | Target LED | Physical Position | Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+| **L1** | `GP5` | **L1** (Key 1) | **Left** | Lights up when K1 (Left) is pressed |
+| **L3** | `GP3` | **L3** (Key 3) | **Middle** | Lights up when K3 (Middle) is pressed |
+| **L2** | `GP4` | **L2** (Key 2) | **Right** | Lights up when K2 (Right) is pressed |
+
+#### **🌈 Onboard NeoPixel RGB LED**
+*   **Data Pin:** `GP16`
+*   **Behavior:** On keypress, flashes brightly and cycles colors through a vibrant spectrum, turning off when the key is released.
+
+---
+
+## ⚙️ How to Configure Board Model
+
+You can tell the firmware which board model (1x3 or 3x3) is currently connected using two methods:
+
+### Method A: settings.toml (Recommended for Hardware configuration)
+Create a `settings.toml` file in the root of your `CIRCUITPY` drive and specify the model name:
+```toml
+BOARD_MODEL = "1x3"
+# Or use "3x3" (Default)
+```
+
+### Method B: Via Web Configurator
+The web configurator saves your chosen board layout in the `macros.json` configuration file under `"settings": {"board_model": "1x3"}`. The firmware will automatically parse this if no `settings.toml` configuration is found.
+
+
