@@ -188,7 +188,31 @@ function App() {
     if (field === 'keys' && typeof value === 'string') {
       val = value.split(',').map(k => k.trim().toUpperCase());
     }
-    newActions[actionIdx] = { ...newActions[actionIdx], [field]: val };
+    
+    // Create the updated action
+    const updatedAction = { ...newActions[actionIdx], [field]: val };
+    
+    // If we changed the type, clean up old fields and set default values
+    if (field === 'type') {
+      const type = value;
+      // Remove other fields
+      delete updatedAction.keys;
+      delete updatedAction.text;
+      delete updatedAction.key;
+      delete updatedAction.duration;
+      
+      if (type === 'keypress') {
+        updatedAction.keys = [];
+      } else if (type === 'text') {
+        updatedAction.text = '';
+      } else if (type === 'consumer') {
+        updatedAction.key = '';
+      } else if (type === 'delay') {
+        updatedAction.duration = 0.1;
+      }
+    }
+    
+    newActions[actionIdx] = updatedAction;
     updateMacroInList({ ...selectedMacro, actions: newActions });
   };
 
@@ -386,6 +410,7 @@ function App() {
                       <option value="keypress">Hotkeys / Combinations</option>
                       <option value="text">Type Text String</option>
                       <option value="consumer">Media & System Keys</option>
+                      <option value="delay">Introduce Delay</option>
                     </select>
                     <button className="remove-btn" onClick={() => removeAction(ai)} title="Remove Action">×</button>
                   </div>
@@ -429,6 +454,21 @@ function App() {
                         <option value="SCAN_NEXT_TRACK">Next Track</option>
                         <option value="SCAN_PREVIOUS_TRACK">Previous Track</option>
                       </select>
+                    </div>
+                  )}
+
+                  {action.type === 'delay' && (
+                    <div className="input-group">
+                      <label style={{ fontSize: '0.75rem' }}>Delay Duration (seconds)</label>
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0.01"
+                        max="10.0"
+                        value={action.duration || 0.1}
+                        onChange={(e) => handleActionChange(ai, 'duration', parseFloat(e.target.value) || 0.1)}
+                        placeholder="e.g. 0.5"
+                      />
                     </div>
                   )}
                 </div>

@@ -1,4 +1,4 @@
-"""
+note"""
 PICO BOY - Macro Keyboard Module
 --------------------------------
 Handles HID keyboard emulation and media controls using a 3x3 matrix.
@@ -54,6 +54,9 @@ def execute_macro(macro):
                 kbd.release_all()
         elif atype == "text":
             layout.write(action.get("text", ""))
+        elif atype == "delay":
+            duration = action.get("duration", 0.1)
+            time.sleep(duration)
         elif atype == "consumer":
             ckey = action.get("key")
             # Handle common aliases for better compatibility
