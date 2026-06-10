@@ -80,10 +80,12 @@ If you want a ready-to-use kit instead of building from scratch, these are the e
 3. Run locally: `npm run dev`
 4. Build for production: `npm run build`
 
+> The production build output is generated into `docs/`, so GitHub Pages can serve the site from the repository's `docs` folder.
+
 ## ⚙️ Usage Guide
 
 1. Connect the keyboard via USB.
-2. Open the [Macro Keyboard Configurator](https://sathishrazor.github.io/mackro-keyz/) in a Chromium browser.
+2. Open the Macro Keyboard Configurator at `https://dice-and-layers.github.io/pico-pad/` in a Chromium browser.
 3. Click **Connect** and select the `CIRCUITPY` drive.
 4. Pick a key, add macro actions, and click **Save Config**.
 5. The keyboard will update immediately.
@@ -98,7 +100,7 @@ Contributions are welcome. Open issues or submit pull requests to improve the fi
 
 ## 📞 Support
 
-- **DIY Users**: Open a [GitHub Issue](https://github.com/sathishrazor/mackro-keyz/issues).
+- **DIY Users**: Open a [GitHub Issue](https://github.com/Dice-and-Layers/pico-pad/issues).
 - **Amazon Buyers**: Use Amazon Messaging for support and warranty help.
 
 ## ⚖️ Legal Disclaimer
