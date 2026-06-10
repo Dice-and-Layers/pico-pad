@@ -18,7 +18,7 @@ A professional, open-source 3x3 macro keyboard kit sold as **Dice and Layers** v
 ### 🔌 Hardware & PCB
 | Product Preview | Prototype | Assembly View |
 |:---:|:---:|:---:|
-| ![Product](pcb/final%20product-green.jpeg) | ![Prototype](pcb/early-prototype-version.jpeg) | ![Assembly](pcb/assembly_view_1.jpeg) |
+| ![Product](pcb/final%20product-green.jpeg) | ![Prototype](pcb/early-prototype-version.jpeg) | ![Assembly](pcb/3x3%20image%203.png) |
 
 ### 🛠️ Working Prototype
 | Product Demo | Config Steps | Feature Preview |
