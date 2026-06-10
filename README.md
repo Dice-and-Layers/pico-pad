@@ -1,6 +1,6 @@
-# ⌨️ RP2040 Macro Keyboard
+# ⌨️ Dice and Layers Macro Keyboard
 
-A professional, open-source 3x3 macro keyboard project featuring an RP2040-based firmware and a modern web-based configurator.
+A professional, open-source 3x3 macro keyboard kit sold as **Dice and Layers** via Amazon India and Shopify. This repository includes RP2040 firmware, a web-based configurator, and PCB design files.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![CircuitPython](https://img.shields.io/badge/CircuitPython-9.x-orange.svg)
@@ -16,14 +16,14 @@ A professional, open-source 3x3 macro keyboard project featuring an RP2040-based
 | ![Configurator](pcb/configurator.png) | ![Help](pcb/configurator-help.png) |
 
 ### 🔌 Hardware & PCB
-| PCB Front | PCB Back | Assembly View |
+| Product Preview | Prototype | Assembly View |
 |:---:|:---:|:---:|
-| ![Front](pcb/pcb%20front.png) | ![Back](pcb/pcb%20back.png) | ![Assembly](pcb/assembly_view_1.jpeg) |
+| ![Product](pcb/final%20product-green.jpeg) | ![Prototype](pcb/early-prototype-version.jpeg) | ![Assembly](pcb/assembly_view_1.jpeg) |
 
 ### 🛠️ Working Prototype
-| Side View | Top View | Gameplay Demo |
+| Product Demo | Config Steps | Feature Preview |
 |:---:|:---:|:---:|
-| ![Prototype 1](pcb/working%20prototype.jpeg) | ![Prototype 2](pcb/working%20prototype2.jpeg) | [🎥 Gameplay Demo](pcb/gameplay_demo.mp4) <br> [🎥 Early Prototype](pcb/prototype_v1_demo.mp4) |
+| [🎥 Gameplay Demo](pcb/gameplay_demo.mp4) | ![Config Steps](pcb/config%20steps.png) | ![Features](pcb/features.png) |
 
 ### 📸 Assembly Gallery
 | Final Build | Internal Wiring | Complete Unit |
@@ -32,74 +32,77 @@ A professional, open-source 3x3 macro keyboard project featuring an RP2040-based
 
 ---
 
-## 🛒 Purchase Official Prebuilt Kit (Amazon.in)
-Don't want to source parts and solder it yourself? You can buy a fully assembled, tested, and ready-to-use **SS Macro Keyboard** on Amazon India.
+## 🛒 Buy Dice and Layers Kits
+Official kits are available on Amazon India and Shopify.
 
-*   **Premium Build**: High-quality mechanical switches and custom PCB.
-*   **Plug & Play**: Comes pre-flashed with the latest firmware.
-*   **Official Support**: Buyers of the prebuilt kit receive priority technical support.
+- **Amazon India**: [https://amzn.in/d/03T7fW42](https://amzn.in/d/03T7fW42)
+- **Shopify store**: [https://aivian.in](https://aivian.in)
+- **Store name**: Dice and Layers
 
-[**👉 Buy on Amazon.in (Coming Soon)**](https://www.amazon.in/dp/YOUR_PRODUCT_ID)
+If you want a ready-to-use kit instead of building from scratch, these are the easiest purchase options.
+
+---
+
+## 🔗 Follow Dice and Layers
+- Instagram: [https://www.instagram.com/diceandlayer/](https://www.instagram.com/diceandlayer/)
+- YouTube: [https://www.youtube.com/@diceandlayers](https://www.youtube.com/@diceandlayers)
 
 ---
 
 ## 🚀 Features
 
-- **Web-Based Configurator**: Remap keys directly from your browser using the File System Access API. Configures both 3x3 and 1x3 layouts!
-- **Dynamic Board Support**: Supports both the standard 3x3 matrix layout and the new 1x3 direct-pin layout out-of-the-box.
-- **Visual Feedback**: Supports a 1x3 layout with 3 key-matching status LEDs and an onboard NeoPixel that cycles colors dynamically on button press.
-- **Multi-Action Macros**: Each key can trigger a sequence of actions including hotkeys, text strings, and media controls.
+- **Web-Based Configurator**: Remap keys directly from your browser using the File System Access API. Configures both 3x3 and 1x3 layouts.
+- **Dynamic Board Support**: Supports both the standard 3x3 matrix layout and the 1x3 direct-pin layout.
+- **Visual Feedback**: Supports a 1x3 layout with 3 status LEDs and an onboard NeoPixel RGB LED.
+- **Multi-Action Macros**: Each key can trigger sequences like hotkeys, text strings, and media controls.
 - **Profile Management**: Save and switch between different macro profiles.
-- **Dark Mode Support**: Sleek, modern UI with theme persistence.
-- **Simple Firmware**: Lightweight CircuitPython firmware that runs on any RP2040 board.
+- **Lightweight Firmware**: CircuitPython-based firmware for RP2040 boards.
 
 ## 🛠️ Hardware Requirements
 
-- **Microcontroller**: Any RP2040-based board (e.g., Raspberry Pi Pico, Adafruit KB2040, WaveShare RP2040 Zero).
-- **Supported Board Layouts**:
-  - **3x3 Matrix Model**: 3x3 mechanical switch matrix (with optional SSD1306 OLED display).
-  - **1x3 Direct Model**: 3 mechanical switches, 3 status LEDs, and an onboard NeoPixel RGB LED.
-- **Connection**: USB-C/Micro-USB cable.
-- **PCB**: Custom designed PCB (files in `pcb/` folder). [View Schematic](pcb/Schematic_MacroKeyboard_2026-05-12.png)
-
+- **Microcontroller**: Any RP2040 board (e.g., Raspberry Pi Pico, Adafruit KB2040).
+- **Supported Layouts**:
+  - **3x3 Matrix**: 3x3 mechanical switch matrix with optional SSD1306 OLED.
+  - **1x3 Direct**: 3 keyed switches, 3 status LEDs, and a NeoPixel.
+- **Connection**: USB cable.
+- **PCB**: Custom board files are in the `pcb/` folder. [View Schematic](pcb/Schematic_MacroKeyboard_2026-05-12.png)
 
 ## 💾 Installation
 
 ### 1. Firmware Setup
 1. Install **CircuitPython** on your RP2040 board.
-2. Copy the contents of the `firmware/` folder to your board's root directory (`CIRCUITPY` drive).
-3. Ensure you have the necessary libraries in the `lib/` folder (standard Adafruit HID libraries).
+2. Copy the contents of `firmware/` to the board's root `CIRCUITPY` drive.
+3. Make sure the `lib/` folder contains the required Adafruit HID libraries.
 
 ### 2. Configurator Setup
-If you want to host your own configurator:
-1. Navigate to the `configurator/` directory.
+1. Open `configurator/`.
 2. Install dependencies: `npm install`
 3. Run locally: `npm run dev`
 4. Build for production: `npm run build`
 
 ## ⚙️ Usage Guide
 
-1. Connect your macro keyboard via USB.
-2. Open the [Macro Keyboard Configurator](https://sathishrazor.github.io/mackro-keyz/) in a modern browser (Chrome, Edge, or Opera).
+1. Connect the keyboard via USB.
+2. Open the [Macro Keyboard Configurator](https://sathishrazor.github.io/mackro-keyz/) in a Chromium browser.
 3. Click **Connect** and select the `CIRCUITPY` drive.
-4. Select a key in the grid, add your macro actions, and click **Save Config**.
-5. Your keyboard will immediately reflect the changes!
+4. Pick a key, add macro actions, and click **Save Config**.
+5. The keyboard will update immediately.
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## 🙌 Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests to improve the firmware or the configurator.
+Contributions are welcome. Open issues or submit pull requests to improve the firmware or configurator.
 
 ## 📞 Support
 
-- **For DIY Users**: Please open a [GitHub Issue](https://github.com/sathishrazor/mackro-keyz/issues) for community support.
-- **For Amazon Buyers**: Please contact us via the Amazon Messaging System for priority support and warranty claims.
+- **DIY Users**: Open a [GitHub Issue](https://github.com/sathishrazor/mackro-keyz/issues).
+- **Amazon Buyers**: Use Amazon Messaging for support and warranty help.
 
 ## ⚖️ Legal Disclaimer
 
-*   **Trademarks**: "RP2040" is a trademark of Raspberry Pi Ltd. "CircuitPython" is a trademark of Adafruit Industries.
-*   **Safety**: This is a DIY hardware project. While the prebuilt kit is tested, use it at your own risk. The authors are not responsible for any damage to your computer or hardware.
-*   **Software**: The configurator uses the [Web Serial / File System API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API) which is currently supported in Chromium-based browsers (Chrome, Edge, Opera).
+* **Trademarks**: RP2040 is a Raspberry Pi trademark. CircuitPython is an Adafruit trademark.
+* **Safety**: This is DIY hardware. Use at your own risk.
+* **Software**: Configurator uses the [File System API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API), supported by Chromium-based browsers.
