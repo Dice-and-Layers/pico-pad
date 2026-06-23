@@ -65,11 +65,16 @@ function App() {
         if (!trimmedName) return;
         if (profiles[trimmedName]) return alert("Profile already exists!");
         
-        const newProfileData = { macros: [], settings: { debounce: 0.05 } };
-        setProfiles(prev => ({ ...prev, [trimmedName]: newProfileData }));
+        const currentModel = settings.board_model || '3x3';
+        const newProfileData = { macros: [], settings: { debounce: 0.05, board_model: currentModel } };
+        setProfiles(prev => ({ 
+          ...prev, 
+          [activeProfile]: { macros, settings },
+          [trimmedName]: newProfileData 
+        }));
         setActiveProfile(trimmedName);
         setMacros([]);
-        setSettings({ debounce: 0.05 });
+        setSettings({ debounce: 0.05, board_model: currentModel });
         setModal(m => ({ ...m, open: false }));
       }
     });
@@ -87,7 +92,11 @@ function App() {
         if (profiles[trimmedName]) return alert("Profile already exists!");
 
         const newProfileData = { macros: [...macros], settings: { ...settings } };
-        setProfiles(prev => ({ ...prev, [trimmedName]: newProfileData }));
+        setProfiles(prev => ({ 
+          ...prev, 
+          [activeProfile]: { macros, settings },
+          [trimmedName]: newProfileData 
+        }));
         setActiveProfile(trimmedName);
         setModal(m => ({ ...m, open: false }));
       }
@@ -95,6 +104,10 @@ function App() {
   };
 
   const switchProfile = (name) => {
+    setProfiles(prev => ({
+      ...prev,
+      [activeProfile]: { macros, settings }
+    }));
     setActiveProfile(name);
     const p = profiles[name] || { macros: [], settings: { debounce: 0.05, board_model: '3x3' } };
     setMacros(p.macros || []);
@@ -114,14 +127,15 @@ function App() {
         delete newProfiles[name];
         setProfiles(newProfiles);
         if (activeProfile === name) {
-          switchProfile("Default");
+          setActiveProfile("Default");
+          const p = newProfiles["Default"] || { macros: [], settings: { debounce: 0.05, board_model: '3x3' } };
+          setMacros(p.macros || []);
+          setSettings(p.settings || { debounce: 0.05, board_model: '3x3' });
         }
         setModal(m => ({ ...m, open: false }));
       }
     });
   };
-
-
 
   const connectKeyboard = async () => {
     try {
@@ -133,8 +147,21 @@ function App() {
       const content = await file.text();
       const data = JSON.parse(content);
 
-      setMacros(data.macros || []);
-      setSettings(data.settings || { debounce: 0.05, board_model: '3x3' });
+      const loadedSettings = data.settings || { debounce: 0.05, board_model: '3x3' };
+      setSettings(loadedSettings);
+
+      if (data.profiles) {
+        setProfiles(data.profiles);
+        const activeProf = data.active_profile || Object.keys(data.profiles)[0] || 'Default';
+        setActiveProfile(activeProf);
+        setMacros(data.profiles[activeProf]?.macros || []);
+      } else {
+        const loadedMacros = data.macros || [];
+        const initialProfiles = { "Default": { macros: loadedMacros, settings: loadedSettings } };
+        setProfiles(initialProfiles);
+        setActiveProfile("Default");
+        setMacros(loadedMacros);
+      }
       setStatus("Connected");
     } catch (err) {
       console.error(err);
@@ -147,9 +174,22 @@ function App() {
     try {
       const fileHandle = await dirHandle.getFileHandle("macros.json", { create: true });
       const writable = await fileHandle.createWritable();
-      const data = { settings, macros };
+      
+      const updatedProfiles = {
+        ...profiles,
+        [activeProfile]: { macros, settings }
+      };
+      
+      const data = {
+        settings,
+        active_profile: activeProfile,
+        profiles: updatedProfiles,
+        macros: macros
+      };
+      
       await writable.write(JSON.stringify(data, null, 2));
       await writable.close();
+      setProfiles(updatedProfiles);
       alert("Saved successfully!");
     } catch (err) {
       console.error(err);
@@ -158,6 +198,7 @@ function App() {
   };
 
   const is1x3 = settings.board_model === '1x3';
+  const is3x3Pro = settings.board_model === '3x3_pro';
 
   const selectedMacro = macros.find(m => {
     const r = is1x3 ? 0 : Math.floor(selectedIdx / 3);
@@ -180,6 +221,30 @@ function App() {
     }
     setMacros(newMacros);
     updateCurrentProfile(newMacros, null);
+  };
+
+  const handleProfileSwitchClick = () => {
+    const keys = Object.keys(profiles);
+    if (keys.length <= 1) return;
+    const currentIdx = keys.indexOf(activeProfile);
+    const nextIdx = (currentIdx + 1) % keys.length;
+    switchProfile(keys[nextIdx]);
+  };
+
+  const renderKey = (i) => {
+    const r = is1x3 ? 0 : Math.floor(i / 3);
+    const c = is1x3 ? i : i % 3;
+    const macro = macros.find(m => m.row === r && m.col === c);
+    return (
+      <div
+        key={i}
+        className={`key ${selectedIdx === i ? 'selected' : ''}`}
+        onClick={() => setSelectedIdx(i)}
+      >
+        <span className="key-icon">{macro?.label ? macro.label[0] : (i + 1)}</span>
+        <span className="key-label">{macro?.label || 'Not Configured'}</span>
+      </div>
+    );
   };
 
   const handleActionChange = (actionIdx, field, value) => {
@@ -321,25 +386,32 @@ function App() {
       ) : (
         <div className="main-layout">
           <section className="keyboard-section">
-            <div className="grid">
-              {[...Array(is1x3 ? 3 : 9)].map((_, i) => {
-                const r = is1x3 ? 0 : Math.floor(i / 3);
-                const c = is1x3 ? i : i % 3;
-                const macro = macros.find(m => m.row === r && m.col === c);
-                return (
-                  <div
-                    key={i}
-                    className={`key ${selectedIdx === i ? 'selected' : ''}`}
-                    onClick={() => setSelectedIdx(i)}
-                  >
-                    <span className="key-icon">{macro?.label ? macro.label[0] : (i + 1)}</span>
-                    <span className="key-label">{macro?.label || 'Not Configured'}</span>
+            <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is1x3 ? 'grid-1x3' : 'grid-3x3'}`}>
+              {is3x3Pro ? (
+                <>
+                  {/* Row 1 */}
+                  {[0, 1, 2].map(i => renderKey(i))}
+                  <div className="key profile-btn" onClick={handleProfileSwitchClick} title="Click to switch active profile preview">
+                    <span className="key-icon">🔄</span>
+                    <span className="key-label">Profile Switch</span>
                   </div>
-                );
-              })}
+                  
+                  {/* Row 2 */}
+                  {[3, 4, 5].map(i => renderKey(i))}
+                  <div className="key-placeholder"></div>
+                  
+                  {/* Row 3 */}
+                  {[6, 7, 8].map(i => renderKey(i))}
+                  <div className="key-placeholder"></div>
+                </>
+              ) : (
+                [...Array(is1x3 ? 3 : 9)].map((_, i) => renderKey(i))
+              )}
             </div>
             <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: '500' }}>
-              Click a key to edit its macro sequence
+              {is3x3Pro 
+                ? "Click macro keys 1-9 to edit. The 🔄 button switches profiles."
+                : "Click a key to edit its macro sequence"}
             </p>
           </section>
 
@@ -365,6 +437,7 @@ function App() {
                   >
                     <option value="3x3">3x3 Model</option>
                     <option value="1x3">1x3 Model</option>
+                    <option value="3x3_pro">3x3 Pro Model</option>
                   </select>
                 </div>
                 <div className="input-group">

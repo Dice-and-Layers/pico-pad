@@ -95,15 +95,55 @@ This model utilizes direct-to-pin connections for high responsiveness, three sta
 
 ---
 
+### ⌨️ 3x3 Pro Matrix Keyboard & LED Matrix Layout (RP2040 Zero)
+
+This premium model features a 3x3 key matrix plus a dedicated profile switcher button, a 3x3 LED matrix for backlight feedback and active profile indication, and support for the onboard NeoPixel.
+
+#### **Key Matrix Pins**
+* **Rows (Inputs with Pull-Down):** R1 -> `GP0`, R2 -> `GP1`, R3 -> `GP2`
+* **Columns (Outputs):** C1 -> `GP3`, C2 -> `GP4`, C3 -> `GP5`, C4 -> `GP6` (C4 connects only to the S4 profile switch button)
+
+#### **Key Action Map**
+```
+      Col 0 (GP3)        Col 1 (GP4)        Col 2 (GP5)        Col 3 (GP6)
+   +------------------+------------------+------------------+------------------+
+R  |      (0, 0)      |      (0, 1)      |      (0, 2)      |      (0, 3)      |
+o  |      Key 1       |      Key 2       |      Key 3       | [PROFILE SWITCH] |
+w  +------------------+------------------+------------------+------------------+
+0  |                  |                  |                  |                  |
+   |      (1, 0)      |      (1, 1)      |      (1, 2)      |                  |
+R  |      Key 4       |      Key 5       |      Key 6       |    (Unused)      |
+o  +------------------+------------------+------------------+------------------+
+w  |                  |                  |                  |                  |
+1  |      (2, 0)      |      (2, 1)      |      (2, 2)      |                  |
+   |      Key 7       |      Key 8       |      Key 9       |    (Unused)      |
+   +------------------+------------------+------------------+------------------+
+```
+
+#### **LED Matrix Pins**
+* **LED Columns (Cathodes - Active Low Outputs):** LC1 -> `GP7`, LC2 -> `GP8`, LC3 -> `GP9`
+* **LED Rows (Anodes - Active High Outputs):** LR1 -> `GP10`, LR2 -> `GP11`, LR3 -> `GP12`
+
+#### **🌈 Onboard NeoPixel RGB LED**
+* **Data Pin:** `GP16`
+* **Behavior:** Cycles color spectrum when macro keys are pressed.
+
+#### **Feedback & Profile Indicator**
+* **Key Press Feedback:** The corresponding LED in the 3x3 matrix turns on when that key is pressed.
+* **Active Profile Indication:** When idle (no keys pressed), the top row of the LED matrix indicates the active profile (LED 0 for Profile 1, LED 1 for Profile 2, LED 2 for Profile 3).
+* **Display version:** The OLED is connected on `GP15` (SCL) and `GP14` (SDA) and shows the active profile name dynamically.
+
+---
+
 ## ⚙️ How to Configure Board Model
 
-You can tell the firmware which board model (1x3 or 3x3) is currently connected using two methods:
+You can tell the firmware which board model (1x3, 3x3, or 3x3_pro) is currently connected using two methods:
 
 ### Method A: settings.toml (Recommended for Hardware configuration)
 Create a `settings.toml` file in the root of your `CIRCUITPY` drive and specify the model name:
 ```toml
-BOARD_MODEL = "1x3"
-# Or use "3x3" (Default)
+BOARD_MODEL = "3x3_pro"
+# Or use "1x3", or "3x3" (Default)
 ```
 
 ### Method B: Via Web Configurator

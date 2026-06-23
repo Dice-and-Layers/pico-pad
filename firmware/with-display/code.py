@@ -20,16 +20,20 @@ import macros
 # Import rebranded games from the games folder
 from games import starroids, retro_paddle, geo_stack, neon_snake, wall_buster, winged_jump, alien_siege, primal_dash, chess_clock
 
-# --- Hardware Configuration ---
-try:
-    # I2C setup for SSD1306 OLED (128x64)
-    i2c = busio.I2C(board.GP17, board.GP16)
-    display = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
-except Exception:
-    display = None
-
 # Load board model configuration
 model = utils.get_board_model()
+
+# --- Hardware Configuration ---
+display = None
+try:
+    # I2C setup for SSD1306 OLED (128x64)
+    if model == "3x3_pro":
+        i2c = busio.I2C(board.GP15, board.GP14)
+    else:
+        i2c = busio.I2C(board.GP17, board.GP16)
+    display = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
+except Exception as e:
+    print("Display init failed:", e)
 
 if model == "1x3":
     # 1x3 Direct Pin Setup - Swapped GP1 and GP2 to match physical PCB layout (GP2 in middle, GP1 on right)
@@ -70,6 +74,89 @@ if model == "1x3":
             else:
                 leds_io[idx].value = False
         # Update onboard NeoPixel status
+        utils.update_neopixel(len(pressed) > 0)
+        return pressed
+
+elif model == "3x3_pro":
+    # 3x3 Pro Matrix Keyboard (3 rows, 4 columns. Col 4 / C4 is the profile switch dedicated button S4)
+    COL_PINS = [board.GP3, board.GP4, board.GP5, board.GP6]
+    ROW_PINS = [board.GP0, board.GP1, board.GP2]
+    
+    cols = []
+    for pin in COL_PINS:
+        c = DigitalInOut(pin)
+        c.direction = Direction.OUTPUT
+        c.value = False
+        cols.append(c)
+    
+    rows = []
+    for pin in ROW_PINS:
+        r = DigitalInOut(pin)
+        r.direction = Direction.INPUT
+        r.pull = Pull.DOWN
+        rows.append(r)
+        
+    # LED Matrix Setup
+    # LED Columns (Cathodes, active low): GP7, GP8, GP9
+    # LED Rows (Anodes, active high): GP10, GP11, GP12
+    LED_COLS = [board.GP7, board.GP8, board.GP9]
+    LED_ROWS = [board.GP10, board.GP11, board.GP12]
+    
+    led_cols_io = []
+    for pin in LED_COLS:
+        c = DigitalInOut(pin)
+        c.direction = Direction.OUTPUT
+        c.value = True # Inactive High
+        led_cols_io.append(c)
+        
+    led_rows_io = []
+    for pin in LED_ROWS:
+        r = DigitalInOut(pin)
+        r.direction = Direction.OUTPUT
+        r.value = False # Inactive Low
+        led_rows_io.append(r)
+        
+    # Run a premium swipe startup animation on the LED matrix
+    for r in led_rows_io:
+        r.value = True
+        for c in led_cols_io:
+            c.value = False
+        time.sleep(0.06)
+        r.value = False
+        for c in led_cols_io:
+            c.value = True
+            
+    def get_keys():
+        """Scans the 3x4 matrix and returns list of pressed (row, col) tuples."""
+        pressed = []
+        for c_idx, col in enumerate(cols):
+            col.value = True
+            for r_idx, row in enumerate(rows):
+                if row.value:
+                    pressed.append((r_idx, c_idx))
+            col.value = False
+            
+        # Drive LED matrix based on pressed keys and active profile
+        for r in led_rows_io:
+            r.value = False
+        for c in led_cols_io:
+            c.value = True
+            
+        # If macro keys (excluding profile switcher at 0,3) are pressed, light them up
+        macro_pressed = [k for k in pressed if k[0] < 3 and k[1] < 3]
+        if macro_pressed:
+            for r_idx, c_idx in macro_pressed:
+                led_rows_io[r_idx].value = True
+                led_cols_io[c_idx].value = False
+        else:
+            # Indicate active profile when idle on top row
+            import macros
+            active_idx = getattr(macros, "active_profile_idx", 0)
+            led_rows_io[0].value = True
+            col_to_light = active_idx % 3
+            led_cols_io[col_to_light].value = False
+            
+        # Update onboard NeoPixel
         utils.update_neopixel(len(pressed) > 0)
         return pressed
 

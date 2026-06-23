@@ -170,6 +170,26 @@ h1 {
   width: 100%;
 }
 
+.grid.grid-3x3-pro {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 500px;
+}
+
+.key-placeholder {
+  aspect-ratio: 1/1;
+  visibility: hidden;
+}
+
+.key.profile-btn {
+  border-color: var(--accent-color);
+  background: rgba(0, 242, 255, 0.05);
+}
+
+.key.profile-btn:hover {
+  background: var(--accent-glow);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
 .key {
   aspect-ratio: 1/1;
   background: var(--input-bg);
