@@ -141,6 +141,64 @@ elif model == "3x3_pro":
         utils.update_neopixel(len(pressed) > 0)
         return pressed
 
+elif model == "6x2_encoder":
+    # 6x2 Matrix Keyboard + Rotary Encoder (3 rows, 6 columns)
+    COL_PINS = [board.GP6, board.GP7, board.GP8, board.GP9, board.GP10, board.GP11]
+    ROW_PINS = [board.GP12, board.GP13, board.GP14]
+    
+    cols = []
+    for pin in COL_PINS:
+        c = DigitalInOut(pin)
+        c.direction = Direction.OUTPUT
+        c.value = False
+        cols.append(c)
+    
+    rows = []
+    for pin in ROW_PINS:
+        r = DigitalInOut(pin)
+        r.direction = Direction.INPUT
+        r.pull = Pull.DOWN
+        rows.append(r)
+        
+    import rotaryio
+    encoder = rotaryio.IncrementalEncoder(board.GP2, board.GP3)
+    encoder_last_pos = encoder.position
+    encoder_pending_clicks = 0
+    
+    def get_keys():
+        global encoder_last_pos, encoder_pending_clicks
+        pressed = []
+        
+        # Scan key matrix
+        for c_idx, col in enumerate(cols):
+            col.value = True
+            for r_idx, row in enumerate(rows):
+                if row.value:
+                    pressed.append((r_idx, c_idx))
+            col.value = False
+            
+        # Scan rotary encoder rotation
+        try:
+            current_pos = encoder.position
+            if current_pos != encoder_last_pos:
+                diff = current_pos - encoder_last_pos
+                encoder_pending_clicks += diff
+                encoder_last_pos = current_pos
+        except Exception as e:
+            print("Error reading encoder:", e)
+            
+        # Process pending encoder rotation clicks as virtual key presses
+        if encoder_pending_clicks > 0:
+            pressed.append((2, 5))  # CW rotation virtual key
+            encoder_pending_clicks -= 1
+        elif encoder_pending_clicks < 0:
+            pressed.append((2, 4))  # CCW rotation virtual key
+            encoder_pending_clicks += 1
+            
+        # Update onboard NeoPixel status
+        utils.update_neopixel(len(pressed) > 0)
+        return pressed
+
 else:
     # Matrix Keyboard Setup (3x3)
     COL_PINS = [board.GP5, board.GP6, board.GP7]

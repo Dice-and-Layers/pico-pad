@@ -313,6 +313,129 @@ elif board_model == "3x3_pro":
 
         time.sleep(0.02)
 
+elif board_model == "6x2_encoder":
+    # 6x2 Matrix Keyboard + Rotary Encoder (3 rows, 6 columns)
+    COL_PINS = [board.GP6, board.GP7, board.GP8, board.GP9, board.GP10, board.GP11]
+    ROW_PINS = [board.GP12, board.GP13, board.GP14]
+    
+    cols = []
+    for pin in COL_PINS:
+        c = DigitalInOut(pin)
+        c.direction = Direction.OUTPUT
+        c.value = False
+        cols.append(c)
+    
+    rows = []
+    for pin in ROW_PINS:
+        r = DigitalInOut(pin)
+        r.direction = Direction.INPUT
+        r.pull = Pull.DOWN
+        rows.append(r)
+        
+    import rotaryio
+    encoder = rotaryio.IncrementalEncoder(board.GP2, board.GP3)
+    encoder_last_pos = encoder.position
+    
+    # NeoPixel setup (RP2040 Zero onboard NeoPixel)
+    neopixel_led = None
+    try:
+        import neopixel
+        neopixel_led = neopixel.NeoPixel(board.GP16, 1, brightness=0.3, auto_write=True)
+        print("NeoPixel library found and initialized on GP16.")
+    except ImportError:
+        try:
+            import neopixel_write
+            class FallbackNeoPixel:
+                def __init__(self, pin):
+                    self.pin = DigitalInOut(pin)
+                    self.pin.direction = Direction.OUTPUT
+                def set_color(self, r, g, b):
+                    r_val = int(r * 0.3)
+                    g_val = int(g * 0.3)
+                    b_val = int(b * 0.3)
+                    neopixel_write.neopixel_write(self.pin, bytearray([g_val, r_val, b_val]))
+            neopixel_led = FallbackNeoPixel(board.GP16)
+            print("NeoPixel fallback initialized using neopixel_write on GP16.")
+        except Exception as ne_err:
+            print("NeoPixel not initialized:", ne_err)
+
+    colors = [
+        (255, 0, 0),     # Red
+        (0, 255, 0),     # Green
+        (0, 0, 255),     # Blue
+        (255, 255, 0),   # Yellow
+        (0, 255, 255),   # Cyan
+        (255, 0, 255)    # Magenta
+    ]
+    color_idx = 0
+    was_pressed = False
+
+    print("6x2 Matrix + Encoder Key Test active.")
+    print("Press matrix keys, encoder switch (Row 0, Col 5), or rotate the encoder.")
+    last_pressed = None
+
+    while True:
+        current_pressed = None
+        for c_idx, col in enumerate(cols):
+            col.value = True
+            for r_idx, row in enumerate(rows):
+                if row.value:
+                    current_pressed = (r_idx, c_idx)
+                    break
+            col.value = False
+            if current_pressed:
+                break
+                
+        # Check encoder rotation
+        current_pos = encoder.position
+        if current_pos != encoder_last_pos:
+            diff = current_pos - encoder_last_pos
+            direction = "CW (Clockwise)" if diff > 0 else "CCW (Counter-Clockwise)"
+            print(f"Encoder Rotated: {direction} | Position: {current_pos}")
+            encoder_last_pos = current_pos
+            
+            # Flash NeoPixel on rotation
+            if neopixel_led:
+                c = colors[color_idx]
+                color_idx = (color_idx + 1) % len(colors)
+                if hasattr(neopixel_led, 'set_color'):
+                    neopixel_led.set_color(*c)
+                else:
+                    neopixel_led[0] = c
+                time.sleep(0.02)
+                if hasattr(neopixel_led, 'set_color'):
+                    neopixel_led.set_color(0, 0, 0)
+                else:
+                    neopixel_led[0] = (0, 0, 0)
+            
+        if current_pressed != last_pressed:
+            if current_pressed:
+                if current_pressed == (0, 5):
+                    print(f"Encoder Switch Pressed! (Row 0, Col 5)")
+                else:
+                    print(f"Key Pressed: Row {current_pressed[0]}, Col {current_pressed[1]}")
+                
+                # Cycle NeoPixel color
+                if neopixel_led:
+                    c = colors[color_idx]
+                    color_idx = (color_idx + 1) % len(colors)
+                    if hasattr(neopixel_led, 'set_color'):
+                        neopixel_led.set_color(*c)
+                    else:
+                        neopixel_led[0] = c
+                was_pressed = True
+            else:
+                if was_pressed:
+                    if neopixel_led:
+                        if hasattr(neopixel_led, 'set_color'):
+                            neopixel_led.set_color(0, 0, 0)
+                        else:
+                            neopixel_led[0] = (0, 0, 0)
+                was_pressed = False
+            last_pressed = current_pressed
+            
+        time.sleep(0.02)
+
 else:
     # 3x3 Key Matrix Pins
     COL_PINS = [board.GP5, board.GP6, board.GP7]

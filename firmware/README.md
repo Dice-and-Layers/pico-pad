@@ -135,18 +135,34 @@ w  |                  |                  |                  |                  |
 
 ---
 
+### ⌨️ 6x2 Matrix Keyboard & Rotary Encoder Layout (RP2040 Zero)
+
+This model supports a 6x2 physical key matrix (electrically wired as 3 rows and 6 columns, with up to 12 keys + 1 encoder click) and a rotary encoder for scrolling or volume adjustments.
+
+#### **Key Matrix & Encoder Pins**
+* **Columns (Outputs):** R1 -> `GP6`, R2 -> `GP7`, R3 -> `GP8`, R4 -> `GP9`, R5 -> `GP10`, R6 -> `GP11`
+* **Rows (Inputs with Pull-Down):** C1 -> `GP12`, C2 -> `GP13`, C3 -> `GP14`
+* **Rotary Encoder A/B:** ROT_A -> `GP2`, ROT_B -> `GP3`
+* **Encoder Switch (SW1):** Connected between `R6` (Column 6) and `CS` (via diode to `C1` / Row 1), mapping it to coordinate `(0, 5)`.
+
+#### **🌈 Onboard NeoPixel RGB LED**
+* **Data Pin:** `GP16`
+* **Behavior:** Cycles color spectrum when keys are pressed or when the encoder is rotated.
+
+---
+
 ## ⚙️ How to Configure Board Model
 
-You can tell the firmware which board model (1x3, 3x3, or 3x3_pro) is currently connected using two methods:
+You can tell the firmware which board model (1x3, 3x3, 3x3_pro, or 6x2_encoder) is currently connected using two methods:
 
 ### Method A: settings.toml (Recommended for Hardware configuration)
 Create a `settings.toml` file in the root of your `CIRCUITPY` drive and specify the model name:
 ```toml
-BOARD_MODEL = "3x3_pro"
-# Or use "1x3", or "3x3" (Default)
+BOARD_MODEL = "6x2_encoder"
+# Or use "1x3", "3x3_pro", or "3x3" (Default)
 ```
 
 ### Method B: Via Web Configurator
-The web configurator saves your chosen board layout in the `macros.json` configuration file under `"settings": {"board_model": "1x3"}`. The firmware will automatically parse this if no `settings.toml` configuration is found.
+The web configurator saves your chosen board layout in the `macros.json` configuration file under `"settings": {"board_model": "6x2_encoder"}`. The firmware will automatically parse this if no `settings.toml` configuration is found.
 
 

@@ -1,0 +1,54 @@
+{
+    "keyboard_name": "Dice and Layers 3x3 Pro",
+    "url": "https://dice-and-layers.github.io/pico-pad/",
+    "maintainer": "Dice and Layers",
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+    "board": "GENERIC_RP2040_XTAL_12MHZ",
+    "diode_direction": "ROW2COL",
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true,
+        "rgblight": true,
+        "oled": true
+    },
+    "matrix_pins": {
+        "cols": ["GP3", "GP4", "GP5", "GP6"],
+        "rows": ["GP0", "GP1", "GP2"]
+    },
+    "rgblight": {
+        "pin": "GP16",
+        "led_count": 1,
+        "animations": {
+            "breathing": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "snake": false,
+            "knight": false,
+            "christmas": false,
+            "static_gradient": true
+        }
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                {"label": "K00", "x": 0, "y": 0, "matrix": [0, 0]},
+                {"label": "K01", "x": 1, "y": 0, "matrix": [0, 1]},
+                {"label": "K02", "x": 2, "y": 0, "matrix": [0, 2]},
+                {"label": "S4",  "x": 3, "y": 0, "matrix": [0, 3]},
+                
+                {"label": "K10", "x": 0, "y": 1, "matrix": [1, 0]},
+                {"label": "K11", "x": 1, "y": 1, "matrix": [1, 1]},
+                {"label": "K12", "x": 2, "y": 1, "matrix": [1, 2]},
+                
+                {"label": "K20", "x": 0, "y": 2, "matrix": [2, 0]},
+                {"label": "K21", "x": 1, "y": 2, "matrix": [2, 1]},
+                {"label": "K22", "x": 2, "y": 2, "matrix": [2, 2]}
+            ]
+        }
+    }
+}
