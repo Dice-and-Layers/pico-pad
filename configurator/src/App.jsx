@@ -4,6 +4,7 @@ import img1x3 from './models-images/1x3.jpg';
 import img3x3 from './models-images/3x3.jpg';
 import img3x3Pro from './models-images/3x3_pro.jpg';
 import img6x2 from './models-images/6x2.jpg';
+import img5x3_2encoders from './models-images/5x3_2encoders.png';
 
 
 const DEFAULT_MACRO = {
@@ -205,12 +206,14 @@ function App() {
   const is1x3 = settings.board_model === '1x3';
   const is3x3Pro = settings.board_model === '3x3_pro';
   const is6x2 = settings.board_model === '6x2_encoder';
+  const is5x3_2encoders = settings.board_model === '5x3_2encoders';
 
   const getModelImage = (model) => {
     switch (model) {
       case '1x3': return img1x3;
       case '3x3_pro': return img3x3Pro;
       case '6x2_encoder': return img6x2;
+      case '5x3_2encoders': return img5x3_2encoders;
       case '3x3':
       default:
         return img3x3;
@@ -232,6 +235,22 @@ function App() {
       } else if (index === 13) {
         return { row: 2, col: 5 }; // CW
       }
+    } else if (model === '5x3_2encoders') {
+      if (index >= 0 && index <= 14) {
+        return { row: Math.floor(index / 5), col: index % 5 };
+      } else if (index === 15) {
+        return { row: 0, col: 5 }; // Encoder 1 Switch
+      } else if (index === 16) {
+        return { row: 1, col: 5 }; // Encoder 2 Switch
+      } else if (index === 17) {
+        return { row: 0, col: 6 }; // Encoder 1 CCW
+      } else if (index === 18) {
+        return { row: 0, col: 7 }; // Encoder 1 CW
+      } else if (index === 19) {
+        return { row: 1, col: 6 }; // Encoder 2 CCW
+      } else if (index === 20) {
+        return { row: 1, col: 7 }; // Encoder 2 CW
+      }
     }
     return {
       row: Math.floor(index / 3),
@@ -245,6 +264,15 @@ function App() {
       if (selectedIdx === 12) return 'Encoder Rotation CCW (↺)';
       if (selectedIdx === 13) return 'Encoder Rotation CW (↻)';
       if (selectedIdx > 5) return `Key ${selectedIdx}`;
+      return `Key ${selectedIdx + 1}`;
+    } else if (settings.board_model === '5x3_2encoders') {
+      if (selectedIdx === 15) return 'Encoder 1 Button (ENC1)';
+      if (selectedIdx === 16) return 'Encoder 2 Button (ENC2)';
+      if (selectedIdx === 17) return 'Encoder 1 Rotation CCW (↺)';
+      if (selectedIdx === 18) return 'Encoder 1 Rotation CW (↻)';
+      if (selectedIdx === 19) return 'Encoder 2 Rotation CCW (↺)';
+      if (selectedIdx === 20) return 'Encoder 2 Rotation CW (↻)';
+      if (selectedIdx > 14) return `Key ${selectedIdx}`;
       return `Key ${selectedIdx + 1}`;
     }
     return `Key ${selectedIdx + 1}`;
@@ -297,6 +325,26 @@ function App() {
         extraClass = 'encoder-cw';
       } else if (i > 5 && i < 12) {
         displayNum = i;
+      }
+    } else if (settings.board_model === '5x3_2encoders') {
+      if (i === 15) {
+        displayNum = 'ENC1';
+        extraClass = 'encoder-key';
+      } else if (i === 16) {
+        displayNum = 'ENC2';
+        extraClass = 'encoder-key';
+      } else if (i === 17) {
+        displayNum = 'E1 ↺';
+        extraClass = 'encoder-ccw';
+      } else if (i === 18) {
+        displayNum = 'E1 ↻';
+        extraClass = 'encoder-cw';
+      } else if (i === 19) {
+        displayNum = 'E2 ↺';
+        extraClass = 'encoder-ccw';
+      } else if (i === 20) {
+        displayNum = 'E2 ↻';
+        extraClass = 'encoder-cw';
       }
     }
     
@@ -451,7 +499,7 @@ function App() {
       ) : (
         <div className="main-layout">
           <section className="keyboard-section">
-            <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : 'grid-3x3'}`}>
+            <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : is5x3_2encoders ? 'grid-5x3_2encoders' : 'grid-3x3'}`}>
               {is3x3Pro ? (
                 <>
                   {/* Row 1 */}
@@ -485,6 +533,26 @@ function App() {
                   {renderKey(12)}
                   {renderKey(13)}
                 </>
+              ) : is5x3_2encoders ? (
+                <>
+                  {/* Row 1 */}
+                  {[0, 1, 2, 3, 4].map(i => renderKey(i))}
+                  {renderKey(15)}
+                  {renderKey(17)}
+                  {renderKey(18)}
+                  
+                  {/* Row 2 */}
+                  {[5, 6, 7, 8, 9].map(i => renderKey(i))}
+                  {renderKey(16)}
+                  {renderKey(19)}
+                  {renderKey(20)}
+                  
+                  {/* Row 3 */}
+                  {[10, 11, 12, 13, 14].map(i => renderKey(i))}
+                  <div className="key-placeholder"></div>
+                  <div className="key-placeholder"></div>
+                  <div className="key-placeholder"></div>
+                </>
               ) : (
                 [...Array(is1x3 ? 3 : 9)].map((_, i) => renderKey(i))
               )}
@@ -494,6 +562,8 @@ function App() {
                 ? "Click macro keys 1-9 to edit. The 🔄 button switches profiles."
                 : is6x2
                 ? "Click a key or dial action to edit. ENC is the encoder switch, and ↺/↻ are rotation actions."
+                : is5x3_2encoders
+                ? "Click a key or dial action to edit. ENC1/2 are encoder switches, and E1/E2 ↺/↻ are rotation actions."
                 : "Click a key to edit its macro sequence"}
             </p>
           </section>
@@ -516,6 +586,7 @@ function App() {
                       let maxIdx = 8;
                       if (modelVal === '1x3') maxIdx = 2;
                       else if (modelVal === '6x2_encoder') maxIdx = 13;
+                      else if (modelVal === '5x3_2encoders') maxIdx = 20;
                       
                       if (selectedIdx > maxIdx) {
                         setSelectedIdx(0);
@@ -527,6 +598,7 @@ function App() {
                     <option value="1x3">1x3 Model</option>
                     <option value="3x3_pro">3x3 Pro Model</option>
                     <option value="6x2_encoder">6x2 Encoder Model</option>
+                    <option value="5x3_2encoders">5x3 2-Encoder Model</option>
                   </select>
                 </div>
                 <div className="input-group">

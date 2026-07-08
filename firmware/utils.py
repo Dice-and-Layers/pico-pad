@@ -164,7 +164,7 @@ NEOPIXEL_COLORS = [
 def init_neopixel():
     global neopixel_led
     model = get_board_model()
-    if model in ("1x3", "3x3_pro", "6x2_encoder"):
+    if model in ("1x3", "3x3_pro", "6x2_encoder", "5x3_2encoders"):
         try:
             import board
             neopixel_led = BoardNeoPixel(board.GP16, 1, brightness=0.3)
@@ -179,7 +179,7 @@ def init_neopixel():
 def update_neopixel(keys_pressed):
     global neopixel_led, _was_pressed, neopixel_color_idx
     model = get_board_model()
-    if model not in ("1x3", "3x3_pro", "6x2_encoder"):
+    if model not in ("1x3", "3x3_pro", "6x2_encoder", "5x3_2encoders"):
         return
         
     if neopixel_led is None:

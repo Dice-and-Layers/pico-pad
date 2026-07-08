@@ -136,7 +136,7 @@ def run_macros(display, get_keys):
     print("Macro Mode Active")
     
     model = utils.get_board_model()
-    num_cols = 6 if model == "6x2_encoder" else 4 if model == "3x3_pro" else 3
+    num_cols = 8 if model == "5x3_2encoders" else 6 if model == "6x2_encoder" else 4 if model == "3x3_pro" else 3
     last_state = [[False for _ in range(num_cols)] for _ in range(3)]
     debounce_time = config.get("settings", {}).get("debounce", 0.05)
     last_profile_btn_state = False

@@ -29,6 +29,8 @@ try:
     # I2C setup for SSD1306 OLED (128x64)
     if model == "3x3_pro":
         i2c = busio.I2C(board.GP15, board.GP14)
+    elif model == "5x3_2encoders":
+        i2c = busio.I2C(board.GP1, board.GP0)
     else:
         i2c = busio.I2C(board.GP17, board.GP16)
     display = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
@@ -213,6 +215,87 @@ elif model == "6x2_encoder":
         elif encoder_pending_clicks < 0:
             pressed.append((2, 4))  # CCW rotation virtual key
             encoder_pending_clicks += 1
+            
+        # Update onboard NeoPixel status
+        utils.update_neopixel(len(pressed) > 0)
+        return pressed
+
+elif model == "5x3_2encoders":
+    # 5x3 Matrix Keyboard + Two Rotary Encoders (3 rows, 6 columns electrically)
+    COL_PINS = [board.GP6, board.GP7, board.GP8, board.GP9, board.GP10, board.GP11]
+    ROW_PINS = [board.GP12, board.GP13, board.GP14]
+    
+    cols = []
+    for pin in COL_PINS:
+        c = DigitalInOut(pin)
+        c.direction = Direction.OUTPUT
+        c.value = False
+        cols.append(c)
+    
+    rows = []
+    for pin in ROW_PINS:
+        r = DigitalInOut(pin)
+        r.direction = Direction.INPUT
+        r.pull = Pull.DOWN
+        rows.append(r)
+        
+    import rotaryio
+    encoder1 = rotaryio.IncrementalEncoder(board.GP2, board.GP3)
+    encoder1_last_pos = encoder1.position
+    encoder1_pending_clicks = 0
+
+    encoder2 = rotaryio.IncrementalEncoder(board.GP4, board.GP5)
+    encoder2_last_pos = encoder2.position
+    encoder2_pending_clicks = 0
+    
+    def get_keys():
+        global encoder1_last_pos, encoder1_pending_clicks
+        global encoder2_last_pos, encoder2_pending_clicks
+        pressed = []
+        
+        # Scan key matrix
+        for c_idx, col in enumerate(cols):
+            col.value = True
+            for r_idx, row in enumerate(rows):
+                if row.value:
+                    pressed.append((r_idx, c_idx))
+            col.value = False
+            
+        # Scan rotary encoder 1 rotation
+        try:
+            current_pos1 = encoder1.position
+            if current_pos1 != encoder1_last_pos:
+                diff = current_pos1 - encoder1_last_pos
+                encoder1_pending_clicks += diff
+                encoder1_last_pos = current_pos1
+        except Exception as e:
+            print("Error reading encoder1:", e)
+
+        # Scan rotary encoder 2 rotation
+        try:
+            current_pos2 = encoder2.position
+            if current_pos2 != encoder2_last_pos:
+                diff = current_pos2 - encoder2_last_pos
+                encoder2_pending_clicks += diff
+                encoder2_last_pos = current_pos2
+        except Exception as e:
+            print("Error reading encoder2:", e)
+            
+        # Process pending encoder 1 rotation clicks as virtual key presses
+        if encoder1_pending_clicks > 0:
+            pressed.append((0, 7))  # CW rotation virtual key
+            encoder1_pending_clicks -= 1
+        elif encoder1_pending_clicks < 0:
+            pressed.append((0, 6))  # CCW rotation virtual key
+            encoder1_pending_clicks += 1
+
+        # Process pending encoder 2 rotation clicks as virtual key presses
+        if encoder2_pending_clicks > 0:
+            pressed.append((1, 7))  # CW rotation virtual key
+            encoder2_pending_clicks -= 1
+        elif encoder2_pending_clicks < 0:
+            pressed.append((1, 6))  # CCW rotation virtual key
+            encoder2_pending_clicks += 1
             
         # Update onboard NeoPixel status
         utils.update_neopixel(len(pressed) > 0)
