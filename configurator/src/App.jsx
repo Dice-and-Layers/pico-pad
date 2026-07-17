@@ -12,6 +12,190 @@ const DEFAULT_MACRO = {
   actions: [{ type: "keypress", keys: ["CONTROL", "C"] }]
 };
 
+const PRESETS = {
+  '1x3': [
+    {
+      name: "Developer Basics",
+      description: "Quick access to copy, paste, and terminal commands.",
+      macros: [
+        { row: 0, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 0, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 0, col: 2, label: "Terminal", actions: [{ type: "keypress", keys: ["CONTROL", "GRAVE"] }] }
+      ]
+    },
+    {
+      name: "Media Controller",
+      description: "Simple media track and play controls.",
+      macros: [
+        { row: 0, col: 0, label: "Prev Track", actions: [{ type: "consumer", key: "SCAN_PREVIOUS_TRACK" }] },
+        { row: 0, col: 1, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] },
+        { row: 0, col: 2, label: "Next Track", actions: [{ type: "consumer", key: "SCAN_NEXT_TRACK" }] }
+      ]
+    },
+    {
+      name: "App Quick Launcher",
+      description: "One-click open for VS Code, Chrome, and Calculator.",
+      macros: [
+        { row: 0, col: 0, label: "VS Code", actions: [{ type: "launch", app: "code" }] },
+        { row: 0, col: 1, label: "Chrome", actions: [{ type: "launch", app: "chrome" }] },
+        { row: 0, col: 2, label: "Calculator", actions: [{ type: "launch", app: "calc" }] }
+      ]
+    }
+  ],
+  '3x3': [
+    {
+      name: "Office Productivity",
+      description: "Essential copy, paste, undo, search, and printing macros.",
+      macros: [
+        { row: 0, col: 0, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
+        { row: 0, col: 1, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
+        { row: 0, col: 2, label: "Redo", actions: [{ type: "keypress", keys: ["CONTROL", "Y"] }] },
+        { row: 1, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 1, col: 1, label: "Cut", actions: [{ type: "keypress", keys: ["CONTROL", "X"] }] },
+        { row: 1, col: 2, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 2, col: 0, label: "Select All", actions: [{ type: "keypress", keys: ["CONTROL", "A"] }] },
+        { row: 2, col: 1, label: "Find", actions: [{ type: "keypress", keys: ["CONTROL", "F"] }] },
+        { row: 2, col: 2, label: "Print", actions: [{ type: "keypress", keys: ["CONTROL", "P"] }] }
+      ]
+    },
+    {
+      name: "Streamer & Gamer Pack",
+      description: "Quick commands for Discord, OBS, and recording clips.",
+      macros: [
+        { row: 0, col: 0, label: "Mute Mic", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "M"] }] },
+        { row: 0, col: 1, label: "Deafen", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "D"] }] },
+        { row: 0, col: 2, label: "Discord", actions: [{ type: "launch", app: "discord" }] },
+        { row: 1, col: 0, label: "OBS Start", actions: [{ type: "keypress", keys: ["CONTROL", "ALT", "S"] }] },
+        { row: 1, col: 1, label: "OBS Stop", actions: [{ type: "keypress", keys: ["CONTROL", "ALT", "T"] }] },
+        { row: 1, col: 2, label: "OBS", actions: [{ type: "launch", app: "obs64" }] },
+        { row: 2, col: 0, label: "Screenshot", actions: [{ type: "keypress", keys: ["GUI", "SHIFT", "S"] }] },
+        { row: 2, col: 1, label: "Save Clip", actions: [{ type: "keypress", keys: ["ALT", "F10"] }] },
+        { row: 2, col: 2, label: "Game Menu", actions: [{ type: "keypress", keys: ["GUI", "G"] }] }
+      ]
+    },
+    {
+      name: "System Controls",
+      description: "Control volume, desktop layouts, and open system panels.",
+      macros: [
+        { row: 0, col: 0, label: "Task Mgr", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "ESCAPE"] }] },
+        { row: 0, col: 1, label: "Lock PC", actions: [{ type: "keypress", keys: ["GUI", "L"] }] },
+        { row: 0, col: 2, label: "Settings", actions: [{ type: "keypress", keys: ["GUI", "I"] }] },
+        { row: 1, col: 0, label: "Close App", actions: [{ type: "keypress", keys: ["ALT", "F4"] }] },
+        { row: 1, col: 1, label: "Minimize", actions: [{ type: "keypress", keys: ["GUI", "D"] }] },
+        { row: 1, col: 2, label: "Explorer", actions: [{ type: "keypress", keys: ["GUI", "E"] }] },
+        { row: 2, col: 0, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
+        { row: 2, col: 1, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 2, col: 2, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] }
+      ]
+    }
+  ],
+  '3x3_pro': [],
+  '6x2_encoder': [
+    {
+      name: "Video / Audio Editor",
+      description: "Speed up timeline scrubbing and edit slicing.",
+      macros: [
+        { row: 0, col: 0, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
+        { row: 0, col: 1, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
+        { row: 0, col: 2, label: "Redo", actions: [{ type: "keypress", keys: ["CONTROL", "Y"] }] },
+        { row: 0, col: 3, label: "Cut Tool", actions: [{ type: "keypress", keys: ["C"] }] },
+        { row: 0, col: 4, label: "Select", actions: [{ type: "keypress", keys: ["V"] }] },
+        { row: 0, col: 5, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] },
+        { row: 1, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 1, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 1, col: 2, label: "Delete", actions: [{ type: "keypress", keys: ["DELETE"] }] },
+        { row: 1, col: 3, label: "Import", actions: [{ type: "keypress", keys: ["CONTROL", "I"] }] },
+        { row: 1, col: 4, label: "Export", actions: [{ type: "keypress", keys: ["CONTROL", "M"] }] },
+        { row: 1, col: 5, label: "Split", actions: [{ type: "keypress", keys: ["CONTROL", "K"] }] },
+        { row: 2, col: 4, label: "Zoom Out", actions: [{ type: "keypress", keys: ["CONTROL", "MINUS"] }] },
+        { row: 2, col: 5, label: "Zoom In", actions: [{ type: "keypress", keys: ["CONTROL", "EQUAL"] }] }
+      ]
+    },
+    {
+      name: "Developer & Git Suite",
+      description: "Quick commands for terminal controls and Git commands.",
+      macros: [
+        { row: 0, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 0, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 0, col: 2, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
+        { row: 0, col: 3, label: "Search", actions: [{ type: "keypress", keys: ["CONTROL", "F"] }] },
+        { row: 0, col: 4, label: "Terminal", actions: [{ type: "keypress", keys: ["CONTROL", "GRAVE"] }] },
+        { row: 0, col: 5, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 1, col: 0, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
+        { row: 1, col: 1, label: "Format", actions: [{ type: "keypress", keys: ["ALT", "SHIFT", "F"] }] },
+        { row: 1, col: 2, label: "Cmd Pal", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "P"] }] },
+        { row: 1, col: 3, label: "VS Code", actions: [{ type: "launch", app: "code" }] },
+        { row: 1, col: 4, label: "Chrome", actions: [{ type: "launch", app: "chrome" }] },
+        { row: 1, col: 5, label: "Git Status", actions: [{ type: "text", text: "git status\n" }] },
+        { row: 2, col: 4, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
+        { row: 2, col: 5, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] }
+      ]
+    }
+  ],
+  '5x3_2encoders': [
+    {
+      name: "Ultimate Streamer Studio",
+      description: "Total control over OBS recording, Discord, volume, and layouts.",
+      macros: [
+        { row: 0, col: 0, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
+        { row: 0, col: 1, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
+        { row: 0, col: 2, label: "Redo", actions: [{ type: "keypress", keys: ["CONTROL", "Y"] }] },
+        { row: 0, col: 3, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 0, col: 4, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 0, col: 5, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] },
+        { row: 0, col: 6, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
+        { row: 0, col: 7, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] },
+        
+        { row: 1, col: 0, label: "OBS Start", actions: [{ type: "keypress", keys: ["CONTROL", "ALT", "S"] }] },
+        { row: 1, col: 1, label: "OBS Stop", actions: [{ type: "keypress", keys: ["CONTROL", "ALT", "T"] }] },
+        { row: 1, col: 2, label: "Mic Mute", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "M"] }] },
+        { row: 1, col: 3, label: "Deafen", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "D"] }] },
+        { row: 1, col: 4, label: "Screenshot", actions: [{ type: "keypress", keys: ["GUI", "SHIFT", "S"] }] },
+        { row: 1, col: 5, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 1, col: 6, label: "Zoom Out", actions: [{ type: "keypress", keys: ["CONTROL", "MINUS"] }] },
+        { row: 1, col: 7, label: "Zoom In", actions: [{ type: "keypress", keys: ["CONTROL", "EQUAL"] }] },
+        
+        { row: 2, col: 0, label: "Discord", actions: [{ type: "launch", app: "discord" }] },
+        { row: 2, col: 1, label: "OBS", actions: [{ type: "launch", app: "obs64" }] },
+        { row: 2, col: 2, label: "Chrome", actions: [{ type: "launch", app: "chrome" }] },
+        { row: 2, col: 3, label: "Calculator", actions: [{ type: "launch", app: "calc" }] },
+        { row: 2, col: 4, label: "Close App", actions: [{ type: "keypress", keys: ["ALT", "F4"] }] }
+      ]
+    },
+    {
+      name: "CAD & Design Pro",
+      description: "Excellent layout for CAD modeling and vector drawing suites.",
+      macros: [
+        { row: 0, col: 0, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
+        { row: 0, col: 1, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
+        { row: 0, col: 2, label: "Redo", actions: [{ type: "keypress", keys: ["CONTROL", "Y"] }] },
+        { row: 0, col: 3, label: "Select", actions: [{ type: "keypress", keys: ["SPACE"] }] },
+        { row: 0, col: 4, label: "Esc", actions: [{ type: "keypress", keys: ["ESCAPE"] }] },
+        { row: 0, col: 5, label: "View Home", actions: [{ type: "keypress", keys: ["HOME"] }] },
+        { row: 0, col: 6, label: "Brush -", actions: [{ type: "keypress", keys: ["BRACKET_LEFT"] }] },
+        { row: 0, col: 7, label: "Brush +", actions: [{ type: "keypress", keys: ["BRACKET_RIGHT"] }] },
+        
+        { row: 1, col: 0, label: "Line", actions: [{ type: "keypress", keys: ["L"] }] },
+        { row: 1, col: 1, label: "Circle", actions: [{ type: "keypress", keys: ["C"] }] },
+        { row: 1, col: 2, label: "Move", actions: [{ type: "keypress", keys: ["M"] }] },
+        { row: 1, col: 3, label: "Rotate", actions: [{ type: "keypress", keys: ["R"] }] },
+        { row: 1, col: 4, label: "Scale", actions: [{ type: "keypress", keys: ["S"] }] },
+        { row: 1, col: 5, label: "Pan Mode", actions: [{ type: "keypress", keys: ["P"] }] },
+        { row: 1, col: 6, label: "Zoom Out", actions: [{ type: "keypress", keys: ["CONTROL", "MINUS"] }] },
+        { row: 1, col: 7, label: "Zoom In", actions: [{ type: "keypress", keys: ["CONTROL", "EQUAL"] }] },
+        
+        { row: 2, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 2, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 2, col: 2, label: "Delete", actions: [{ type: "keypress", keys: ["DELETE"] }] },
+        { row: 2, col: 3, label: "Group", actions: [{ type: "keypress", keys: ["CONTROL", "G"] }] },
+        { row: 2, col: 4, label: "Ungroup", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "G"] }] }
+      ]
+    }
+  ]
+};
+
+PRESETS['3x3_pro'] = PRESETS['3x3'];
+
 function App() {
   const [dirHandle, setDirHandle] = useState(null);
   const [theme, setTheme] = useState('light');
@@ -33,6 +217,17 @@ function App() {
 
   // Modal State
   const [modal, setModal] = useState({ open: false, title: '', value: '', type: '', onConfirm: null });
+
+  // Gallery State
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryModel, setGalleryModel] = useState('3x3');
+  const [selectedPresetIdx, setSelectedPresetIdx] = useState(0);
+
+  const openGallery = () => {
+    setGalleryModel(settings.board_model || '3x3');
+    setSelectedPresetIdx(0);
+    setGalleryOpen(true);
+  };
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -148,12 +343,28 @@ function App() {
       const handle = await window.showDirectoryPicker();
       setDirHandle(handle);
 
+      let boardModelFromToml = null;
+      try {
+        const tomlHandle = await handle.getFileHandle("settings.toml");
+        const tomlFile = await tomlHandle.getFile();
+        const tomlContent = await tomlFile.text();
+        const match = tomlContent.match(/BOARD_MODEL\s*=\s*["']([^"']+)["']/i);
+        if (match && match[1]) {
+          boardModelFromToml = match[1].trim().toLowerCase();
+        }
+      } catch (tomlErr) {
+        console.log("No settings.toml found or failed to parse, falling back to macros.json settings");
+      }
+
       const fileHandle = await handle.getFileHandle("macros.json");
       const file = await fileHandle.getFile();
       const content = await file.text();
       const data = JSON.parse(content);
 
       const loadedSettings = data.settings || { debounce: 0.05, board_model: '3x3' };
+      if (boardModelFromToml) {
+        loadedSettings.board_model = boardModelFromToml;
+      }
       setSettings(loadedSettings);
 
       if (data.profiles) {
@@ -178,6 +389,7 @@ function App() {
   const saveConfig = async () => {
     if (!dirHandle) return;
     try {
+      // 1. Save macros.json
       const fileHandle = await dirHandle.getFileHandle("macros.json", { create: true });
       const writable = await fileHandle.createWritable();
       
@@ -196,6 +408,18 @@ function App() {
       await writable.write(JSON.stringify(data, null, 2));
       await writable.close();
       setProfiles(updatedProfiles);
+
+      // 2. Save settings.toml
+      try {
+        const tomlHandle = await dirHandle.getFileHandle("settings.toml", { create: true });
+        const tomlWritable = await tomlHandle.createWritable();
+        const tomlContent = `BOARD_MODEL="${settings.board_model || '3x3'}"\n`;
+        await tomlWritable.write(tomlContent);
+        await tomlWritable.close();
+      } catch (tomlErr) {
+        console.error("Failed to save settings.toml", tomlErr);
+      }
+
       alert("Saved successfully!");
     } catch (err) {
       console.error(err);
@@ -378,6 +602,8 @@ function App() {
       delete updatedAction.text;
       delete updatedAction.key;
       delete updatedAction.duration;
+      delete updatedAction.app;
+      delete updatedAction.url;
       
       if (type === 'keypress') {
         updatedAction.keys = [];
@@ -387,6 +613,10 @@ function App() {
         updatedAction.key = '';
       } else if (type === 'delay') {
         updatedAction.duration = 0.1;
+      } else if (type === 'launch') {
+        updatedAction.app = '';
+      } else if (type === 'url') {
+        updatedAction.url = '';
       }
     }
     
@@ -403,10 +633,139 @@ function App() {
     updateMacroInList({ ...selectedMacro, label: val });
   };
 
+  const renderPreviewGrid = () => {
+    const preset = PRESETS[galleryModel]?.[selectedPresetIdx];
+    if (!preset) return <div style={{ color: 'var(--text-dim)', textAlign: 'center', padding: '2rem' }}>Select a preset to preview</div>;
+
+    const presetMacros = preset.macros;
+    
+    const is1x3 = galleryModel === '1x3';
+    const is3x3 = galleryModel === '3x3';
+    const is3x3Pro = galleryModel === '3x3_pro';
+    const is6x2 = galleryModel === '6x2_encoder';
+    const is5x3 = galleryModel === '5x3_2encoders';
+    
+    const getGridClass = () => {
+      if (is3x3Pro) return 'grid-3x3-pro';
+      if (is6x2) return 'grid-6x2';
+      if (is1x3) return 'grid-1x3';
+      if (is5x3) return 'grid-5x3_2encoders';
+      return 'grid-3x3';
+    };
+
+    const renderPreviewKey = (i) => {
+      const coords = getKeyCoordinates(galleryModel, i);
+      const m = presetMacros.find(macro => macro.row === coords.row && macro.col === coords.col);
+      
+      let displayNum = i + 1;
+      let extraClass = '';
+      
+      if (galleryModel === '6x2_encoder') {
+        if (i === 5) {
+          displayNum = 'ENC';
+          extraClass = 'encoder-key';
+        } else if (i === 12) {
+          displayNum = '↺ CCW';
+          extraClass = 'encoder-ccw';
+        } else if (i === 13) {
+          displayNum = '↻ CW';
+          extraClass = 'encoder-cw';
+        } else if (i > 5 && i < 12) {
+          displayNum = i;
+        }
+      } else if (galleryModel === '5x3_2encoders') {
+        if (i === 15) {
+          displayNum = 'ENC1';
+          extraClass = 'encoder-key';
+        } else if (i === 16) {
+          displayNum = 'ENC2';
+          extraClass = 'encoder-key';
+        } else if (i === 17) {
+          displayNum = 'E1 ↺';
+          extraClass = 'encoder-ccw';
+        } else if (i === 18) {
+          displayNum = 'E1 ↻';
+          extraClass = 'encoder-cw';
+        } else if (i === 19) {
+          displayNum = 'E2 ↺';
+          extraClass = 'encoder-ccw';
+        } else if (i === 20) {
+          displayNum = 'E2 ↻';
+          extraClass = 'encoder-cw';
+        }
+      }
+
+      return (
+        <div key={i} className={`key preview-key ${extraClass}`} style={{ cursor: 'default' }}>
+          <span className="key-icon" style={{ fontSize: '1.2rem' }}>{m?.label ? m.label[0] : displayNum}</span>
+          <span className="key-label" style={{ fontSize: '0.65rem' }}>{m?.label || 'Empty'}</span>
+        </div>
+      );
+    };
+
+    if (is3x3Pro) {
+      return (
+        <div className={`grid ${getGridClass()}`} style={{ pointerEvents: 'none' }}>
+          {[0, 1, 2].map(i => renderPreviewKey(i))}
+          <div className="key profile-btn" style={{ cursor: 'default' }}>
+            <span className="key-icon" style={{ fontSize: '1.2rem' }}>🔄</span>
+            <span className="key-label" style={{ fontSize: '0.65rem' }}>Switch</span>
+          </div>
+          {[3, 4, 5].map(i => renderPreviewKey(i))}
+          <div className="key-placeholder"></div>
+          {[6, 7, 8].map(i => renderPreviewKey(i))}
+          <div className="key-placeholder"></div>
+        </div>
+      );
+    }
+
+    if (is6x2) {
+      return (
+        <div className={`grid ${getGridClass()}`} style={{ pointerEvents: 'none' }}>
+          {[0, 1, 2, 3, 4, 5].map(i => renderPreviewKey(i))}
+          {[6, 7, 8, 9, 10, 11].map(i => renderPreviewKey(i))}
+          <div className="key-placeholder"></div>
+          <div className="key-placeholder"></div>
+          <div className="key-placeholder"></div>
+          <div className="key-placeholder"></div>
+          {renderPreviewKey(12)}
+          {renderPreviewKey(13)}
+        </div>
+      );
+    }
+
+    if (is5x3) {
+      return (
+        <div className={`grid ${getGridClass()}`} style={{ pointerEvents: 'none' }}>
+          {[0, 1, 2, 3, 4].map(i => renderPreviewKey(i))}
+          {renderPreviewKey(15)}
+          {renderPreviewKey(17)}
+          {renderPreviewKey(18)}
+          
+          {[5, 6, 7, 8, 9].map(i => renderPreviewKey(i))}
+          {renderPreviewKey(16)}
+          {renderPreviewKey(19)}
+          {renderPreviewKey(20)}
+          
+          {[10, 11, 12, 13, 14].map(i => renderPreviewKey(i))}
+          <div className="key-placeholder"></div>
+          <div className="key-placeholder"></div>
+          <div className="key-placeholder"></div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`grid ${getGridClass()}`} style={{ pointerEvents: 'none' }}>
+        {[...Array(is1x3 ? 3 : 9)].map((_, i) => renderPreviewKey(i))}
+      </div>
+    );
+  };
+
   return (
     <div className="container">
       <header>
-        <h1>SS Key Config</h1>
+        <h1>Pico Pad Configurator</h1>
         <div className="header-actions">
           <div className="profile-manager">
             <select value={activeProfile} onChange={(e) => switchProfile(e.target.value)}>
@@ -418,6 +777,9 @@ function App() {
             <button className="icon-btn" onClick={saveAsProfile} title="Save Current As New Profile">💾</button>
             <button className="icon-btn delete" onClick={() => deleteProfile(activeProfile)} title="Delete Profile">🗑️</button>
           </div>
+          <button className="help-toggle" onClick={openGallery} title="Open mappings presets gallery">
+            🎨 Gallery
+          </button>
           <button className="help-toggle" onClick={() => setShowHelp(!showHelp)} title="How to use">
             ❓ Help
           </button>
@@ -653,6 +1015,8 @@ function App() {
                       <option value="text">Type Text String</option>
                       <option value="consumer">Media & System Keys</option>
                       <option value="delay">Introduce Delay</option>
+                      <option value="launch">Launch Application</option>
+                      <option value="url">Open Web URL</option>
                     </select>
                     <button className="remove-btn" onClick={() => removeAction(ai)} title="Remove Action">×</button>
                   </div>
@@ -713,6 +1077,30 @@ function App() {
                       />
                     </div>
                   )}
+
+                  {action.type === 'launch' && (
+                    <div className="input-group">
+                      <label style={{ fontSize: '0.75rem' }}>Application Name / Run Command</label>
+                      <input
+                        type="text"
+                        value={action.app || ""}
+                        onChange={(e) => handleActionChange(ai, 'app', e.target.value)}
+                        placeholder="e.g. notepad, chrome, cmd"
+                      />
+                    </div>
+                  )}
+
+                  {action.type === 'url' && (
+                    <div className="input-group">
+                      <label style={{ fontSize: '0.75rem' }}>URL Link (https://...)</label>
+                      <input
+                        type="text"
+                        value={action.url || ""}
+                        onChange={(e) => handleActionChange(ai, 'url', e.target.value)}
+                        placeholder="e.g. https://github.com"
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -744,6 +1132,93 @@ function App() {
               <button className="btn btn-primary" onClick={() => modal.onConfirm(modal.value)}>
                 {modal.type === 'confirm' ? 'Delete' : 'Confirm'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {galleryOpen && (
+        <div className="modal-overlay gallery-overlay">
+          <div className="modal-content gallery-modal-content">
+            <div className="gallery-header">
+              <h2>🎨 Mappings Gallery & Presets</h2>
+              <button className="btn btn-secondary close-gallery-btn" onClick={() => setGalleryOpen(false)}>×</button>
+            </div>
+            
+            <div className="gallery-layout">
+              {/* Left Panel: Preset List */}
+              <div className="gallery-sidebar">
+                <div className="input-group">
+                  <label style={{ fontWeight: '700' }}>Filter by Model</label>
+                  <select 
+                    value={galleryModel} 
+                    onChange={(e) => {
+                      setGalleryModel(e.target.value);
+                      setSelectedPresetIdx(0);
+                    }}
+                    style={{ marginBottom: '1rem' }}
+                  >
+                    <option value="3x3">3x3 Model</option>
+                    <option value="1x3">1x3 Model</option>
+                    <option value="3x3_pro">3x3 Pro Model</option>
+                    <option value="6x2_encoder">6x2 Encoder Model</option>
+                    <option value="5x3_2encoders">5x3 2-Encoder Model</option>
+                  </select>
+                </div>
+                
+                <div className="presets-list">
+                  {(PRESETS[galleryModel] || []).length === 0 ? (
+                    <div style={{ padding: '2rem 1rem', color: 'var(--text-dim)', textAlign: 'center', fontWeight: '500' }}>
+                      No presets found.
+                    </div>
+                  ) : (
+                    (PRESETS[galleryModel] || []).map((preset, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`preset-card ${selectedPresetIdx === idx ? 'active' : ''}`}
+                        onClick={() => setSelectedPresetIdx(idx)}
+                      >
+                        <h4>{preset.name}</h4>
+                        <p>{preset.description}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              
+              {/* Right Panel: Interactive Grid Preview */}
+              <div className="gallery-preview-panel">
+                <h3>Layout Map Preview</h3>
+                <div className="preview-info">
+                  Showing mapping for: <strong>{PRESETS[galleryModel]?.[selectedPresetIdx]?.name || 'N/A'}</strong>
+                </div>
+                
+                {/* Visual Preview Grid */}
+                <div className="preview-grid-container">
+                  {renderPreviewGrid()}
+                </div>
+                
+                <div className="gallery-actions">
+                  <button className="btn btn-secondary" onClick={() => setGalleryOpen(false)}>Cancel</button>
+                  <button 
+                    className="btn btn-primary" 
+                    disabled={!PRESETS[galleryModel]?.[selectedPresetIdx]}
+                    onClick={() => {
+                      const preset = PRESETS[galleryModel][selectedPresetIdx];
+                      if (confirm(`Apply "${preset.name}"? This will overwrite the macros in your active profile ("${activeProfile}").`)) {
+                        setMacros(preset.macros);
+                        const newSettings = { ...settings, board_model: galleryModel };
+                        setSettings(newSettings);
+                        updateCurrentProfile(preset.macros, newSettings);
+                        setSelectedIdx(0);
+                        setGalleryOpen(false);
+                      }
+                    }}
+                  >
+                    💾 Apply Preset to Profile
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

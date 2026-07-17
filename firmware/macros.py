@@ -112,6 +112,27 @@ def execute_macro(macro):
                 cc.send(getattr(ConsumerControlCode, ckey))
             else:
                 print(f"Error: Consumer key '{ckey}' not found in ConsumerControlCode")
+        elif atype == "launch":
+            app_name = action.get("app", "")
+            if app_name:
+                kbd.press(Keycode.GUI)
+                kbd.release_all()
+                time.sleep(0.2)
+                layout.write(app_name)
+                time.sleep(0.15)
+                kbd.press(Keycode.ENTER)
+                kbd.release_all()
+        elif atype == "url":
+            url_path = action.get("url", "")
+            if url_path:
+                kbd.press(Keycode.GUI)
+                kbd.press(Keycode.R)
+                kbd.release_all()
+                time.sleep(0.2)
+                layout.write(url_path)
+                time.sleep(0.15)
+                kbd.press(Keycode.ENTER)
+                kbd.release_all()
         time.sleep(0.01)
 
 import utils
