@@ -280,6 +280,86 @@ elif model == "5x3_2encoders":
         utils.update_neopixel(len(pressed) > 0)
         return pressed
 
+elif model == "4x2":
+    # 4x2 Matrix Keyboard (2 rows, 4 columns)
+    COL_PINS = [board.GP3, board.GP4, board.GP5, board.GP6]
+    ROW_PINS = [board.GP0, board.GP1]
+    
+    cols = []
+    for pin in COL_PINS:
+        c = DigitalInOut(pin)
+        c.direction = Direction.OUTPUT
+        c.value = False
+        cols.append(c)
+    
+    rows = []
+    for pin in ROW_PINS:
+        r = DigitalInOut(pin)
+        r.direction = Direction.INPUT
+        r.pull = Pull.DOWN
+        rows.append(r)
+        
+    # LED Matrix Setup
+    # LED Columns (Cathodes, active low): GP7, GP8, GP9, GP10 (LC1-LC4)
+    # LED Rows (Anodes, active high): GP11, GP12 (LR1, LR2)
+    LED_COLS = [board.GP7, board.GP8, board.GP9, board.GP10]
+    LED_ROWS = [board.GP11, board.GP12]
+    
+    led_cols_io = []
+    for pin in LED_COLS:
+        c = DigitalInOut(pin)
+        c.direction = Direction.OUTPUT
+        c.value = True # Inactive High
+        led_cols_io.append(c)
+        
+    led_rows_io = []
+    for pin in LED_ROWS:
+        r = DigitalInOut(pin)
+        r.direction = Direction.OUTPUT
+        r.value = False # Inactive Low
+        led_rows_io.append(r)
+        
+    # Run a startup sweep animation on the 4x2 LED matrix
+    for r in led_rows_io:
+        r.value = True
+        for c in led_cols_io:
+            c.value = False
+            time.sleep(0.04)
+            c.value = True
+        r.value = False
+            
+    def get_keys():
+        """Scans the 4x2 matrix and returns list of pressed (row, col) tuples."""
+        pressed = []
+        for c_idx, col in enumerate(cols):
+            col.value = True
+            for r_idx, row in enumerate(rows):
+                if row.value:
+                    pressed.append((r_idx, c_idx))
+            col.value = False
+            
+        # Drive LED matrix based on pressed keys
+        for r in led_rows_io:
+            r.value = False
+        for c in led_cols_io:
+            c.value = True
+            
+        if pressed:
+            for r_idx, c_idx in pressed:
+                led_rows_io[r_idx].value = True
+                led_cols_io[c_idx].value = False
+        else:
+            # Indicate active profile when idle on top row LED
+            import macros
+            active_idx = getattr(macros, "active_profile_idx", 0)
+            led_rows_io[0].value = True
+            col_to_light = active_idx % 4
+            led_cols_io[col_to_light].value = False
+            
+        # Update onboard NeoPixel
+        utils.update_neopixel(len(pressed) > 0)
+        return pressed
+
 else:
     # Matrix Keyboard Setup (3x3)
     COL_PINS = [board.GP5, board.GP6, board.GP7]

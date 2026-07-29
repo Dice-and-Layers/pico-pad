@@ -5,6 +5,7 @@ import img3x3 from './models-images/3x3.jpg';
 import img3x3Pro from './models-images/3x3_pro.jpg';
 import img6x2 from './models-images/6x2.jpg';
 import img5x3_2encoders from './models-images/5x3_2encoders.png';
+import img4x2 from './models-images/4x2.png';
 
 
 const DEFAULT_MACRO = {
@@ -13,6 +14,36 @@ const DEFAULT_MACRO = {
 };
 
 const PRESETS = {
+  '4x2': [
+    {
+      name: "Productivity & Media",
+      description: "Essential copy, paste, media controls, and shortcuts for 8-key pad.",
+      macros: [
+        { row: 0, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 0, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 0, col: 2, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
+        { row: 0, col: 3, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
+        { row: 1, col: 0, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
+        { row: 1, col: 1, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 1, col: 2, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] },
+        { row: 1, col: 3, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] }
+      ]
+    },
+    {
+      name: "Streamer & Gaming",
+      description: "Mic mute, deafen, OBS recording, screenshots, and instant app launchers.",
+      macros: [
+        { row: 0, col: 0, label: "Mic Mute", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "M"] }] },
+        { row: 0, col: 1, label: "Deafen", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "D"] }] },
+        { row: 0, col: 2, label: "OBS Record", actions: [{ type: "keypress", keys: ["CONTROL", "ALT", "S"] }] },
+        { row: 0, col: 3, label: "Clip Save", actions: [{ type: "keypress", keys: ["ALT", "F10"] }] },
+        { row: 1, col: 0, label: "Screenshot", actions: [{ type: "keypress", keys: ["GUI", "SHIFT", "S"] }] },
+        { row: 1, col: 1, label: "Discord", actions: [{ type: "launch", app: "discord" }] },
+        { row: 1, col: 2, label: "OBS Studio", actions: [{ type: "launch", app: "obs64" }] },
+        { row: 1, col: 3, label: "Task Mgr", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "ESCAPE"] }] }
+      ]
+    }
+  ],
   '1x3': [
     {
       name: "Developer Basics",
@@ -429,6 +460,7 @@ function App() {
 
   const is1x3 = settings.board_model === '1x3';
   const is3x3Pro = settings.board_model === '3x3_pro';
+  const is4x2 = settings.board_model === '4x2';
   const is6x2 = settings.board_model === '6x2_encoder';
   const is5x3_2encoders = settings.board_model === '5x3_2encoders';
 
@@ -436,6 +468,7 @@ function App() {
     switch (model) {
       case '1x3': return img1x3;
       case '3x3_pro': return img3x3Pro;
+      case '4x2': return img4x2;
       case '6x2_encoder': return img6x2;
       case '5x3_2encoders': return img5x3_2encoders;
       case '3x3':
@@ -449,6 +482,8 @@ function App() {
   const getKeyCoordinates = (model, index) => {
     if (model === '1x3') {
       return { row: 0, col: index };
+    } else if (model === '4x2') {
+      return { row: Math.floor(index / 4), col: index % 4 };
     } else if (model === '6x2_encoder') {
       if (index >= 0 && index <= 5) {
         return { row: 0, col: index };

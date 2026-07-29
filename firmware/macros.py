@@ -157,8 +157,9 @@ def run_macros(display, get_keys):
     print("Macro Mode Active")
     
     model = utils.get_board_model()
-    num_cols = 8 if model == "5x3_2encoders" else 6 if model == "6x2_encoder" else 4 if model == "3x3_pro" else 3
-    last_state = [[False for _ in range(num_cols)] for _ in range(3)]
+    num_cols = 8 if model == "5x3_2encoders" else 6 if model == "6x2_encoder" else 4 if model in ("3x3_pro", "4x2") else 3
+    num_rows = 2 if model == "4x2" else 3
+    last_state = [[False for _ in range(num_cols)] for _ in range(num_rows)]
     debounce_time = config.get("settings", {}).get("debounce", 0.05)
     last_profile_btn_state = False
     
@@ -186,7 +187,7 @@ def run_macros(display, get_keys):
         # Simple matrix scanning logic based on current keys list
         current_pressed = keys
         
-        for r in range(3):
+        for r in range(num_rows):
             for c in range(num_cols):
                 is_pressed = (r, c) in current_pressed
                 if is_pressed and not last_state[r][c]:

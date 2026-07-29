@@ -236,6 +236,11 @@ header h1 {
   max-width: 680px;
 }
 
+.grid.grid-4x2 {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 480px;
+}
+
 .grid.grid-5x3_2encoders {
   grid-template-columns: repeat(8, 1fr);
   max-width: 840px;
