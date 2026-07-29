@@ -677,11 +677,13 @@ function App() {
     const is1x3 = galleryModel === '1x3';
     const is3x3 = galleryModel === '3x3';
     const is3x3Pro = galleryModel === '3x3_pro';
+    const is4x2 = galleryModel === '4x2';
     const is6x2 = galleryModel === '6x2_encoder';
     const is5x3 = galleryModel === '5x3_2encoders';
     
     const getGridClass = () => {
       if (is3x3Pro) return 'grid-3x3-pro';
+      if (is4x2) return 'grid-4x2';
       if (is6x2) return 'grid-6x2';
       if (is1x3) return 'grid-1x3';
       if (is5x3) return 'grid-5x3_2encoders';
@@ -750,6 +752,14 @@ function App() {
           <div className="key-placeholder"></div>
           {[6, 7, 8].map(i => renderPreviewKey(i))}
           <div className="key-placeholder"></div>
+        </div>
+      );
+    }
+
+    if (is4x2) {
+      return (
+        <div className={`grid ${getGridClass()}`} style={{ pointerEvents: 'none' }}>
+          {[0, 1, 2, 3, 4, 5, 6, 7].map(i => renderPreviewKey(i))}
         </div>
       );
     }
@@ -896,7 +906,7 @@ function App() {
       ) : (
         <div className="main-layout">
           <section className="keyboard-section">
-            <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : is5x3_2encoders ? 'grid-5x3_2encoders' : 'grid-3x3'}`}>
+            <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is4x2 ? 'grid-4x2' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : is5x3_2encoders ? 'grid-5x3_2encoders' : 'grid-3x3'}`}>
               {is3x3Pro ? (
                 <>
                   {/* Row 1 */}
@@ -914,6 +924,8 @@ function App() {
                   {[6, 7, 8].map(i => renderKey(i))}
                   <div className="key-placeholder"></div>
                 </>
+              ) : is4x2 ? (
+                [0, 1, 2, 3, 4, 5, 6, 7].map(i => renderKey(i))
               ) : is6x2 ? (
                 <>
                   {/* Row 1 */}
@@ -957,6 +969,8 @@ function App() {
             <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: '500' }}>
               {is3x3Pro 
                 ? "Click macro keys 1-9 to edit. The 🔄 button switches profiles."
+                : is4x2
+                ? "Click keys 1-8 to edit macro sequences for your 4x2 matrix."
                 : is6x2
                 ? "Click a key or dial action to edit. ENC is the encoder switch, and ↺/↻ are rotation actions."
                 : is5x3_2encoders
@@ -982,6 +996,7 @@ function App() {
                       
                       let maxIdx = 8;
                       if (modelVal === '1x3') maxIdx = 2;
+                      else if (modelVal === '4x2') maxIdx = 7;
                       else if (modelVal === '6x2_encoder') maxIdx = 13;
                       else if (modelVal === '5x3_2encoders') maxIdx = 20;
                       
@@ -993,6 +1008,7 @@ function App() {
                   >
                     <option value="3x3">3x3 Model</option>
                     <option value="1x3">1x3 Model</option>
+                    <option value="4x2">4x2 Model (8 Keys)</option>
                     <option value="3x3_pro">3x3 Pro Model</option>
                     <option value="6x2_encoder">6x2 Encoder Model</option>
                     <option value="5x3_2encoders">5x3 2-Encoder Model</option>
@@ -1195,6 +1211,7 @@ function App() {
                   >
                     <option value="3x3">3x3 Model</option>
                     <option value="1x3">1x3 Model</option>
+                    <option value="4x2">4x2 Model (8 Keys)</option>
                     <option value="3x3_pro">3x3 Pro Model</option>
                     <option value="6x2_encoder">6x2 Encoder Model</option>
                     <option value="5x3_2encoders">5x3 2-Encoder Model</option>

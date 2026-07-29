@@ -135,6 +135,36 @@ w  |                  |                  |                  |                  |
 
 ---
 
+### ⌨️ 4x2 Matrix Keyboard & LED Matrix Layout (RP2040 Zero - Display-less with Neo LED)
+
+This model features a 4x2 physical key matrix (8 keys), a 4x2 LED matrix (L1–L8) for individual key backlight feedback and profile indication, and onboard NeoPixel RGB support.
+
+#### **Key Matrix Pins**
+* **Rows (Inputs with Pull-Down):** R1 -> `GP0`, R2 -> `GP1`
+* **Columns (Outputs):** C1 -> `GP3`, C2 -> `GP4`, C3 -> `GP5`, C4 -> `GP6`
+
+#### **Key Action Map**
+```
+      Col 0 (GP3)        Col 1 (GP4)        Col 2 (GP5)        Col 3 (GP6)
+   +------------------+------------------+------------------+------------------+
+R  |      (0, 0)      |      (0, 1)      |      (0, 2)      |      (0, 3)      |
+o  |     Key 1 (S1)   |     Key 2 (S2)   |     Key 3 (S3)   |     Key 4 (S4)   |
+w0 +------------------+------------------+------------------+------------------+
+R  |      (1, 0)      |      (1, 1)      |      (1, 2)      |      (1, 3)      |
+o  |     Key 5 (S5)   |     Key 6 (S6)   |     Key 7 (S7)   |     Key 8 (S8)   |
+w1 +------------------+------------------+------------------+------------------+
+```
+
+#### **LED Matrix Pins**
+* **LED Columns (Cathodes - Active Low Outputs):** LC1 -> `GP7`, LC2 -> `GP8`, LC3 -> `GP9`, LC4 -> `GP10`
+* **LED Rows (Anodes - Active High Outputs):** LR1 -> `GP11`, LR2 -> `GP12`
+
+#### **🌈 Onboard NeoPixel RGB LED**
+* **Data Pin:** `GP16`
+* **Behavior:** Cycles color spectrum when keys are pressed.
+
+---
+
 ### ⌨️ 6x2 Matrix Keyboard & Rotary Encoder Layout (RP2040 Zero)
 
 This model supports a 6x2 physical key matrix (electrically wired as 3 rows and 6 columns, with up to 12 keys + 1 encoder click) and a rotary encoder for scrolling or volume adjustments.
