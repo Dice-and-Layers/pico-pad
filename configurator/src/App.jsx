@@ -640,14 +640,18 @@ function App() {
       }
     }
     
+    const isProfileSwitch = macro?.actions?.some(a => a.type === 'profile_switch' || a.type === 'layer_switch');
+    const iconChar = macro?.label ? macro.label[0] : isProfileSwitch ? '🔄' : displayNum;
+    const labelText = macro?.label ? macro.label : isProfileSwitch ? 'Switch Layer' : 'Not Configured';
+
     return (
       <div
         key={i}
-        className={`key ${selectedIdx === i ? 'selected' : ''} ${extraClass}`}
+        className={`key ${selectedIdx === i ? 'selected' : ''} ${extraClass} ${isProfileSwitch ? 'profile-btn' : ''}`}
         onClick={() => setSelectedIdx(i)}
       >
-        <span className="key-icon">{macro?.label ? macro.label[0] : displayNum}</span>
-        <span className="key-label">{macro?.label || 'Not Configured'}</span>
+        <span className="key-icon">{iconChar}</span>
+        <span className="key-label">{labelText}</span>
       </div>
     );
   };
@@ -685,6 +689,8 @@ function App() {
         updatedAction.app = '';
       } else if (type === 'url') {
         updatedAction.url = '';
+      } else if (type === 'profile_switch') {
+        // No extra parameters needed
       }
     }
     
@@ -1101,6 +1107,7 @@ function App() {
                       <option value="delay">Introduce Delay</option>
                       <option value="launch">Launch Application</option>
                       <option value="url">Open Web URL</option>
+                      <option value="profile_switch">🔄 Switch Profile / Layer</option>
                     </select>
                     <button className="remove-btn" onClick={() => removeAction(ai)} title="Remove Action">×</button>
                   </div>

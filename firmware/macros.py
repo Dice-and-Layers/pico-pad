@@ -122,6 +122,11 @@ def execute_macro(macro):
                 time.sleep(0.15)
                 kbd.press(Keycode.ENTER)
                 kbd.release_all()
+        elif atype in ("profile_switch", "layer_switch"):
+            new_prof = switch_to_next_profile()
+            print("Switched profile to:", new_prof)
+            utils.flash_neopixel_profile(active_profile_idx)
+            return True
         elif atype == "url":
             url_path = action.get("url", "")
             if url_path:
@@ -134,6 +139,7 @@ def execute_macro(macro):
                 kbd.press(Keycode.ENTER)
                 kbd.release_all()
         time.sleep(0.01)
+    return False
 
 import utils
 
@@ -173,16 +179,29 @@ def run_macros(display, get_keys):
         if display and (0, 0) in keys and (0, 2) in keys:
             return
 
-        # Handle profile switch for 3x3_pro model
+        # Handle profile switch for 3x3_pro model (dedicated GP6 pin)
         if model == "3x3_pro":
             profile_btn_pressed = (0, 3) in keys
             if profile_btn_pressed and not last_profile_btn_state:
                 new_prof = switch_to_next_profile()
                 print("Switched profile to:", new_prof)
+                utils.flash_neopixel_profile(active_profile_idx)
                 if display:
                     update_display(display)
                 time.sleep(0.2) # Extra debounce for profile switch
             last_profile_btn_state = profile_btn_pressed
+        elif model == "6x2_encoder":
+            # Fallback layer switch if encoder button (0, 5) is unassigned in JSON
+            if get_macro(0, 5) is None:
+                profile_btn_pressed = (0, 5) in keys
+                if profile_btn_pressed and not last_profile_btn_state:
+                    new_prof = switch_to_next_profile()
+                    print("Switched profile to:", new_prof)
+                    utils.flash_neopixel_profile(active_profile_idx)
+                    if display:
+                        update_display(display)
+                    time.sleep(0.2)
+                last_profile_btn_state = profile_btn_pressed
 
         # Simple matrix scanning logic based on current keys list
         current_pressed = keys
@@ -194,7 +213,9 @@ def run_macros(display, get_keys):
                     # Pressed
                     macro = get_macro(r, c)
                     if macro:
-                        execute_macro(macro)
+                        switched = execute_macro(macro)
+                        if switched and display:
+                            update_display(display)
                     time.sleep(debounce_time)
                 last_state[r][c] = is_pressed
         

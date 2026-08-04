@@ -200,3 +200,14 @@ def update_neopixel(keys_pressed):
             neopixel_led.off()
         _was_pressed = False
 
+def flash_neopixel_profile(profile_idx):
+    global neopixel_led
+    if neopixel_led is None:
+        init_neopixel()
+    if neopixel_led:
+        color = NEOPIXEL_COLORS[profile_idx % len(NEOPIXEL_COLORS)]
+        neopixel_led.set_color(*color)
+        import time
+        time.sleep(0.12)
+        neopixel_led.off()
+
