@@ -29,8 +29,8 @@ try:
     # I2C setup for SSD1306 OLED (128x64)
     if model == "3x3_pro":
         i2c = busio.I2C(board.GP15, board.GP14)
-    elif model == "5x3_2encoders":
-        i2c = busio.I2C(board.GP1, board.GP0)
+    elif model in ("6x2_encoder", "5x3_2encoders"):
+        i2c = busio.I2C(board.GP0, board.GP1)
     else:
         i2c = busio.I2C(board.GP17, board.GP16)
     display = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)

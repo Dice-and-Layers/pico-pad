@@ -130,15 +130,15 @@ const PRESETS = {
         { row: 0, col: 1, label: "2", actions: [{ type: "text", text: "2" }] },
         { row: 0, col: 2, label: "3", actions: [{ type: "text", text: "3" }] },
         { row: 0, col: 3, label: "4", actions: [{ type: "text", text: "4" }] },
-        { row: 0, col: 4, label: "5", actions: [{ type: "text", text: "5" }] },
-        { row: 0, col: 5, label: "6", actions: [{ type: "text", text: "6" }] },
-        { row: 1, col: 0, label: "7", actions: [{ type: "text", text: "7" }] },
-        { row: 1, col: 1, label: "8", actions: [{ type: "text", text: "8" }] },
-        { row: 1, col: 2, label: "9", actions: [{ type: "text", text: "9" }] },
-        { row: 1, col: 3, label: "10", actions: [{ type: "text", text: "10" }] },
-        { row: 1, col: 4, label: "11", actions: [{ type: "text", text: "11" }] },
-        { row: 1, col: 5, label: "12", actions: [{ type: "text", text: "12" }] },
-        { row: 2, col: 3, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 1, col: 0, label: "5", actions: [{ type: "text", text: "5" }] },
+        { row: 1, col: 1, label: "6", actions: [{ type: "text", text: "6" }] },
+        { row: 1, col: 2, label: "7", actions: [{ type: "text", text: "7" }] },
+        { row: 1, col: 3, label: "8", actions: [{ type: "text", text: "8" }] },
+        { row: 2, col: 0, label: "9", actions: [{ type: "text", text: "9" }] },
+        { row: 2, col: 1, label: "10", actions: [{ type: "text", text: "10" }] },
+        { row: 2, col: 2, label: "11", actions: [{ type: "text", text: "11" }] },
+        { row: 2, col: 3, label: "12", actions: [{ type: "text", text: "12" }] },
+        { row: 0, col: 5, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
         { row: 2, col: 4, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
         { row: 2, col: 5, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] }
       ]
@@ -151,15 +151,15 @@ const PRESETS = {
         { row: 0, col: 1, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
         { row: 0, col: 2, label: "Redo", actions: [{ type: "keypress", keys: ["CONTROL", "Y"] }] },
         { row: 0, col: 3, label: "Cut Tool", actions: [{ type: "keypress", keys: ["C"] }] },
-        { row: 0, col: 4, label: "Select", actions: [{ type: "keypress", keys: ["V"] }] },
-        { row: 0, col: 5, label: "Ripple Cut", actions: [{ type: "keypress", keys: ["SHIFT", "DELETE"] }] },
-        { row: 1, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
-        { row: 1, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
-        { row: 1, col: 2, label: "Delete", actions: [{ type: "keypress", keys: ["DELETE"] }] },
-        { row: 1, col: 3, label: "Import", actions: [{ type: "keypress", keys: ["CONTROL", "I"] }] },
-        { row: 1, col: 4, label: "Export", actions: [{ type: "keypress", keys: ["CONTROL", "M"] }] },
-        { row: 1, col: 5, label: "Split", actions: [{ type: "keypress", keys: ["CONTROL", "K"] }] },
-        { row: 2, col: 3, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] },
+        { row: 1, col: 0, label: "Select", actions: [{ type: "keypress", keys: ["V"] }] },
+        { row: 1, col: 1, label: "Ripple Cut", actions: [{ type: "keypress", keys: ["SHIFT", "DELETE"] }] },
+        { row: 1, col: 2, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
+        { row: 1, col: 3, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
+        { row: 2, col: 0, label: "Delete", actions: [{ type: "keypress", keys: ["DELETE"] }] },
+        { row: 2, col: 1, label: "Import", actions: [{ type: "keypress", keys: ["CONTROL", "I"] }] },
+        { row: 2, col: 2, label: "Export", actions: [{ type: "keypress", keys: ["CONTROL", "M"] }] },
+        { row: 2, col: 3, label: "Split", actions: [{ type: "keypress", keys: ["CONTROL", "K"] }] },
+        { row: 0, col: 5, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] },
         { row: 2, col: 4, label: "Zoom Out", actions: [{ type: "keypress", keys: ["CONTROL", "MINUS"] }] },
         { row: 2, col: 5, label: "Zoom In", actions: [{ type: "keypress", keys: ["CONTROL", "EQUAL"] }] }
       ]
@@ -172,15 +172,15 @@ const PRESETS = {
         { row: 0, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
         { row: 0, col: 2, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
         { row: 0, col: 3, label: "Search", actions: [{ type: "keypress", keys: ["CONTROL", "F"] }] },
-        { row: 0, col: 4, label: "Terminal", actions: [{ type: "keypress", keys: ["CONTROL", "GRAVE"] }] },
-        { row: 0, col: 5, label: "Run Dev", actions: [{ type: "text", text: "npm run dev\n" }] },
-        { row: 1, col: 0, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
-        { row: 1, col: 1, label: "Format", actions: [{ type: "keypress", keys: ["ALT", "SHIFT", "F"] }] },
-        { row: 1, col: 2, label: "Cmd Pal", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "P"] }] },
-        { row: 1, col: 3, label: "VS Code", actions: [{ type: "launch", app: "code" }] },
-        { row: 1, col: 4, label: "Chrome", actions: [{ type: "launch", app: "chrome" }] },
-        { row: 1, col: 5, label: "Git Status", actions: [{ type: "text", text: "git status\n" }] },
-        { row: 2, col: 3, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 1, col: 0, label: "Terminal", actions: [{ type: "keypress", keys: ["CONTROL", "GRAVE"] }] },
+        { row: 1, col: 1, label: "Run Dev", actions: [{ type: "text", text: "npm run dev\n" }] },
+        { row: 1, col: 2, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
+        { row: 1, col: 3, label: "Format", actions: [{ type: "keypress", keys: ["ALT", "SHIFT", "F"] }] },
+        { row: 2, col: 0, label: "Cmd Pal", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "P"] }] },
+        { row: 2, col: 1, label: "VS Code", actions: [{ type: "launch", app: "code" }] },
+        { row: 2, col: 2, label: "Chrome", actions: [{ type: "launch", app: "chrome" }] },
+        { row: 2, col: 3, label: "Git Status", actions: [{ type: "text", text: "git status\n" }] },
+        { row: 0, col: 5, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
         { row: 2, col: 4, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
         { row: 2, col: 5, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] }
       ]
@@ -508,12 +508,10 @@ function App() {
     } else if (model === '4x2') {
       return { row: Math.floor(index / 4), col: index % 4 };
     } else if (model === '6x2_encoder') {
-      if (index >= 0 && index <= 5) {
-        return { row: 0, col: index };
-      } else if (index >= 6 && index <= 11) {
-        return { row: 1, col: index - 6 };
+      if (index >= 0 && index <= 11) {
+        return { row: Math.floor(index / 4), col: index % 4 };
       } else if (index === 12) {
-        return { row: 2, col: 3 }; // ENC Button Switch
+        return { row: 0, col: 5 }; // ENC Button Switch (GP11 & GP12 via D13/RAS2)
       } else if (index === 13) {
         return { row: 2, col: 4 }; // CCW
       } else if (index === 14) {

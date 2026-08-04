@@ -44,13 +44,13 @@ The physical keyboard consists of 12 keys arranged in a 6x2 grid, with the rotar
         Col 0 (GP6)        Col 1 (GP7)        Col 2 (GP8)        Col 3 (GP9)        Col 4 (GP10)       Col 5 (GP11)
      +------------------+------------------+------------------+------------------+------------------+------------------+
 R0   |    Row 0, Col 0  |    Row 0, Col 1  |    Row 0, Col 2  |    Row 0, Col 3  |    Row 0, Col 4  |    Row 0, Col 5  |
-GP12 |      Key 1       |      Key 2       |      Key 3       |      Key 4       |      Key 5       |  [ENCODER CLICK] |
+GP12 |      Key 1       |      Key 2       |      Key 3       |      Key 4       |     (Unused)     |  [ENCODER CLICK] |
      +------------------+------------------+------------------+------------------+------------------+------------------+
 R1   |    Row 1, Col 0  |    Row 1, Col 1  |    Row 1, Col 2  |    Row 1, Col 3  |    Row 1, Col 4  |    Row 1, Col 5  |
-GP13 |      Key 6       |      Key 7       |      Key 8       |      Key 9       |      Key 10      |      Key 11      |
+GP13 |      Key 5       |      Key 6       |      Key 7       |      Key 8       |     (Unused)     |     (Unused)     |
      +------------------+------------------+------------------+------------------+------------------+------------------+
 R2   |    Row 2, Col 0  |    Row 2, Col 1  |    Row 2, Col 2  |    Row 2, Col 3  |    Row 2, Col 4  |    Row 2, Col 5  |
-GP14 |      (Unused)    |     (Unused)     |     (Unused)     |     (Unused)     |     (Unused)     |     (Unused)     |
+GP14 |      Key 9       |      Key 10      |      Key 11      |      Key 12      |   (Virtual CCW)  |   (Virtual CW)   |
      +------------------+------------------+------------------+------------------+------------------+------------------+
 ```
 *Note: In the CircuitPython firmware, virtual keycodes are generated at `(2, 4)` and `(2, 5)` to simulate encoder rotation. In QMK, virtual matrix coordinates are **not required** because QMK supports encoders natively via hardware interrupts. The encoder actions are configured in the `keymap.c` file using the `encoder_update_user` callback.*
