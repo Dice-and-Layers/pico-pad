@@ -1,22 +1,50 @@
 {
   "settings": {
     "brightness": 0.5,
-    "debounce": 0.05
+    "debounce": 0.05,
+    "board_model": "6x2_encoder"
+  },
+  "active_profile": "Default",
+  "profiles": {
+    "Default": {
+      "macros": [
+        {"row": 0, "col": 0, "label": "1", "actions": [{"type": "text", "text": "1"}]},
+        {"row": 0, "col": 1, "label": "2", "actions": [{"type": "text", "text": "2"}]},
+        {"row": 0, "col": 2, "label": "3", "actions": [{"type": "text", "text": "3"}]},
+        {"row": 0, "col": 3, "label": "4", "actions": [{"type": "text", "text": "4"}]},
+        {"row": 0, "col": 4, "label": "5", "actions": [{"type": "text", "text": "5"}]},
+        {"row": 0, "col": 5, "label": "6", "actions": [{"type": "text", "text": "6"}]},
+        {"row": 1, "col": 0, "label": "7", "actions": [{"type": "text", "text": "7"}]},
+        {"row": 1, "col": 1, "label": "8", "actions": [{"type": "text", "text": "8"}]},
+        {"row": 1, "col": 2, "label": "9", "actions": [{"type": "text", "text": "9"}]},
+        {"row": 1, "col": 3, "label": "10", "actions": [{"type": "text", "text": "10"}]},
+        {"row": 1, "col": 4, "label": "11", "actions": [{"type": "text", "text": "11"}]},
+        {"row": 1, "col": 5, "label": "12", "actions": [{"type": "text", "text": "12"}]},
+        {"row": 2, "col": 3, "label": "Mute", "actions": [{"type": "consumer", "key": "MUTE"}]},
+        {"row": 2, "col": 4, "label": "Vol-", "actions": [{"type": "consumer", "key": "VOLUME_DECREMENT"}]},
+        {"row": 2, "col": 5, "label": "Vol+", "actions": [{"type": "consumer", "key": "VOLUME_INCREMENT"}]}
+      ],
+      "settings": {
+        "brightness": 0.5,
+        "debounce": 0.05,
+        "board_model": "6x2_encoder"
+      }
+    }
   },
   "macros": [
-    {"row": 0, "col": 0, "label": "Copy", "actions": [{"type": "keypress", "keys": ["CONTROL", "C"]}]},
-    {"row": 0, "col": 1, "label": "Save", "actions": [{"type": "keypress", "keys": ["CONTROL", "S"]}]},
-    {"row": 0, "col": 2, "label": "Paste", "actions": [{"type": "keypress", "keys": ["CONTROL", "V"]}]},
-    {"row": 1, "col": 0, "label": "Mute", "actions": [{"type": "consumer", "key": "MUTE"}]},
-    {"row": 1, "col": 1, "label": "Vol-", "actions": [{"type": "consumer", "key": "VOLUME_DECREMENT"}]},
-    {"row": 1, "col": 2, "label": "Vol+", "actions": [{"type": "consumer", "key": "VOLUME_INCREMENT"}]},
-    {"row": 2, "col": 0, "label": "Email", "actions": [{"type": "text", "text": "hello@example.com"}]},
-    {"row": 2, "col": 1, "label": "Dev", "actions": [{"type": "text", "text": "npm run dev\n"}]},
-    {"row": 2, "col": 2, "label": "Lock", "actions": [{"type": "keypress", "keys": ["GUI", "L"]}]},
-    {"row": 0, "col": 3, "label": "Back", "actions": [{"type": "keypress", "keys": ["ALT", "LEFT"]}]},
-    {"row": 0, "col": 5, "label": "Mute", "actions": [{"type": "consumer", "key": "MUTE"}]},
-    {"row": 1, "col": 3, "label": "Play/Pause", "actions": [{"type": "consumer", "key": "PLAY_PAUSE"}]},
-    {"row": 2, "col": 3, "label": "Calc", "actions": [{"type": "keypress", "keys": ["GUI"]}]},
+    {"row": 0, "col": 0, "label": "1", "actions": [{"type": "text", "text": "1"}]},
+    {"row": 0, "col": 1, "label": "2", "actions": [{"type": "text", "text": "2"}]},
+    {"row": 0, "col": 2, "label": "3", "actions": [{"type": "text", "text": "3"}]},
+    {"row": 0, "col": 3, "label": "4", "actions": [{"type": "text", "text": "4"}]},
+    {"row": 0, "col": 4, "label": "5", "actions": [{"type": "text", "text": "5"}]},
+    {"row": 0, "col": 5, "label": "6", "actions": [{"type": "text", "text": "6"}]},
+    {"row": 1, "col": 0, "label": "7", "actions": [{"type": "text", "text": "7"}]},
+    {"row": 1, "col": 1, "label": "8", "actions": [{"type": "text", "text": "8"}]},
+    {"row": 1, "col": 2, "label": "9", "actions": [{"type": "text", "text": "9"}]},
+    {"row": 1, "col": 3, "label": "10", "actions": [{"type": "text", "text": "10"}]},
+    {"row": 1, "col": 4, "label": "11", "actions": [{"type": "text", "text": "11"}]},
+    {"row": 1, "col": 5, "label": "12", "actions": [{"type": "text", "text": "12"}]},
+    {"row": 2, "col": 3, "label": "Mute", "actions": [{"type": "consumer", "key": "MUTE"}]},
     {"row": 2, "col": 4, "label": "Vol-", "actions": [{"type": "consumer", "key": "VOLUME_DECREMENT"}]},
     {"row": 2, "col": 5, "label": "Vol+", "actions": [{"type": "consumer", "key": "VOLUME_INCREMENT"}]}
   ]

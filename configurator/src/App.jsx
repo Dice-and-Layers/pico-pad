@@ -123,6 +123,27 @@ const PRESETS = {
   '3x3_pro': [],
   '6x2_encoder': [
     {
+      name: "Standard Keypad (1-12 + Dial)",
+      description: "Standard 1 through 12 key labels with encoder button and volume controls.",
+      macros: [
+        { row: 0, col: 0, label: "1", actions: [{ type: "text", text: "1" }] },
+        { row: 0, col: 1, label: "2", actions: [{ type: "text", text: "2" }] },
+        { row: 0, col: 2, label: "3", actions: [{ type: "text", text: "3" }] },
+        { row: 0, col: 3, label: "4", actions: [{ type: "text", text: "4" }] },
+        { row: 0, col: 4, label: "5", actions: [{ type: "text", text: "5" }] },
+        { row: 0, col: 5, label: "6", actions: [{ type: "text", text: "6" }] },
+        { row: 1, col: 0, label: "7", actions: [{ type: "text", text: "7" }] },
+        { row: 1, col: 1, label: "8", actions: [{ type: "text", text: "8" }] },
+        { row: 1, col: 2, label: "9", actions: [{ type: "text", text: "9" }] },
+        { row: 1, col: 3, label: "10", actions: [{ type: "text", text: "10" }] },
+        { row: 1, col: 4, label: "11", actions: [{ type: "text", text: "11" }] },
+        { row: 1, col: 5, label: "12", actions: [{ type: "text", text: "12" }] },
+        { row: 2, col: 3, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 2, col: 4, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
+        { row: 2, col: 5, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] }
+      ]
+    },
+    {
       name: "Video / Audio Editor",
       description: "Speed up timeline scrubbing and edit slicing.",
       macros: [
@@ -131,13 +152,14 @@ const PRESETS = {
         { row: 0, col: 2, label: "Redo", actions: [{ type: "keypress", keys: ["CONTROL", "Y"] }] },
         { row: 0, col: 3, label: "Cut Tool", actions: [{ type: "keypress", keys: ["C"] }] },
         { row: 0, col: 4, label: "Select", actions: [{ type: "keypress", keys: ["V"] }] },
-        { row: 0, col: 5, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] },
+        { row: 0, col: 5, label: "Ripple Cut", actions: [{ type: "keypress", keys: ["SHIFT", "DELETE"] }] },
         { row: 1, col: 0, label: "Copy", actions: [{ type: "keypress", keys: ["CONTROL", "C"] }] },
         { row: 1, col: 1, label: "Paste", actions: [{ type: "keypress", keys: ["CONTROL", "V"] }] },
         { row: 1, col: 2, label: "Delete", actions: [{ type: "keypress", keys: ["DELETE"] }] },
         { row: 1, col: 3, label: "Import", actions: [{ type: "keypress", keys: ["CONTROL", "I"] }] },
         { row: 1, col: 4, label: "Export", actions: [{ type: "keypress", keys: ["CONTROL", "M"] }] },
         { row: 1, col: 5, label: "Split", actions: [{ type: "keypress", keys: ["CONTROL", "K"] }] },
+        { row: 2, col: 3, label: "Play/Pause", actions: [{ type: "consumer", key: "PLAY_PAUSE" }] },
         { row: 2, col: 4, label: "Zoom Out", actions: [{ type: "keypress", keys: ["CONTROL", "MINUS"] }] },
         { row: 2, col: 5, label: "Zoom In", actions: [{ type: "keypress", keys: ["CONTROL", "EQUAL"] }] }
       ]
@@ -151,13 +173,14 @@ const PRESETS = {
         { row: 0, col: 2, label: "Save", actions: [{ type: "keypress", keys: ["CONTROL", "S"] }] },
         { row: 0, col: 3, label: "Search", actions: [{ type: "keypress", keys: ["CONTROL", "F"] }] },
         { row: 0, col: 4, label: "Terminal", actions: [{ type: "keypress", keys: ["CONTROL", "GRAVE"] }] },
-        { row: 0, col: 5, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
+        { row: 0, col: 5, label: "Run Dev", actions: [{ type: "text", text: "npm run dev\n" }] },
         { row: 1, col: 0, label: "Undo", actions: [{ type: "keypress", keys: ["CONTROL", "Z"] }] },
         { row: 1, col: 1, label: "Format", actions: [{ type: "keypress", keys: ["ALT", "SHIFT", "F"] }] },
         { row: 1, col: 2, label: "Cmd Pal", actions: [{ type: "keypress", keys: ["CONTROL", "SHIFT", "P"] }] },
         { row: 1, col: 3, label: "VS Code", actions: [{ type: "launch", app: "code" }] },
         { row: 1, col: 4, label: "Chrome", actions: [{ type: "launch", app: "chrome" }] },
         { row: 1, col: 5, label: "Git Status", actions: [{ type: "text", text: "git status\n" }] },
+        { row: 2, col: 3, label: "Mute", actions: [{ type: "consumer", key: "MUTE" }] },
         { row: 2, col: 4, label: "Vol Down", actions: [{ type: "consumer", key: "VOLUME_DECREMENT" }] },
         { row: 2, col: 5, label: "Vol Up", actions: [{ type: "consumer", key: "VOLUME_INCREMENT" }] }
       ]
@@ -490,8 +513,10 @@ function App() {
       } else if (index >= 6 && index <= 11) {
         return { row: 1, col: index - 6 };
       } else if (index === 12) {
-        return { row: 2, col: 4 }; // CCW
+        return { row: 2, col: 3 }; // ENC Button Switch
       } else if (index === 13) {
+        return { row: 2, col: 4 }; // CCW
+      } else if (index === 14) {
         return { row: 2, col: 5 }; // CW
       }
     } else if (model === '5x3_2encoders') {
@@ -519,10 +544,9 @@ function App() {
 
   const getSelectedKeyName = () => {
     if (settings.board_model === '6x2_encoder') {
-      if (selectedIdx === 5) return 'Encoder Button (ENC)';
-      if (selectedIdx === 12) return 'Encoder Rotation CCW (↺)';
-      if (selectedIdx === 13) return 'Encoder Rotation CW (↻)';
-      if (selectedIdx > 5) return `Key ${selectedIdx}`;
+      if (selectedIdx === 12) return 'Encoder Button (ENC)';
+      if (selectedIdx === 13) return 'Encoder Rotation CCW (↺)';
+      if (selectedIdx === 14) return 'Encoder Rotation CW (↻)';
       return `Key ${selectedIdx + 1}`;
     } else if (settings.board_model === '5x3_2encoders') {
       if (selectedIdx === 15) return 'Encoder 1 Button (ENC1)';
@@ -573,17 +597,17 @@ function App() {
     let extraClass = '';
     
     if (settings.board_model === '6x2_encoder') {
-      if (i === 5) {
+      if (i === 12) {
         displayNum = 'ENC';
         extraClass = 'encoder-key';
-      } else if (i === 12) {
+      } else if (i === 13) {
         displayNum = '↺ CCW';
         extraClass = 'encoder-ccw';
-      } else if (i === 13) {
+      } else if (i === 14) {
         displayNum = '↻ CW';
         extraClass = 'encoder-cw';
-      } else if (i > 5 && i < 12) {
-        displayNum = i;
+      } else {
+        displayNum = i + 1;
       }
     } else if (settings.board_model === '5x3_2encoders') {
       if (i === 15) {
@@ -698,17 +722,17 @@ function App() {
       let extraClass = '';
       
       if (galleryModel === '6x2_encoder') {
-        if (i === 5) {
+        if (i === 12) {
           displayNum = 'ENC';
           extraClass = 'encoder-key';
-        } else if (i === 12) {
+        } else if (i === 13) {
           displayNum = '↺ CCW';
           extraClass = 'encoder-ccw';
-        } else if (i === 13) {
+        } else if (i === 14) {
           displayNum = '↻ CW';
           extraClass = 'encoder-cw';
-        } else if (i > 5 && i < 12) {
-          displayNum = i;
+        } else {
+          displayNum = i + 1;
         }
       } else if (galleryModel === '5x3_2encoders') {
         if (i === 15) {
@@ -772,9 +796,9 @@ function App() {
           <div className="key-placeholder"></div>
           <div className="key-placeholder"></div>
           <div className="key-placeholder"></div>
-          <div className="key-placeholder"></div>
           {renderPreviewKey(12)}
           {renderPreviewKey(13)}
+          {renderPreviewKey(14)}
         </div>
       );
     }
@@ -928,19 +952,19 @@ function App() {
                 [0, 1, 2, 3, 4, 5, 6, 7].map(i => renderKey(i))
               ) : is6x2 ? (
                 <>
-                  {/* Row 1 */}
+                  {/* Row 1: Keys 1 to 6 */}
                   {[0, 1, 2, 3, 4, 5].map(i => renderKey(i))}
                   
-                  {/* Row 2 */}
+                  {/* Row 2: Keys 7 to 12 */}
                   {[6, 7, 8, 9, 10, 11].map(i => renderKey(i))}
                   
-                  {/* Row 3 */}
-                  <div className="key-placeholder"></div>
+                  {/* Row 3: Encoder Controls */}
                   <div className="key-placeholder"></div>
                   <div className="key-placeholder"></div>
                   <div className="key-placeholder"></div>
                   {renderKey(12)}
                   {renderKey(13)}
+                  {renderKey(14)}
                 </>
               ) : is5x3_2encoders ? (
                 <>
@@ -997,7 +1021,7 @@ function App() {
                       let maxIdx = 8;
                       if (modelVal === '1x3') maxIdx = 2;
                       else if (modelVal === '4x2') maxIdx = 7;
-                      else if (modelVal === '6x2_encoder') maxIdx = 13;
+                      else if (modelVal === '6x2_encoder') maxIdx = 14;
                       else if (modelVal === '5x3_2encoders') maxIdx = 20;
                       
                       if (selectedIdx > maxIdx) {
