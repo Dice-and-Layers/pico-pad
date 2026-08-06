@@ -61,25 +61,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // Initialize GPIO pins for 3x3 LED matrix control
 void keyboard_pre_init_user(void) {
     // LED Columns (Cathodes, Active Low): GP7, GP8, GP9
-    setPinOutput(GP7); writePinHigh(GP7);
-    setPinOutput(GP8); writePinHigh(GP8);
-    setPinOutput(GP9); writePinHigh(GP9);
+    gpio_set_pin_output(GP7); gpio_write_pin_high(GP7);
+    gpio_set_pin_output(GP8); gpio_write_pin_high(GP8);
+    gpio_set_pin_output(GP9); gpio_write_pin_high(GP9);
 
     // LED Rows (Anodes, Active High): GP10, GP11, GP12
-    setPinOutput(GP10); writePinLow(GP10);
-    setPinOutput(GP11); writePinLow(GP11);
-    setPinOutput(GP12); writePinLow(GP12);
+    gpio_set_pin_output(GP10); gpio_write_pin_low(GP10);
+    gpio_set_pin_output(GP11); gpio_write_pin_low(GP10);
+    gpio_set_pin_output(GP12); gpio_write_pin_low(GP12);
 }
 
 // Multiplex backlights and active profile indicator
 void matrix_scan_user(void) {
     // Turn off all LED matrix pins first to clear state
-    writePinHigh(GP7);
-    writePinHigh(GP8);
-    writePinHigh(GP9);
-    writePinLow(GP10);
-    writePinLow(GP11);
-    writePinLow(GP12);
+    gpio_write_pin_high(GP7);
+    gpio_write_pin_high(GP8);
+    gpio_write_pin_high(GP9);
+    gpio_write_pin_low(GP10);
+    gpio_write_pin_low(GP11);
+    gpio_write_pin_low(GP12);
 
     bool key_is_pressed = false;
     uint8_t active_row = 0;
@@ -103,15 +103,15 @@ void matrix_scan_user(void) {
         pin_t row_pin = (active_row == 0) ? GP10 : (active_row == 1) ? GP11 : GP12;
         pin_t col_pin = (active_col == 0) ? GP7  : (active_col == 1) ? GP8  : GP9;
 
-        writePinHigh(row_pin);
-        writePinLow(col_pin);
+        gpio_write_pin_high(row_pin);
+        gpio_write_pin_low(col_pin);
     } else {
         // Idle: Indicate active profile/layer on row 0 (LED 0-2)
         uint8_t current_layer = get_highest_layer(layer_state);
         pin_t col_pin = (current_layer == 0) ? GP7 : (current_layer == 1) ? GP8 : GP9;
         
-        writePinHigh(GP10); // Row 0 HIGH
-        writePinLow(col_pin); // Active column cathode LOW
+        gpio_write_pin_high(GP10); // Row 0 HIGH
+        gpio_write_pin_low(col_pin); // Active column cathode LOW
     }
 }
 
