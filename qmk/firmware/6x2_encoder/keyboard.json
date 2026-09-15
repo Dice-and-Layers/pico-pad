@@ -19,9 +19,10 @@
         "extrakey": true,
         "mousekey": true,
         "nkro": true,
-        "rgblight": true,
+        "rgblight": false,
         "encoder": true,
-        "via": true
+        "via": true,
+        "oled": false
     },
     "matrix_pins": {
         "cols": ["GP6", "GP7", "GP8", "GP9", "GP10", "GP11"],
@@ -35,32 +36,24 @@
             }
         ]
     },
-    "rgblight": {
-        "pin": "GP16",
-        "led_count": 1,
-        "animations": {
-            "breathing": true,
-            "rainbow_mood": true,
-            "rainbow_swirl": true,
-            "static_gradient": true
-        }
-    },
     "layouts": {
         "LAYOUT": {
             "layout": [
-                {"label": "K00", "x": 0, "y": 0, "matrix": [0, 0]},
-                {"label": "K01", "x": 1, "y": 0, "matrix": [0, 1]},
-                {"label": "K02", "x": 2, "y": 0, "matrix": [0, 2]},
-                {"label": "K03", "x": 3, "y": 0, "matrix": [0, 3]},
-                {"label": "ENC", "x": 5, "y": 0, "matrix": [0, 5]},
-                {"label": "K10", "x": 0, "y": 1, "matrix": [1, 0]},
-                {"label": "K11", "x": 1, "y": 1, "matrix": [1, 1]},
-                {"label": "K12", "x": 2, "y": 1, "matrix": [1, 2]},
-                {"label": "K13", "x": 3, "y": 1, "matrix": [1, 3]},
-                {"label": "K20", "x": 0, "y": 2, "matrix": [2, 0]},
-                {"label": "K21", "x": 1, "y": 2, "matrix": [2, 1]},
-                {"label": "K22", "x": 2, "y": 2, "matrix": [2, 2]},
-                {"label": "K23", "x": 3, "y": 2, "matrix": [2, 3]}
+                {"label": "ENC", "x": 0, "y": 0, "matrix": [0, 5]},
+                
+                {"label": "K00", "x": 1, "y": 0, "matrix": [0, 0]},
+                {"label": "K01", "x": 2, "y": 0, "matrix": [0, 1]},
+                {"label": "K02", "x": 3, "y": 0, "matrix": [0, 2]},
+                {"label": "K03", "x": 4, "y": 0, "matrix": [0, 3]},
+                {"label": "K04", "x": 5, "y": 0, "matrix": [1, 1]},
+                {"label": "K05", "x": 6, "y": 0, "matrix": [1, 0]},
+                
+                {"label": "K10", "x": 1, "y": 1, "matrix": [2, 0]},
+                {"label": "K11", "x": 2, "y": 1, "matrix": [2, 1]},
+                {"label": "K12", "x": 3, "y": 1, "matrix": [2, 2]},
+                {"label": "K13", "x": 4, "y": 1, "matrix": [2, 3]},
+                {"label": "K14", "x": 5, "y": 1, "matrix": [1, 3]},
+                {"label": "K15", "x": 6, "y": 1, "matrix": [1, 2]}
             ]
         }
     }

@@ -80,3 +80,33 @@ The LED matrix consists of 9 backlight LEDs located directly under the main 3x3 
    qmk flash -kb dice_layers/3x3_pro -keymap default
    ```
 4. Once completed, the RP2040 will reboot automatically as a QMK-compatible keyboard.
+
+---
+
+## 🔄 Restoring / Remapping the Profile Switch in VIA
+
+The Profile Switcher button is the standalone button located at matrix position **Row 0, Col 3 (`0,3`)**. In the firmware ([keymap.c](file:///c:/Users/Sathish/Downloads/macro-keyboard/qmk/firmware/3x3_pro/keymaps/default/keymap.c)), this button runs custom code (`KC_PROF_SW = SAFE_RANGE` / `0x7E00`) that cycles through layers `0 -> 1 -> 2 -> 0` and updates the OLED and LED matrix indicators.
+
+If this button has been remapped in VIA, restore it using one of the following methods:
+
+### Method 1: Using the "Custom" Tab (with updated `via_3x3_pro.json`)
+1. In VIA, go to the **Design** tab and load [via_3x3_pro.json](file:///c:/Users/Sathish/Downloads/macro-keyboard/qmk/via_3x3_pro.json).
+2. Go to the **Configure** tab and select the top-right button (`0,3`).
+3. In the keycode selector at the bottom, click the **CUSTOM** tab.
+4. Click **`PROF_SW`**.
+5. Repeat for **all 3 layers** (Layer 0, Layer 1, and Layer 2) so the switcher works regardless of the active profile.
+
+### Method 2: Using the "Any" Key in VIA
+1. In the **Configure** tab, select the top-right button (`0,3`).
+2. In the bottom panel, click the **SPECIAL** tab.
+3. Click **Any**.
+4. In the text prompt, enter:
+   ```text
+   0x7E00
+   ```
+   *(or enter `USER00`)*
+5. Repeat for **all 3 layers** (Layer 0, Layer 1, and Layer 2).
+
+### Method 3: Reset EEPROM to Factory Defaults
+- In VIA, go to **Settings** / **Tools** and select **Reset EEPROM** to wipe stored customizations and revert all keys back to the firmware's default layout.
+

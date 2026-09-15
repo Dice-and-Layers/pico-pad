@@ -1,0 +1,16 @@
+{
+  "name": "Dice and Layers 1x3",
+  "vendorId": "0x444C",
+  "productId": "0x0005",
+  "matrix": {
+    "rows": 1,
+    "cols": 3
+  },
+  "layouts": {
+    "keymap": [
+      [
+        { "x": 0, "y": 0 }, "0,0", "0,1", "0,2"
+      ]
+    ]
+  }
+}

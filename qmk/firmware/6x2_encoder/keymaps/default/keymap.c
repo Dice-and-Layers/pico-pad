@@ -1,27 +1,37 @@
 #include QMK_KEYBOARD_H
 
-// Define standard keymap for the 6x2 Encoder model
-// Row 0 has 4 keys (1-4) + Encoder click (mapped as KC_MUTE)
-// Row 1 has 4 keys (5-8)
-// Row 2 has 4 keys (9-12)
+// Define 4-layer keymap for 6x2 Encoder model
+// Output order left-to-right:
+// Top row: 1, 2, 3, 4, 5, 6
+// Bottom row: 7, 8, 9, 0, -, =
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
-        KC_1,    KC_2,    KC_3,    KC_4,    KC_MUTE,
-        KC_5,    KC_6,    KC_7,    KC_8,
-        KC_9,    KC_0,    KC_MINS, KC_EQL
+        TG(1),
+        KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,
+        KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL
+    ),
+    [1] = LAYOUT(
+        TG(2),
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+    ),
+    [2] = LAYOUT(
+        TG(3),
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+    ),
+    [3] = LAYOUT(
+        TO(0),
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     )
 };
 
-// Handle rotary encoder rotation events
-#ifdef ENCODER_ENABLE
-bool encoder_update_user(uint8_t index, bool clockwise) {
-    if (index == 0) { // Onboard main rotary encoder
-        if (clockwise) {
-            tap_code(KC_VOLU); // Volume Up
-        } else {
-            tap_code(KC_VOLD); // Volume Down
-        }
-    }
-    return false; // Handled
-}
+#if defined(ENCODER_MAP_ENABLE)
+const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
+    [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [1] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [2] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [3] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) }
+};
 #endif
