@@ -164,3 +164,12 @@ In custom handwired or custom PCB layouts, the physical orientation of diodes de
   - In `info.json` for the `6x2_encoder` model, find the `"encoder"` configurations under the `"pins"` array.
   - Swap the two pin definitions: e.g. change `["GP2", "GP3"]` to `["GP3", "GP2"]`.
   - Compile and flash again.
+
+#### 3. Cut, Copy, or Paste Stuck or Holding Command
+Modern operating systems (Windows/macOS) do not natively process legacy HID Cut/Copy/Paste codes, which can cause the OS to leave keys in a stuck or held state.
+- **Firmware Patch:** The latest firmware source automatically intercepts `KC_CUT`, `KC_COPY`, `KC_PASTE`, `KC_UNDO`, and `KC_FIND` in `process_record_user()` to send atomic OS shortcuts (`Ctrl+X/C/V/Z/F`).
+- **Mapping in VIA:** Go to **Special** -> **Any** and enter:
+  - Copy: `C(KC_C)` *(macOS: `G(KC_C)`)*
+  - Paste: `C(KC_V)` *(macOS: `G(KC_V)`)*
+  - Cut: `C(KC_X)` *(macOS: `G(KC_X)`)*
+- **Using Macros:** In VIA's **MACROS** tab, use `{KC_LCTL,KC_C}` rather than `{+KC_LCTL}{+KC_C}` so the modifier release command is not omitted.

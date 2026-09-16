@@ -110,3 +110,28 @@ If this button has been remapped in VIA, restore it using one of the following m
 ### Method 3: Reset EEPROM to Factory Defaults
 - In VIA, go to **Settings** / **Tools** and select **Reset EEPROM** to wipe stored customizations and revert all keys back to the firmware's default layout.
 
+---
+
+## 📋 Mapping Cut, Copy, Paste in VIA (Preventing Stuck Keys)
+
+Modern operating systems (Windows and macOS) do not support legacy USB HID Cut/Copy/Paste codes natively. If unhandled, clicking the default "Cut/Copy/Paste" buttons in VIA can cause keys or modifiers to stay stuck in a "held" state.
+
+### 1. Firmware Auto-Patch
+In this firmware, `process_record_user()` automatically intercepts VIA's `KC_CUT`, `KC_COPY`, `KC_PASTE`, `KC_UNDO`, and `KC_FIND` keycodes and translates them into atomic OS shortcuts (`Ctrl+X`, `Ctrl+C`, `Ctrl+V`, `Ctrl+Z`, `Ctrl+F`). Both key press and release are handled instantaneously.
+
+### 2. Best Practice Mapping in VIA ("Any" Key)
+To map shortcuts with full control without relying on macros:
+1. In VIA, click the target key in the **Configure** tab.
+2. Go to the **SPECIAL** tab at the bottom and click **Any**.
+3. Type the shortcut:
+   - **Copy:** `C(KC_C)` *(macOS: `G(KC_C)`)*
+   - **Paste:** `C(KC_V)` *(macOS: `G(KC_V)`)*
+   - **Cut:** `C(KC_X)` *(macOS: `G(KC_X)`)*
+   - **Undo:** `C(KC_Z)` *(macOS: `G(KC_Z)`)*
+4. Click **Confirm**.
+
+### 3. If using VIA's Macro Editor
+If you use the **MACROS** tab in VIA:
+- **Correct Syntax:** `{KC_LCTL,KC_C}` (enclosing in a single `{}` automatically presses and releases both keys together).
+- **Avoid:** `{+KC_LCTL}{+KC_C}` without a corresponding `{-KC_LCTL}` release, as this leaves the `Ctrl` key permanently held down.
+- **Emergency Release:** If a modifier gets stuck on your system, simply tap the physical `Ctrl` key on your main keyboard or press `Ctrl + Alt + Del` then `Esc`.

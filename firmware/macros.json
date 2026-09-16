@@ -2,74 +2,582 @@
   "settings": {
     "brightness": 0.5,
     "debounce": 0.05,
-    "board_model": "6x2_encoder"
+    "board_model": "3x3_pro"
   },
   "active_profile": "Default",
   "profiles": {
     "Default": {
       "macros": [
-        {"row": 0, "col": 0, "label": "1", "actions": [{"type": "text", "text": "1"}]},
-        {"row": 0, "col": 1, "label": "2", "actions": [{"type": "text", "text": "2"}]},
-        {"row": 0, "col": 2, "label": "3", "actions": [{"type": "text", "text": "3"}]},
-        {"row": 0, "col": 3, "label": "4", "actions": [{"type": "text", "text": "4"}]},
-        {"row": 1, "col": 1, "label": "5", "actions": [{"type": "text", "text": "5"}]},
-        {"row": 1, "col": 0, "label": "6", "actions": [{"type": "text", "text": "6"}]},
-        {"row": 2, "col": 0, "label": "7", "actions": [{"type": "text", "text": "7"}]},
-        {"row": 2, "col": 1, "label": "8", "actions": [{"type": "text", "text": "8"}]},
-        {"row": 2, "col": 2, "label": "9", "actions": [{"type": "text", "text": "9"}]},
-        {"row": 2, "col": 3, "label": "10", "actions": [{"type": "text", "text": "10"}]},
-        {"row": 1, "col": 3, "label": "11", "actions": [{"type": "text", "text": "11"}]},
-        {"row": 1, "col": 2, "label": "12", "actions": [{"type": "text", "text": "12"}]},
-        {"row": 0, "col": 5, "label": "Layer Switch", "actions": [{"type": "profile_switch"}]},
-        {"row": 2, "col": 4, "label": "Vol-", "actions": [{"type": "consumer", "key": "VOLUME_DECREMENT"}]},
-        {"row": 2, "col": 5, "label": "Vol+", "actions": [{"type": "consumer", "key": "VOLUME_INCREMENT"}]}
+        {
+          "row": 0,
+          "col": 0,
+          "label": "UNDO",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "Z"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 1,
+          "label": "REDO",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "Y"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 2,
+          "label": "WIN+L",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "GUI",
+                "L"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 3,
+          "label": "Switch Layer",
+          "actions": [
+            {
+              "type": "profile_switch"
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 1,
+          "label": "CTRL",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 0,
+          "label": "SHIFT",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "SHIFT"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 0,
+          "label": "COPY",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "C"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 1,
+          "label": "PASTE",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "V"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 2,
+          "label": "CUT",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "X"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 3,
+          "label": "10",
+          "actions": [
+            {
+              "type": "text",
+              "text": "10"
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 3,
+          "label": "11",
+          "actions": [
+            {
+              "type": "text",
+              "text": "11"
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 2,
+          "label": "TAB",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "TAB"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 5,
+          "label": "Layer Switch",
+          "actions": [
+            {
+              "type": "profile_switch"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 4,
+          "label": "Vol-",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "VOLUME_DECREMENT"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "label": "Vol+",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "VOLUME_INCREMENT"
+            }
+          ]
+        }
       ],
       "settings": {
         "brightness": 0.5,
         "debounce": 0.05,
-        "board_model": "6x2_encoder"
+        "board_model": "3x3_pro"
       }
     },
     "Media & Apps": {
       "macros": [
-        {"row": 0, "col": 0, "label": "Copy", "actions": [{"type": "keypress", "keys": ["CONTROL", "C"]}]},
-        {"row": 0, "col": 1, "label": "Paste", "actions": [{"type": "keypress", "keys": ["CONTROL", "V"]}]},
-        {"row": 0, "col": 2, "label": "Save", "actions": [{"type": "keypress", "keys": ["CONTROL", "S"]}]},
-        {"row": 0, "col": 3, "label": "Search", "actions": [{"type": "keypress", "keys": ["CONTROL", "F"]}]},
-        {"row": 1, "col": 1, "label": "Play/Pause", "actions": [{"type": "consumer", "key": "PLAY_PAUSE"}]},
-        {"row": 1, "col": 0, "label": "Mute", "actions": [{"type": "consumer", "key": "MUTE"}]},
-        {"row": 2, "col": 0, "label": "Prev Track", "actions": [{"type": "consumer", "key": "SCAN_PREVIOUS_TRACK"}]},
-        {"row": 2, "col": 1, "label": "Next Track", "actions": [{"type": "consumer", "key": "SCAN_NEXT_TRACK"}]},
-        {"row": 2, "col": 2, "label": "VS Code", "actions": [{"type": "launch", "app": "code"}]},
-        {"row": 2, "col": 3, "label": "Chrome", "actions": [{"type": "launch", "app": "chrome"}]},
-        {"row": 1, "col": 3, "label": "Terminal", "actions": [{"type": "keypress", "keys": ["CONTROL", "GRAVE"]}]},
-        {"row": 1, "col": 2, "label": "Lock PC", "actions": [{"type": "keypress", "keys": ["GUI", "L"]}]},
-        {"row": 0, "col": 5, "label": "Layer Switch", "actions": [{"type": "profile_switch"}]},
-        {"row": 2, "col": 4, "label": "Vol-", "actions": [{"type": "consumer", "key": "VOLUME_DECREMENT"}]},
-        {"row": 2, "col": 5, "label": "Vol+", "actions": [{"type": "consumer", "key": "VOLUME_INCREMENT"}]}
+        {
+          "row": 0,
+          "col": 0,
+          "label": "Copy",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "C"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 1,
+          "label": "Paste",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "V"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 2,
+          "label": "Save",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "S"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 3,
+          "label": "Switch Layer",
+          "actions": [
+            {
+              "type": "profile_switch"
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 1,
+          "label": "Play/Pause",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "PLAY_PAUSE"
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 0,
+          "label": "Mute",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "MUTE"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 0,
+          "label": "Prev Track",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "SCAN_PREVIOUS_TRACK"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 1,
+          "label": "Next Track",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "SCAN_NEXT_TRACK"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 2,
+          "label": "VS Code",
+          "actions": [
+            {
+              "type": "launch",
+              "app": "code"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 3,
+          "label": "Chrome",
+          "actions": [
+            {
+              "type": "launch",
+              "app": "chrome"
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 3,
+          "label": "Terminal",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "CONTROL",
+                "GRAVE"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 1,
+          "col": 2,
+          "label": "Lock PC",
+          "actions": [
+            {
+              "type": "keypress",
+              "keys": [
+                "GUI",
+                "L"
+              ]
+            }
+          ]
+        },
+        {
+          "row": 0,
+          "col": 5,
+          "label": "Layer Switch",
+          "actions": [
+            {
+              "type": "profile_switch"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 4,
+          "label": "Vol-",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "VOLUME_DECREMENT"
+            }
+          ]
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "label": "Vol+",
+          "actions": [
+            {
+              "type": "consumer",
+              "key": "VOLUME_INCREMENT"
+            }
+          ]
+        }
       ],
       "settings": {
         "brightness": 0.5,
         "debounce": 0.05,
-        "board_model": "6x2_encoder"
+        "board_model": "3x3_pro"
       }
     }
   },
   "macros": [
-    {"row": 0, "col": 0, "label": "1", "actions": [{"type": "text", "text": "1"}]},
-    {"row": 0, "col": 1, "label": "2", "actions": [{"type": "text", "text": "2"}]},
-    {"row": 0, "col": 2, "label": "3", "actions": [{"type": "text", "text": "3"}]},
-    {"row": 0, "col": 3, "label": "4", "actions": [{"type": "text", "text": "4"}]},
-    {"row": 1, "col": 1, "label": "5", "actions": [{"type": "text", "text": "5"}]},
-    {"row": 1, "col": 0, "label": "6", "actions": [{"type": "text", "text": "6"}]},
-    {"row": 2, "col": 0, "label": "7", "actions": [{"type": "text", "text": "7"}]},
-    {"row": 2, "col": 1, "label": "8", "actions": [{"type": "text", "text": "8"}]},
-    {"row": 2, "col": 2, "label": "9", "actions": [{"type": "text", "text": "9"}]},
-    {"row": 2, "col": 3, "label": "10", "actions": [{"type": "text", "text": "10"}]},
-    {"row": 1, "col": 3, "label": "11", "actions": [{"type": "text", "text": "11"}]},
-    {"row": 1, "col": 2, "label": "12", "actions": [{"type": "text", "text": "12"}]},
-    {"row": 0, "col": 5, "label": "Layer Switch", "actions": [{"type": "profile_switch"}]},
-    {"row": 2, "col": 4, "label": "Vol-", "actions": [{"type": "consumer", "key": "VOLUME_DECREMENT"}]},
-    {"row": 2, "col": 5, "label": "Vol+", "actions": [{"type": "consumer", "key": "VOLUME_INCREMENT"}]}
+    {
+      "row": 0,
+      "col": 0,
+      "label": "UNDO",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "CONTROL",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "label": "REDO",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "CONTROL",
+            "Y"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "label": "WIN+L",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "GUI",
+            "L"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "label": "4",
+      "actions": [
+        {
+          "type": "text",
+          "text": "4"
+        }
+      ]
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "label": "CTRL",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "CONTROL"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "label": "SHIFT",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "SHIFT"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "label": "COPY",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "CONTROL",
+            "C"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "label": "PASTE",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "CONTROL",
+            "V"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "label": "CUT",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "CONTROL",
+            "X"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "label": "10",
+      "actions": [
+        {
+          "type": "text",
+          "text": "10"
+        }
+      ]
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "label": "11",
+      "actions": [
+        {
+          "type": "text",
+          "text": "11"
+        }
+      ]
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "label": "TAB",
+      "actions": [
+        {
+          "type": "keypress",
+          "keys": [
+            "TAB"
+          ]
+        }
+      ]
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "label": "Layer Switch",
+      "actions": [
+        {
+          "type": "profile_switch"
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "label": "Vol-",
+      "actions": [
+        {
+          "type": "consumer",
+          "key": "VOLUME_DECREMENT"
+        }
+      ]
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "label": "Vol+",
+      "actions": [
+        {
+          "type": "consumer",
+          "key": "VOLUME_INCREMENT"
+        }
+      ]
+    }
   ]
 }

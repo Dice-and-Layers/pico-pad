@@ -248,7 +248,13 @@ const PRESETS = {
   ]
 };
 
-PRESETS['3x3_pro'] = PRESETS['3x3'];
+PRESETS['3x3_pro'] = PRESETS['3x3'].map(preset => ({
+  ...preset,
+  macros: [
+    ...preset.macros,
+    { row: 0, col: 3, label: "Switch Layer", actions: [{ type: "profile_switch" }] }
+  ]
+}));
 
 function App() {
   const [dirHandle, setDirHandle] = useState(null);
@@ -507,6 +513,14 @@ function App() {
       return { row: 0, col: index };
     } else if (model === '4x2') {
       return { row: Math.floor(index / 4), col: index % 4 };
+    } else if (model === '3x3_pro') {
+      if (index === 9) {
+        return { row: 0, col: 3 };
+      }
+      return {
+        row: Math.floor(index / 3),
+        col: index % 3
+      };
     } else if (model === '6x2_encoder') {
       const keyMap6x2 = [
         { row: 0, col: 0 }, // Key 1
@@ -552,7 +566,10 @@ function App() {
   };
 
   const getSelectedKeyName = () => {
-    if (settings.board_model === '6x2_encoder') {
+    if (settings.board_model === '3x3_pro') {
+      if (selectedIdx === 9) return 'Profile Switch Button (SW)';
+      return `Key ${selectedIdx + 1}`;
+    } else if (settings.board_model === '6x2_encoder') {
       if (selectedIdx === 12) return 'Encoder Button (ENC)';
       if (selectedIdx === 13) return 'Encoder Rotation CCW (↺)';
       if (selectedIdx === 14) return 'Encoder Rotation CW (↻)';
@@ -571,11 +588,10 @@ function App() {
   };
 
   const coords = getKeyCoordinates(settings.board_model, selectedIdx);
-  const selectedMacro = macros.find(m => m.row === coords.row && m.col === coords.col) || {
-    row: coords.row,
-    col: coords.col,
-    ...DEFAULT_MACRO
-  };
+  const defaultMacroForCoords = (settings.board_model === '3x3_pro' && coords.row === 0 && coords.col === 3)
+    ? { row: coords.row, col: coords.col, label: "Switch Layer", actions: [{ type: "profile_switch" }] }
+    : { row: coords.row, col: coords.col, ...DEFAULT_MACRO };
+  const selectedMacro = macros.find(m => m.row === coords.row && m.col === coords.col) || defaultMacroForCoords;
 
   const updateMacroInList = (updatedMacro) => {
     const existingIdx = macros.findIndex(m => m.row === updatedMacro.row && m.col === updatedMacro.col);
@@ -605,7 +621,12 @@ function App() {
     let displayNum = i + 1;
     let extraClass = '';
     
-    if (settings.board_model === '6x2_encoder') {
+    if (settings.board_model === '3x3_pro') {
+      if (i === 9) {
+        displayNum = 'SW';
+        extraClass = 'profile-btn';
+      }
+    } else if (settings.board_model === '6x2_encoder') {
       if (i === 12) {
         displayNum = 'ENC';
         extraClass = 'encoder-key';
@@ -641,13 +662,14 @@ function App() {
     }
     
     const isProfileSwitch = macro?.actions?.some(a => a.type === 'profile_switch' || a.type === 'layer_switch');
-    const iconChar = macro?.label ? macro.label[0] : isProfileSwitch ? '🔄' : displayNum;
-    const labelText = macro?.label ? macro.label : isProfileSwitch ? 'Switch Layer' : 'Not Configured';
+    const is3x3ProSwitch = settings.board_model === '3x3_pro' && i === 9;
+    const iconChar = macro?.label ? macro.label[0] : (isProfileSwitch || is3x3ProSwitch) ? '🔄' : displayNum;
+    const labelText = macro?.label ? macro.label : isProfileSwitch ? 'Switch Layer' : is3x3ProSwitch ? 'Profile Switch' : 'Not Configured';
 
     return (
       <div
         key={i}
-        className={`key ${selectedIdx === i ? 'selected' : ''} ${extraClass} ${isProfileSwitch ? 'profile-btn' : ''}`}
+        className={`key ${selectedIdx === i ? 'selected' : ''} ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`}
         onClick={() => setSelectedIdx(i)}
       >
         <span className="key-icon">{iconChar}</span>
@@ -736,7 +758,12 @@ function App() {
       let displayNum = i + 1;
       let extraClass = '';
       
-      if (galleryModel === '6x2_encoder') {
+      if (galleryModel === '3x3_pro') {
+        if (i === 9) {
+          displayNum = 'SW';
+          extraClass = 'profile-btn';
+        }
+      } else if (galleryModel === '6x2_encoder') {
         if (i === 12) {
           displayNum = 'ENC';
           extraClass = 'encoder-key';
@@ -771,10 +798,15 @@ function App() {
         }
       }
 
+      const isProfileSwitch = m?.actions?.some(a => a.type === 'profile_switch' || a.type === 'layer_switch');
+      const is3x3ProSwitch = galleryModel === '3x3_pro' && i === 9;
+      const iconChar = m?.label ? m.label[0] : (isProfileSwitch || is3x3ProSwitch) ? '🔄' : displayNum;
+      const labelText = m?.label || (isProfileSwitch || is3x3ProSwitch ? 'Switch Layer' : 'Empty');
+
       return (
-        <div key={i} className={`key preview-key ${extraClass}`} style={{ cursor: 'default' }}>
-          <span className="key-icon" style={{ fontSize: '1.2rem' }}>{m?.label ? m.label[0] : displayNum}</span>
-          <span className="key-label" style={{ fontSize: '0.65rem' }}>{m?.label || 'Empty'}</span>
+        <div key={i} className={`key preview-key ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`} style={{ cursor: 'default' }}>
+          <span className="key-icon" style={{ fontSize: '1.2rem' }}>{iconChar}</span>
+          <span className="key-label" style={{ fontSize: '0.65rem' }}>{labelText}</span>
         </div>
       );
     };
@@ -783,10 +815,7 @@ function App() {
       return (
         <div className={`grid ${getGridClass()}`} style={{ pointerEvents: 'none' }}>
           {[0, 1, 2].map(i => renderPreviewKey(i))}
-          <div className="key profile-btn" style={{ cursor: 'default' }}>
-            <span className="key-icon" style={{ fontSize: '1.2rem' }}>🔄</span>
-            <span className="key-label" style={{ fontSize: '0.65rem' }}>Switch</span>
-          </div>
+          {renderPreviewKey(9)}
           {[3, 4, 5].map(i => renderPreviewKey(i))}
           <div className="key-placeholder"></div>
           {[6, 7, 8].map(i => renderPreviewKey(i))}
@@ -950,10 +979,7 @@ function App() {
                 <>
                   {/* Row 1 */}
                   {[0, 1, 2].map(i => renderKey(i))}
-                  <div className="key profile-btn" onClick={handleProfileSwitchClick} title="Click to switch active profile preview">
-                    <span className="key-icon">🔄</span>
-                    <span className="key-label">Profile Switch</span>
-                  </div>
+                  {renderKey(9)}
                   
                   {/* Row 2 */}
                   {[3, 4, 5].map(i => renderKey(i))}
@@ -1007,7 +1033,7 @@ function App() {
             </div>
             <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: '500' }}>
               {is3x3Pro 
-                ? "Click macro keys 1-9 to edit. The 🔄 button switches profiles."
+                ? "Click keys 1-9 or the SW profile button to edit. You can remap the switcher to any action or keep it as profile switch."
                 : is4x2
                 ? "Click keys 1-8 to edit macro sequences for your 4x2 matrix."
                 : is6x2
@@ -1036,6 +1062,7 @@ function App() {
                       let maxIdx = 8;
                       if (modelVal === '1x3') maxIdx = 2;
                       else if (modelVal === '4x2') maxIdx = 7;
+                      else if (modelVal === '3x3_pro') maxIdx = 9;
                       else if (modelVal === '6x2_encoder') maxIdx = 14;
                       else if (modelVal === '5x3_2encoders') maxIdx = 20;
                       

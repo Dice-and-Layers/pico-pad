@@ -35,3 +35,37 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [3] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) }
 };
 #endif
+
+// Intercept legacy HID Cut/Copy/Paste/Undo/Find from VIA and send atomic OS shortcuts
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case KC_CUT:
+            if (record->event.pressed) {
+                tap_code16(C(KC_X));
+            }
+            return false;
+        case KC_COPY:
+            if (record->event.pressed) {
+                tap_code16(C(KC_C));
+            }
+            return false;
+        case KC_PASTE:
+            if (record->event.pressed) {
+                tap_code16(C(KC_V));
+            }
+            return false;
+        case KC_UNDO:
+            if (record->event.pressed) {
+                tap_code16(C(KC_Z));
+            }
+            return false;
+        case KC_FIND:
+            if (record->event.pressed) {
+                tap_code16(C(KC_F));
+            }
+            return false;
+        default:
+            return true;
+    }
+}
+

@@ -1,0 +1,36 @@
+{
+    "keyboard_name": "Macro 1x3",
+    "manufacturer": "Custom",
+    "maintainer": "Custom",
+    "usb": {
+        "vid": "0x444C",
+        "pid": "0x0005",
+        "device_version": "0.0.1",
+        "max_power": 100
+    },
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true
+    },
+    "matrix_pins": {
+        "direct": [
+            ["GP0", "GP2", "GP1"]
+        ]
+    },
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+    "board": "GENERIC_RP_RP2040",
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                {"matrix": [0, 0], "x": 0, "y": 0},
+                {"matrix": [0, 1], "x": 1, "y": 0},
+                {"matrix": [0, 2], "x": 2, "y": 0}
+            ]
+        }
+    }
+}

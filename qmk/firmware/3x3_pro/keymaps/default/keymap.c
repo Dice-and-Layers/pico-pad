@@ -45,6 +45,33 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
+        // Intercept legacy HID Cut/Copy/Paste/Undo/Find from VIA and send atomic OS shortcuts
+        case KC_CUT:
+            if (record->event.pressed) {
+                tap_code16(C(KC_X));
+            }
+            return false;
+        case KC_COPY:
+            if (record->event.pressed) {
+                tap_code16(C(KC_C));
+            }
+            return false;
+        case KC_PASTE:
+            if (record->event.pressed) {
+                tap_code16(C(KC_V));
+            }
+            return false;
+        case KC_UNDO:
+            if (record->event.pressed) {
+                tap_code16(C(KC_Z));
+            }
+            return false;
+        case KC_FIND:
+            if (record->event.pressed) {
+                tap_code16(C(KC_F));
+            }
+            return false;
+
         case KC_PROF_SW:
             if (record->event.pressed) {
                 // Cycle through profiles 0 -> 1 -> 2 -> 0
@@ -67,7 +94,7 @@ void keyboard_pre_init_user(void) {
 
     // LED Rows (Anodes, Active High): GP10, GP11, GP12
     gpio_set_pin_output(GP10); gpio_write_pin_low(GP10);
-    gpio_set_pin_output(GP11); gpio_write_pin_low(GP10);
+    gpio_set_pin_output(GP11); gpio_write_pin_low(GP11);
     gpio_set_pin_output(GP12); gpio_write_pin_low(GP12);
 }
 
