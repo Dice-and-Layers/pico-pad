@@ -88,6 +88,7 @@ def get_macro(r, c):
     return None
 
 KEY_ALIASES = {
+    # Modifiers
     "CTRL": "CONTROL",
     "LCTRL": "LEFT_CONTROL",
     "RCTRL": "RIGHT_CONTROL",
@@ -102,16 +103,74 @@ KEY_ALIASES = {
     "WIN": "GUI",
     "WINDOWS": "GUI",
     "SUPER": "GUI",
+    "LGUI": "LEFT_GUI",
+    "RGUI": "RIGHT_GUI",
+    "LMETA": "LEFT_GUI",
+    "RMETA": "RIGHT_GUI",
+    # Navigation & Control
     "ESC": "ESCAPE",
     "DEL": "DELETE",
     "INS": "INSERT",
     "PGUP": "PAGE_UP",
     "PGDN": "PAGE_DOWN",
+    "PAGEUP": "PAGE_UP",
+    "PAGEDOWN": "PAGE_DOWN",
     "UP": "UP_ARROW",
     "DOWN": "DOWN_ARROW",
     "LEFT": "LEFT_ARROW",
     "RIGHT": "RIGHT_ARROW",
     "RETURN": "ENTER",
+    "SPACEBAR": "SPACE",
+    "BS": "BACKSPACE",
+    "BKSP": "BACKSPACE",
+    "CAPS": "CAPS_LOCK",
+    "CAPSLOCK": "CAPS_LOCK",
+    "PRTSC": "PRINT_SCREEN",
+    "PRINTSCREEN": "PRINT_SCREEN",
+    "PRINT_SCRN": "PRINT_SCREEN",
+    "SNAPSHOT": "PRINT_SCREEN",
+    "SCROLLLOCK": "SCROLL_LOCK",
+    "SCRLK": "SCROLL_LOCK",
+    "PAUSE_BREAK": "PAUSE",
+    "BREAK": "PAUSE",
+    "APP": "APPLICATION",
+    "APPS": "APPLICATION",
+    "MENU": "APPLICATION",
+    # Function Keys (F1 - F24 aliases)
+    "FN1": "F1", "FN2": "F2", "FN3": "F3", "FN4": "F4", "FN5": "F5", "FN6": "F6",
+    "FN7": "F7", "FN8": "F8", "FN9": "F9", "FN10": "F10", "FN11": "F11", "FN12": "F12",
+    "FN13": "F13", "FN14": "F14", "FN15": "F15", "FN16": "F16", "FN17": "F17", "FN18": "F18",
+    "FN19": "F19", "FN20": "F20", "FN21": "F21", "FN22": "F22", "FN23": "F23", "FN24": "F24",
+    "FN_1": "F1", "FN_2": "F2", "FN_3": "F3", "FN_4": "F4", "FN_5": "F5", "FN_6": "F6",
+    "FN_7": "F7", "FN_8": "F8", "FN_9": "F9", "FN_10": "F10", "FN_11": "F11", "FN_12": "F12",
+    "FN_13": "F13", "FN_14": "F14", "FN_15": "F15", "FN_16": "F16", "FN_17": "F17", "FN_18": "F18",
+    "FN_19": "F19", "FN_20": "F20", "FN_21": "F21", "FN_22": "F22", "FN_23": "F23", "FN_24": "F24",
+    # Number Row (0 - 9)
+    "0": "ZERO", "1": "ONE", "2": "TWO", "3": "THREE", "4": "FOUR",
+    "5": "FIVE", "6": "SIX", "7": "SEVEN", "8": "EIGHT", "9": "NINE",
+    # Punctuation & Symbols
+    "-": "MINUS",
+    "=": "EQUALS",
+    "EQUAL": "EQUALS",
+    "[": "LEFT_BRACKET",
+    "]": "RIGHT_BRACKET",
+    "LBRACKET": "LEFT_BRACKET",
+    "RBRACKET": "RIGHT_BRACKET",
+    "\\": "BACKSLASH",
+    ";": "SEMICOLON",
+    "'": "QUOTE",
+    "\"": "QUOTE",
+    "APOSTROPHE": "QUOTE",
+    "`": "GRAVE_ACCENT",
+    "GRAVE": "GRAVE_ACCENT",
+    "BACKTICK": "GRAVE_ACCENT",
+    "TILDE": "GRAVE_ACCENT",
+    ",": "COMMA",
+    ".": "PERIOD",
+    "DOT": "PERIOD",
+    "/": "FORWARD_SLASH",
+    "SLASH": "FORWARD_SLASH",
+    "#": "POUND",
     # Numpad Digits (0 - 9)
     "NUMPAD_0": "KEYPAD_ZERO", "NUMPAD0": "KEYPAD_ZERO", "KP_0": "KEYPAD_ZERO", "KP0": "KEYPAD_ZERO", "NUM_0": "KEYPAD_ZERO", "PAD_0": "KEYPAD_ZERO",
     "NUMPAD_1": "KEYPAD_ONE",  "NUMPAD1": "KEYPAD_ONE",  "KP_1": "KEYPAD_ONE",  "KP1": "KEYPAD_ONE",  "NUM_1": "KEYPAD_ONE",  "PAD_1": "KEYPAD_ONE",
@@ -131,7 +190,7 @@ KEY_ALIASES = {
     "NUMPAD_DIVIDE": "KEYPAD_FORWARD_SLASH", "NUMPAD_SLASH": "KEYPAD_FORWARD_SLASH", "KP_DIVIDE": "KEYPAD_FORWARD_SLASH", "KP_SLASH": "KEYPAD_FORWARD_SLASH", "KEYPAD_DIVIDE": "KEYPAD_FORWARD_SLASH", "KEYPAD_SLASH": "KEYPAD_FORWARD_SLASH",
     "NUMPAD_ENTER": "KEYPAD_ENTER", "KP_ENTER": "KEYPAD_ENTER",
     "NUMPAD_EQUALS": "KEYPAD_EQUALS", "KP_EQUALS": "KEYPAD_EQUALS",
-    "NUMLOCK": "KEYPAD_NUMLOCK", "NUM_LOCK": "KEYPAD_NUMLOCK"
+    "NUMLOCK": "KEYPAD_NUMLOCK", "NUM_LOCK": "KEYPAD_NUMLOCK", "NUMPAD_LOCK": "KEYPAD_NUMLOCK", "NUMPADLOCK": "KEYPAD_NUMLOCK"
 }
 
 def resolve_keycodes(key_names):
@@ -139,12 +198,17 @@ def resolve_keycodes(key_names):
     for k in key_names:
         if not isinstance(k, str):
             continue
-        k_upper = k.strip().upper()
-        name = KEY_ALIASES.get(k_upper, k_upper)
+        k_str = k.strip()
+        k_upper = k_str.upper()
+        # 1. Lookup in alias map (case-insensitive, fallback to original)
+        name = KEY_ALIASES.get(k_upper, KEY_ALIASES.get(k_str, k_upper))
+        # 2. Check Keycode attributes
         if hasattr(Keycode, name):
             resolved.append(getattr(Keycode, name))
-        elif hasattr(Keycode, k):
-            resolved.append(getattr(Keycode, k))
+        elif hasattr(Keycode, k_upper):
+            resolved.append(getattr(Keycode, k_upper))
+        elif hasattr(Keycode, k_str):
+            resolved.append(getattr(Keycode, k_str))
         else:
             print(f"Warning: Keycode '{k}' not found in Keycode")
     return resolved

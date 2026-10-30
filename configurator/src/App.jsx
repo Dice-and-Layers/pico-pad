@@ -298,9 +298,321 @@ PRESETS['3x3_pro'] = PRESETS['3x3'].map(preset => ({
 PRESETS['6x2'] = PRESETS['6x2_encoder'];
 PRESETS['5x3'] = PRESETS['5x3_2encoders'];
 
+const STANDARD_KEYCODES = [
+  {
+    category: "Function Row (F1 – F24)",
+    icon: "⚡",
+    description: "Standard function keys and extended macro triggers",
+    keys: [
+      { name: "F1", aliases: ["f1", "FN1"], desc: "Function 1 (Help, Screen brightness)" },
+      { name: "F2", aliases: ["f2", "FN2"], desc: "Function 2 (Rename file/item)" },
+      { name: "F3", aliases: ["f3", "FN3"], desc: "Function 3 (Find next/Search)" },
+      { name: "F4", aliases: ["f4", "FN4"], desc: "Function 4 (Address bar / Alt+F4 Close)" },
+      { name: "F5", aliases: ["f5", "FN5"], desc: "Function 5 (Refresh/Reload page)" },
+      { name: "F6", aliases: ["f6", "FN6"], desc: "Function 6 (Focus address bar)" },
+      { name: "F7", aliases: ["f7", "FN7"], desc: "Function 7 (Caret browsing, Spell check)" },
+      { name: "F8", aliases: ["f8", "FN8"], desc: "Function 8 (Boot menu, Safe mode)" },
+      { name: "F9", aliases: ["f9", "FN9"], desc: "Function 9 (Compile code, Refresh doc)" },
+      { name: "F10", aliases: ["f10", "FN10"], desc: "Function 10 (Activate menu bar)" },
+      { name: "F11", aliases: ["f11", "FN11"], desc: "Function 11 (Toggle Fullscreen)" },
+      { name: "F12", aliases: ["f12", "FN12"], desc: "Function 12 (Developer tools / Save As)" },
+      { name: "F13", aliases: ["f13", "FN13"], desc: "Extended F13 (Ideal for OBS & custom macros)" },
+      { name: "F14", aliases: ["f14", "FN14"], desc: "Extended F14 (Dedicated macro trigger)" },
+      { name: "F15", aliases: ["f15", "FN15"], desc: "Extended F15 (Dedicated macro trigger)" },
+      { name: "F16", aliases: ["f16", "FN16"], desc: "Extended F16 (Dedicated macro trigger)" },
+      { name: "F17", aliases: ["f17", "FN17"], desc: "Extended F17 (Dedicated macro trigger)" },
+      { name: "F18", aliases: ["f18", "FN18"], desc: "Extended F18 (Dedicated macro trigger)" },
+      { name: "F19", aliases: ["f19", "FN19"], desc: "Extended F19 (Dedicated macro trigger)" },
+      { name: "F20", aliases: ["f20", "FN20"], desc: "Extended F20 (Dedicated macro trigger)" },
+      { name: "F21", aliases: ["f21", "FN21"], desc: "Extended F21 (Dedicated macro trigger)" },
+      { name: "F22", aliases: ["f22", "FN22"], desc: "Extended F22 (Dedicated macro trigger)" },
+      { name: "F23", aliases: ["f23", "FN23"], desc: "Extended F23 (Dedicated macro trigger)" },
+      { name: "F24", aliases: ["f24", "FN24"], desc: "Extended F24 (Dedicated macro trigger)" },
+    ]
+  },
+  {
+    category: "Modifiers & System",
+    icon: "🎛️",
+    description: "Modifier keys for hotkeys and system-level actions",
+    keys: [
+      { name: "CONTROL", aliases: ["CTRL"], desc: "Control modifier key" },
+      { name: "SHIFT", aliases: ["LSHIFT", "RSHIFT"], desc: "Shift modifier key" },
+      { name: "ALT", aliases: ["OPT", "OPTION"], desc: "Alt / Option modifier key" },
+      { name: "GUI", aliases: ["WIN", "CMD", "COMMAND", "SUPER"], desc: "Windows / Command key" },
+      { name: "LEFT_CONTROL", aliases: ["LCTRL"], desc: "Left Control key" },
+      { name: "RIGHT_CONTROL", aliases: ["RCTRL"], desc: "Right Control key" },
+      { name: "LEFT_SHIFT", aliases: ["LSHIFT"], desc: "Left Shift key" },
+      { name: "RIGHT_SHIFT", aliases: ["RSHIFT"], desc: "Right Shift key" },
+      { name: "LEFT_ALT", aliases: ["LALT"], desc: "Left Alt key" },
+      { name: "RIGHT_ALT", aliases: ["RALT"], desc: "Right Alt key" },
+      { name: "LEFT_GUI", aliases: ["LGUI", "LWIN"], desc: "Left Windows/Cmd key" },
+      { name: "RIGHT_GUI", aliases: ["RGUI", "RWIN"], desc: "Right Windows/Cmd key" },
+      { name: "CAPS_LOCK", aliases: ["CAPS", "CAPSLOCK"], desc: "Caps Lock toggle" },
+      { name: "APPLICATION", aliases: ["APP", "APPS", "MENU"], desc: "Context Menu / App key" },
+    ]
+  },
+  {
+    category: "Navigation & Editing",
+    icon: "🧭",
+    description: "Cursor navigation and document editing controls",
+    keys: [
+      { name: "ENTER", aliases: ["RETURN"], desc: "Enter / Return key" },
+      { name: "ESCAPE", aliases: ["ESC"], desc: "Escape key" },
+      { name: "BACKSPACE", aliases: ["BS", "BKSP"], desc: "Backspace / Delete back" },
+      { name: "TAB", aliases: ["tab"], desc: "Tabulator key" },
+      { name: "SPACE", aliases: ["SPACEBAR"], desc: "Spacebar" },
+      { name: "INSERT", aliases: ["INS"], desc: "Insert key" },
+      { name: "DELETE", aliases: ["DEL"], desc: "Delete forward" },
+      { name: "HOME", aliases: ["home"], desc: "Home (line / document start)" },
+      { name: "END", aliases: ["end"], desc: "End (line / document end)" },
+      { name: "PAGE_UP", aliases: ["PGUP", "PAGEUP"], desc: "Page Up scroll" },
+      { name: "PAGE_DOWN", aliases: ["PGDN", "PAGEDOWN"], desc: "Page Down scroll" },
+      { name: "PRINT_SCREEN", aliases: ["PRTSC", "PRINTSCREEN", "SNAPSHOT"], desc: "Print Screen / Snapshot" },
+      { name: "SCROLL_LOCK", aliases: ["SCRLK", "SCROLLLOCK"], desc: "Scroll Lock" },
+      { name: "PAUSE", aliases: ["BREAK", "PAUSE_BREAK"], desc: "Pause / Break" },
+    ]
+  },
+  {
+    category: "Direction Arrows",
+    icon: "🎯",
+    description: "4-way directional navigation arrows",
+    keys: [
+      { name: "UP_ARROW", aliases: ["UP"], desc: "Up arrow" },
+      { name: "DOWN_ARROW", aliases: ["DOWN"], desc: "Down arrow" },
+      { name: "LEFT_ARROW", aliases: ["LEFT"], desc: "Left arrow" },
+      { name: "RIGHT_ARROW", aliases: ["RIGHT"], desc: "Right arrow" },
+    ]
+  },
+  {
+    category: "Alphanumeric (A–Z & 0–9)",
+    icon: "🔤",
+    description: "Standard letter keys and top number row",
+    keys: [
+      ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(ch => ({
+        name: ch,
+        aliases: [ch.toLowerCase()],
+        desc: `Letter ${ch}`
+      })),
+      { name: "ONE", aliases: ["1"], desc: "Number 1" },
+      { name: "TWO", aliases: ["2"], desc: "Number 2" },
+      { name: "THREE", aliases: ["3"], desc: "Number 3" },
+      { name: "FOUR", aliases: ["4"], desc: "Number 4" },
+      { name: "FIVE", aliases: ["5"], desc: "Number 5" },
+      { name: "SIX", aliases: ["6"], desc: "Number 6" },
+      { name: "SEVEN", aliases: ["7"], desc: "Number 7" },
+      { name: "EIGHT", aliases: ["8"], desc: "Number 8" },
+      { name: "NINE", aliases: ["9"], desc: "Number 9" },
+      { name: "ZERO", aliases: ["0"], desc: "Number 0" },
+    ]
+  },
+  {
+    category: "Punctuation & Symbols",
+    icon: "🔣",
+    description: "Standard keyboard symbol and punctuation keys",
+    keys: [
+      { name: "MINUS", aliases: ["-"], desc: "Minus / Hyphen (-)" },
+      { name: "EQUALS", aliases: ["=", "EQUAL"], desc: "Equals (=)" },
+      { name: "LEFT_BRACKET", aliases: ["[", "LBRACKET"], desc: "Left Bracket ([)" },
+      { name: "RIGHT_BRACKET", aliases: ["]", "RBRACKET"], desc: "Right Bracket (])" },
+      { name: "BACKSLASH", aliases: ["\\"], desc: "Backslash (\\)" },
+      { name: "SEMICOLON", aliases: [";"], desc: "Semicolon (;)" },
+      { name: "QUOTE", aliases: ["'", "\"", "APOSTROPHE"], desc: "Quote / Apostrophe (')" },
+      { name: "GRAVE_ACCENT", aliases: ["`", "GRAVE", "BACKTICK", "TILDE"], desc: "Grave accent / Backtick (`)" },
+      { name: "COMMA", aliases: [","], desc: "Comma (,)" },
+      { name: "PERIOD", aliases: [".", "DOT"], desc: "Period / Full stop (.)" },
+      { name: "FORWARD_SLASH", aliases: ["/", "SLASH"], desc: "Forward slash (/)" },
+      { name: "POUND", aliases: ["#"], desc: "Pound / Hash (#)" },
+    ]
+  },
+  {
+    category: "Numeric Keypad",
+    icon: "🔢",
+    description: "Dedicated numpad digits and arithmetic controls",
+    keys: [
+      { name: "KEYPAD_ZERO", aliases: ["NUMPAD_0", "NUMPAD0", "KP_0"], desc: "Numpad 0" },
+      { name: "KEYPAD_ONE", aliases: ["NUMPAD_1", "NUMPAD1", "KP_1"], desc: "Numpad 1" },
+      { name: "KEYPAD_TWO", aliases: ["NUMPAD_2", "NUMPAD2", "KP_2"], desc: "Numpad 2" },
+      { name: "KEYPAD_THREE", aliases: ["NUMPAD_3", "NUMPAD3", "KP_3"], desc: "Numpad 3" },
+      { name: "KEYPAD_FOUR", aliases: ["NUMPAD_4", "NUMPAD4", "KP_4"], desc: "Numpad 4" },
+      { name: "KEYPAD_FIVE", aliases: ["NUMPAD_5", "NUMPAD5", "KP_5"], desc: "Numpad 5" },
+      { name: "KEYPAD_SIX", aliases: ["NUMPAD_6", "NUMPAD6", "KP_6"], desc: "Numpad 6" },
+      { name: "KEYPAD_SEVEN", aliases: ["NUMPAD_7", "NUMPAD7", "KP_7"], desc: "Numpad 7" },
+      { name: "KEYPAD_EIGHT", aliases: ["NUMPAD_8", "NUMPAD8", "KP_8"], desc: "Numpad 8" },
+      { name: "KEYPAD_NINE", aliases: ["NUMPAD_9", "NUMPAD9", "KP_9"], desc: "Numpad 9" },
+      { name: "KEYPAD_PLUS", aliases: ["NUMPAD_PLUS", "KP_PLUS"], desc: "Numpad Add (+)" },
+      { name: "KEYPAD_MINUS", aliases: ["NUMPAD_MINUS", "KP_MINUS"], desc: "Numpad Subtract (-)" },
+      { name: "KEYPAD_ASTERISK", aliases: ["NUMPAD_MULTIPLY", "KP_MULTIPLY", "NUMPAD_STAR"], desc: "Numpad Multiply (*)" },
+      { name: "KEYPAD_FORWARD_SLASH", aliases: ["NUMPAD_DIVIDE", "KP_DIVIDE", "NUMPAD_SLASH"], desc: "Numpad Divide (/)" },
+      { name: "KEYPAD_PERIOD", aliases: ["NUMPAD_PERIOD", "NUMPAD_DOT", "KP_PERIOD"], desc: "Numpad Decimal (.)" },
+      { name: "KEYPAD_ENTER", aliases: ["NUMPAD_ENTER", "KP_ENTER"], desc: "Numpad Enter" },
+      { name: "KEYPAD_NUMLOCK", aliases: ["NUMPAD_LOCK", "NUMLOCK", "NUM_LOCK"], desc: "Num Lock toggle" },
+      { name: "KEYPAD_EQUALS", aliases: ["NUMPAD_EQUALS", "KP_EQUALS"], desc: "Numpad Equals (=)" },
+    ]
+  },
+  {
+    category: "Media & Consumer Controls",
+    icon: "🎵",
+    description: "Consumer Control audio, playback, and system controls",
+    keys: [
+      { name: "VOLUME_INCREMENT", aliases: ["VOLUME_UP"], desc: "Increase volume" },
+      { name: "VOLUME_DECREMENT", aliases: ["VOLUME_DOWN"], desc: "Decrease volume" },
+      { name: "MUTE", aliases: ["AUDIO_MUTE"], desc: "Mute audio output" },
+      { name: "PLAY_PAUSE", aliases: ["PLAY"], desc: "Play / Pause media" },
+      { name: "SCAN_NEXT_TRACK", aliases: ["NEXT_TRACK"], desc: "Next track (⏩)" },
+      { name: "SCAN_PREVIOUS_TRACK", aliases: ["PREV_TRACK"], desc: "Previous track (⏪)" },
+    ]
+  }
+];
+
+const VIRTUAL_KB_ROWS = [
+  // Row 1: Function row
+  [
+    { label: 'Esc', key: 'ESCAPE', wide: true },
+    { label: 'F1', key: 'F1' },
+    { label: 'F2', key: 'F2' },
+    { label: 'F3', key: 'F3' },
+    { label: 'F4', key: 'F4' },
+    { label: 'F5', key: 'F5' },
+    { label: 'F6', key: 'F6' },
+    { label: 'F7', key: 'F7' },
+    { label: 'F8', key: 'F8' },
+    { label: 'F9', key: 'F9' },
+    { label: 'F10', key: 'F10' },
+    { label: 'F11', key: 'F11' },
+    { label: 'F12', key: 'F12' }
+  ],
+  // Row 2: Number row
+  [
+    { label: '`~', key: 'GRAVE_ACCENT' },
+    { label: '1', key: 'ONE' },
+    { label: '2', key: 'TWO' },
+    { label: '3', key: 'THREE' },
+    { label: '4', key: 'FOUR' },
+    { label: '5', key: 'FIVE' },
+    { label: '6', key: 'SIX' },
+    { label: '7', key: 'SEVEN' },
+    { label: '8', key: 'EIGHT' },
+    { label: '9', key: 'NINE' },
+    { label: '0', key: 'ZERO' },
+    { label: '-_', key: 'MINUS' },
+    { label: '=+', key: 'EQUALS' },
+    { label: '⌫', key: 'BACKSPACE', wide: true }
+  ],
+  // Row 3: Tab & QWERTY
+  [
+    { label: 'Tab', key: 'TAB', wide: true },
+    { label: 'Q', key: 'Q' },
+    { label: 'W', key: 'W' },
+    { label: 'E', key: 'E' },
+    { label: 'R', key: 'R' },
+    { label: 'T', key: 'T' },
+    { label: 'Y', key: 'Y' },
+    { label: 'U', key: 'U' },
+    { label: 'I', key: 'I' },
+    { label: 'O', key: 'O' },
+    { label: 'P', key: 'P' },
+    { label: '[{', key: 'LEFT_BRACKET' },
+    { label: ']}', key: 'RIGHT_BRACKET' },
+    { label: '\\|', key: 'BACKSLASH' }
+  ],
+  // Row 4: Caps & Home row
+  [
+    { label: 'Caps', key: 'CAPS_LOCK', wide: true },
+    { label: 'A', key: 'A' },
+    { label: 'S', key: 'S' },
+    { label: 'D', key: 'D' },
+    { label: 'F', key: 'F' },
+    { label: 'G', key: 'G' },
+    { label: 'H', key: 'H' },
+    { label: 'J', key: 'J' },
+    { label: 'K', key: 'K' },
+    { label: 'L', key: 'L' },
+    { label: ';:', key: 'SEMICOLON' },
+    { label: '\'"', key: 'QUOTE' },
+    { label: '↵ Enter', key: 'ENTER', wider: true }
+  ],
+  // Row 5: Shift & Bottom row
+  [
+    { label: '⇧ Shift', key: 'SHIFT', wider: true },
+    { label: 'Z', key: 'Z' },
+    { label: 'X', key: 'X' },
+    { label: 'C', key: 'C' },
+    { label: 'V', key: 'V' },
+    { label: 'B', key: 'B' },
+    { label: 'N', key: 'N' },
+    { label: 'M', key: 'M' },
+    { label: ',<', key: 'COMMA' },
+    { label: '.>', key: 'PERIOD' },
+    { label: '/?', key: 'FORWARD_SLASH' },
+    { label: '⇧ Shift', key: 'RIGHT_SHIFT', wider: true }
+  ],
+  // Row 6: Modifiers & Space
+  [
+    { label: 'Ctrl', key: 'CONTROL', wide: true },
+    { label: 'Win', key: 'GUI', wide: true },
+    { label: 'Alt', key: 'ALT', wide: true },
+    { label: 'Space', key: 'SPACE', space: true },
+    { label: 'Alt', key: 'RIGHT_ALT', wide: true },
+    { label: 'Menu', key: 'APPLICATION', wide: true },
+    { label: 'Ctrl', key: 'RIGHT_CONTROL', wide: true }
+  ]
+];
+
+const VIRTUAL_NAV_KEYS = [
+  { label: 'PrtSc', key: 'PRINT_SCREEN' },
+  { label: 'ScrLk', key: 'SCROLL_LOCK' },
+  { label: 'Pause', key: 'PAUSE' },
+  { label: 'Ins', key: 'INSERT' },
+  { label: 'Home', key: 'HOME' },
+  { label: 'PgUp', key: 'PAGE_UP' },
+  { label: 'Del', key: 'DELETE' },
+  { label: 'End', key: 'END' },
+  { label: 'PgDn', key: 'PAGE_DOWN' },
+  { label: '↑ Up', key: 'UP_ARROW' },
+  { label: '↓ Down', key: 'DOWN_ARROW' },
+  { label: '← Left', key: 'LEFT_ARROW' },
+  { label: '→ Right', key: 'RIGHT_ARROW' }
+];
+
+const isKeyInAction = (keys, keyName) => {
+  if (!Array.isArray(keys) || keys.length === 0 || !keyName) return false;
+  const upper = String(keyName).toUpperCase();
+  return keys.some(k => {
+    const ku = String(k).toUpperCase();
+    if (ku === upper) return true;
+    if (upper === 'CONTROL' && (ku === 'CTRL' || ku === 'LCTRL' || ku === 'RCTRL')) return true;
+    if (upper === 'SHIFT' && (ku === 'LSHIFT' || ku === 'RSHIFT')) return true;
+    if (upper === 'ALT' && (ku === 'LALT' || ku === 'RALT' || ku === 'OPT' || ku === 'OPTION')) return true;
+    if (upper === 'GUI' && (ku === 'WIN' || ku === 'CMD' || ku === 'COMMAND' || ku === 'SUPER' || ku === 'WINDOWS')) return true;
+    if (upper === 'ENTER' && ku === 'RETURN') return true;
+    if (upper === 'ESCAPE' && ku === 'ESC') return true;
+    if (upper === 'DELETE' && ku === 'DEL') return true;
+    if (upper === 'INSERT' && ku === 'INS') return true;
+    if (upper === 'BACKSPACE' && (ku === 'BS' || ku === 'BKSP')) return true;
+    if (upper === 'PAGE_UP' && (ku === 'PGUP' || ku === 'PAGEUP')) return true;
+    if (upper === 'PAGE_DOWN' && (ku === 'PGDN' || ku === 'PAGEDOWN')) return true;
+    if (upper === 'UP_ARROW' && ku === 'UP') return true;
+    if (upper === 'DOWN_ARROW' && ku === 'DOWN') return true;
+    if (upper === 'LEFT_ARROW' && ku === 'LEFT') return true;
+    if (upper === 'RIGHT_ARROW' && ku === 'RIGHT') return true;
+    if (upper === 'KEYPAD_NUMLOCK' && (ku === 'NUMLOCK' || ku === 'NUM_LOCK' || ku === 'NUMPAD_LOCK')) return true;
+    if (upper === 'ONE' && ku === '1') return true;
+    if (upper === 'TWO' && ku === '2') return true;
+    if (upper === 'THREE' && ku === '3') return true;
+    if (upper === 'FOUR' && ku === '4') return true;
+    if (upper === 'FIVE' && ku === '5') return true;
+    if (upper === 'SIX' && ku === '6') return true;
+    if (upper === 'SEVEN' && ku === '7') return true;
+    if (upper === 'EIGHT' && ku === '8') return true;
+    if (upper === 'NINE' && ku === '9') return true;
+    if (upper === 'ZERO' && ku === '0') return true;
+    return false;
+  });
+};
+
 function App() {
   const [dirHandle, setDirHandle] = useState(null);
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => localStorage.getItem('configurator_theme') || 'dark');
   const [showHelp, setShowHelp] = useState(false);
   const [profiles, setProfiles] = useState(() => {
     try {
@@ -327,8 +639,32 @@ function App() {
 
   // Flow & Action Editor State
   const [openNumpad, setOpenNumpad] = useState({});
+  const [openExtendedFn, setOpenExtendedFn] = useState({});
+  const [openKeyboardDrawer, setOpenKeyboardDrawer] = useState({});
+  const [keyboardClusterTab, setKeyboardClusterTab] = useState('full');
   const [selectedStepIdx, setSelectedStepIdx] = useState(0);
   const [boardConfigOpen, setBoardConfigOpen] = useState(false);
+
+  // Help View State
+  const [helpSearchQuery, setHelpSearchQuery] = useState('');
+  const [helpSelectedCategory, setHelpSelectedCategory] = useState('All');
+  const [copiedKeycode, setCopiedKeycode] = useState(null);
+
+  const copyKeycodeToClipboard = (codeName) => {
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(codeName).then(() => {
+        setCopiedKeycode(codeName);
+        showToast(`Copied ${codeName} to clipboard!`, 2000);
+        setTimeout(() => setCopiedKeycode(null), 2000);
+      }).catch(() => {
+        setCopiedKeycode(codeName);
+        setTimeout(() => setCopiedKeycode(null), 2000);
+      });
+    } else {
+      setCopiedKeycode(codeName);
+      setTimeout(() => setCopiedKeycode(null), 2000);
+    }
+  };
 
   // Toast State
   const [toastMessage, setToastMessage] = useState('');
@@ -391,6 +727,7 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('configurator_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -797,14 +1134,24 @@ function App() {
       iconChar = '🔄';
     }
 
+    const hasActions = macro && Array.isArray(macro.actions) && macro.actions.length > 0;
+    const isConfigured = Boolean(macro?.label || hasActions || isProfileSwitch || is3x3ProSwitch);
+
     return (
       <div
         key={i}
-        className={`key ${selectedIdx === i ? 'selected' : ''} ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`}
+        className={`key ${selectedIdx === i ? 'selected' : ''} ${isConfigured ? 'is-configured' : 'is-unconfigured'} ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`}
         onClick={() => handleSelectKey(i)}
+        title={`Key ${i + 1}: ${labelText}`}
       >
-        <span className="key-icon">{iconChar}</span>
-        <span className="key-label">{labelText}</span>
+        <div className="keycap-dish">
+          <div className="key-header-meta">
+            <span className="key-number-tag">{displayNum}</span>
+            <span className={`key-status-dot ${isConfigured ? 'active' : ''}`} />
+          </div>
+          <span className="key-icon">{iconChar}</span>
+          <span className="key-label">{labelText}</span>
+        </div>
       </div>
     );
   };
@@ -863,16 +1210,16 @@ function App() {
     const isModifier = ['CONTROL', 'SHIFT', 'ALT', 'GUI'].includes(keyName);
     let newKeys;
     if (isModifier) {
-      if (currentKeys.includes(keyName)) {
-        newKeys = currentKeys.filter(k => k !== keyName);
+      if (isKeyInAction(currentKeys, keyName)) {
+        newKeys = currentKeys.filter(k => !isKeyInAction([k], keyName));
       } else {
         newKeys = [keyName, ...currentKeys];
       }
     } else {
-      if (!currentKeys.includes(keyName)) {
-        newKeys = [...currentKeys, keyName];
+      if (isKeyInAction(currentKeys, keyName)) {
+        newKeys = currentKeys.filter(k => !isKeyInAction([k], keyName));
       } else {
-        newKeys = currentKeys;
+        newKeys = [...currentKeys, keyName];
       }
     }
     handleActionChange(actionIdx, 'keys', newKeys.join(', '));
@@ -1527,7 +1874,7 @@ function App() {
                     { label: 'Alt', key: 'ALT' },
                     { label: 'Win/Cmd', key: 'GUI' }
                   ].map(m => {
-                    const isActive = (currentAction.keys || []).includes(m.key);
+                    const isActive = isKeyInAction(currentAction.keys, m.key);
                     return (
                       <button
                         key={m.key}
@@ -1542,9 +1889,92 @@ function App() {
                 </div>
               </div>
 
+              {/* Function Keys Row (F1 – F12 & F13 – F24) */}
+              <div className="options-sub-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="options-field-label">Function Keys (F1 – F12)</label>
+                  <button
+                    type="button"
+                    className="options-sub-link-btn"
+                    onClick={() => setOpenExtendedFn(prev => ({ ...prev, [ai]: !prev[ai] }))}
+                  >
+                    {openExtendedFn[ai] ? '▲ Hide F13–F24' : '▾ Show F13–F24'}
+                  </button>
+                </div>
+                <div className="fn-keys-cluster-container">
+                  <div className="fn-keys-cluster">
+                    {['F1', 'F2', 'F3', 'F4'].map(fk => {
+                      const isActive = isKeyInAction(currentAction.keys, fk);
+                      return (
+                        <button
+                          key={fk}
+                          type="button"
+                          className={`options-fn-btn ${isActive ? 'active' : ''}`}
+                          onClick={() => insertKeyToKeypress(ai, fk)}
+                          title={`Toggle ${fk}`}
+                        >
+                          {fk}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="fn-keys-cluster">
+                    {['F5', 'F6', 'F7', 'F8'].map(fk => {
+                      const isActive = isKeyInAction(currentAction.keys, fk);
+                      return (
+                        <button
+                          key={fk}
+                          type="button"
+                          className={`options-fn-btn ${isActive ? 'active' : ''}`}
+                          onClick={() => insertKeyToKeypress(ai, fk)}
+                          title={`Toggle ${fk}`}
+                        >
+                          {fk}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="fn-keys-cluster">
+                    {['F9', 'F10', 'F11', 'F12'].map(fk => {
+                      const isActive = isKeyInAction(currentAction.keys, fk);
+                      return (
+                        <button
+                          key={fk}
+                          type="button"
+                          className={`options-fn-btn ${isActive ? 'active' : ''}`}
+                          onClick={() => insertKeyToKeypress(ai, fk)}
+                          title={`Toggle ${fk}`}
+                        >
+                          {fk}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {openExtendedFn[ai] && (
+                  <div className="fn-keys-extended-grid" style={{ marginTop: '0.4rem' }}>
+                    {['F13', 'F14', 'F15', 'F16', 'F17', 'F18', 'F19', 'F20', 'F21', 'F22', 'F23', 'F24'].map(fk => {
+                      const isActive = isKeyInAction(currentAction.keys, fk);
+                      return (
+                        <button
+                          key={fk}
+                          type="button"
+                          className={`options-fn-btn extended ${isActive ? 'active' : ''}`}
+                          onClick={() => insertKeyToKeypress(ai, fk)}
+                          title={`Toggle ${fk}`}
+                        >
+                          {fk}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {/* Common Functional Keys */}
               <div className="options-sub-group">
-                <label className="options-field-label">Quick Function Keys</label>
+                <label className="options-field-label">Quick Navigation & Control</label>
                 <div className="options-chips-row">
                   {[
                     { label: 'Enter ↵', key: 'ENTER' },
@@ -1553,25 +1983,156 @@ function App() {
                     { label: 'Backspace ⌫', key: 'BACKSPACE' },
                     { label: 'Space ␣', key: 'SPACE' },
                     { label: 'Delete ⌦', key: 'DELETE' },
+                    { label: 'Home', key: 'HOME' },
+                    { label: 'End', key: 'END' },
+                    { label: 'PgUp', key: 'PAGE_UP' },
+                    { label: 'PgDn', key: 'PAGE_DOWN' },
                     { label: '↑ Up', key: 'UP_ARROW' },
                     { label: '↓ Down', key: 'DOWN_ARROW' },
                     { label: '← Left', key: 'LEFT_ARROW' },
                     { label: '→ Right', key: 'RIGHT_ARROW' }
-                  ].map(k => (
-                    <button
-                      key={k.key}
-                      type="button"
-                      className="options-key-chip"
-                      onClick={() => insertKeyToKeypress(ai, k.key)}
-                      title={`Insert ${k.key}`}
-                    >
-                      {k.label}
-                    </button>
-                  ))}
+                  ].map(k => {
+                    const isActive = isKeyInAction(currentAction.keys, k.key);
+                    return (
+                      <button
+                        key={k.key}
+                        type="button"
+                        className={`options-key-chip ${isActive ? 'active' : ''}`}
+                        onClick={() => insertKeyToKeypress(ai, k.key)}
+                        title={`Toggle ${k.key}`}
+                      >
+                        {k.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Numpad Collapsible Drawer */}
+              {/* Full Standard Keyboard Palette Collapsible Drawer */}
+              <div className="options-sub-group">
+                <button
+                  type="button"
+                  className={`options-drawer-toggle ${openKeyboardDrawer[ai] ? 'active' : ''}`}
+                  onClick={() => setOpenKeyboardDrawer(prev => ({ ...prev, [ai]: !prev[ai] }))}
+                >
+                  <span>⌨️ Visual Standard Keyboard Palette</span>
+                  <span>{openKeyboardDrawer[ai] ? '▲ Hide Keyboard' : '▾ Open Visual Keyboard'}</span>
+                </button>
+
+                {openKeyboardDrawer[ai] && (
+                  <div className="virtual-keyboard-drawer">
+                    <div className="virtual-keyboard-tabs">
+                      <button
+                        type="button"
+                        className={`virtual-tab-btn ${keyboardClusterTab === 'full' ? 'active' : ''}`}
+                        onClick={() => setKeyboardClusterTab('full')}
+                      >
+                        Standard 60%/TKL
+                      </button>
+                      <button
+                        type="button"
+                        className={`virtual-tab-btn ${keyboardClusterTab === 'nav' ? 'active' : ''}`}
+                        onClick={() => setKeyboardClusterTab('nav')}
+                      >
+                        Navigation Cluster
+                      </button>
+                      <button
+                        type="button"
+                        className={`virtual-tab-btn ${keyboardClusterTab === 'numpad' ? 'active' : ''}`}
+                        onClick={() => setKeyboardClusterTab('numpad')}
+                      >
+                        Numpad
+                      </button>
+                    </div>
+
+                    {keyboardClusterTab === 'full' && (
+                      <div className="virtual-kb-scroll-wrap">
+                        <div className="virtual-kb-rows">
+                          {VIRTUAL_KB_ROWS.map((row, rIdx) => (
+                            <div key={rIdx} className="virtual-kb-row">
+                              {row.map(kItem => {
+                                const active = isKeyInAction(currentAction.keys, kItem.key);
+                                const extraCls = kItem.space ? 'key-space' : kItem.wider ? 'key-wider' : kItem.wide ? 'key-wide' : '';
+                                return (
+                                  <button
+                                    key={kItem.key + rIdx}
+                                    type="button"
+                                    className={`virtual-kb-key ${extraCls} ${active ? 'active' : ''}`}
+                                    onClick={() => insertKeyToKeypress(ai, kItem.key)}
+                                    title={`Toggle ${kItem.key}`}
+                                  >
+                                    {kItem.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {keyboardClusterTab === 'nav' && (
+                      <div className="virtual-nav-grid">
+                        {VIRTUAL_NAV_KEYS.map(kItem => {
+                          const active = isKeyInAction(currentAction.keys, kItem.key);
+                          return (
+                            <button
+                              key={kItem.key}
+                              type="button"
+                              className={`virtual-kb-key ${active ? 'active' : ''}`}
+                              onClick={() => insertKeyToKeypress(ai, kItem.key)}
+                              title={`Toggle ${kItem.key}`}
+                              style={{ height: '36px' }}
+                            >
+                              {kItem.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {keyboardClusterTab === 'numpad' && (
+                      <div className="quick-numpad-grid">
+                        {[
+                          { label: 'NumLk', key: 'KEYPAD_NUMLOCK' },
+                          { label: '/', key: 'KEYPAD_FORWARD_SLASH' },
+                          { label: '*', key: 'KEYPAD_ASTERISK' },
+                          { label: '-', key: 'KEYPAD_MINUS' },
+                          { label: '7', key: 'KEYPAD_SEVEN' },
+                          { label: '8', key: 'KEYPAD_EIGHT' },
+                          { label: '9', key: 'KEYPAD_NINE' },
+                          { label: '+', key: 'KEYPAD_PLUS' },
+                          { label: '4', key: 'KEYPAD_FOUR' },
+                          { label: '5', key: 'KEYPAD_FIVE' },
+                          { label: '6', key: 'KEYPAD_SIX' },
+                          { label: '↵ Enter', key: 'KEYPAD_ENTER' },
+                          { label: '1', key: 'KEYPAD_ONE' },
+                          { label: '2', key: 'KEYPAD_TWO' },
+                          { label: '3', key: 'KEYPAD_THREE' },
+                          { label: '=', key: 'KEYPAD_EQUALS' },
+                          { label: '0', key: 'KEYPAD_ZERO' },
+                          { label: '.', key: 'KEYPAD_PERIOD' }
+                        ].map(np => {
+                          const active = isKeyInAction(currentAction.keys, np.key);
+                          return (
+                            <button
+                              key={np.key}
+                              type="button"
+                              className={`numpad-key-btn ${active ? 'active' : ''}`}
+                              onClick={() => insertKeyToKeypress(ai, np.key)}
+                              title={`Toggle ${np.key}`}
+                            >
+                              {np.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Numpad Collapsible Drawer */}
               <div className="options-sub-group">
                 <button
                   type="button"
@@ -1602,17 +2163,20 @@ function App() {
                       { label: '+', key: 'NUMPAD_PLUS' },
                       { label: '↵ Enter', key: 'NUMPAD_ENTER' },
                       { label: 'NumLk', key: 'NUMPAD_LOCK' }
-                    ].map(np => (
-                      <button
-                        key={np.key}
-                        type="button"
-                        className="numpad-key-btn"
-                        onClick={() => insertKeyToKeypress(ai, np.key)}
-                        title={`Insert ${np.key}`}
-                      >
-                        {np.label}
-                      </button>
-                    ))}
+                    ].map(np => {
+                      const active = isKeyInAction(currentAction.keys, np.key);
+                      return (
+                        <button
+                          key={np.key}
+                          type="button"
+                          className={`numpad-key-btn ${active ? 'active' : ''}`}
+                          onClick={() => insertKeyToKeypress(ai, np.key)}
+                          title={`Toggle ${np.key}`}
+                        >
+                          {np.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1960,10 +2524,19 @@ function App() {
         iconChar = '🔄';
       }
 
+      const hasActions = m && Array.isArray(m.actions) && m.actions.length > 0;
+      const isConfigured = Boolean(m?.label || hasActions || isProfileSwitch || is3x3ProSwitch);
+
       return (
-        <div key={i} className={`key preview-key ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`} style={{ cursor: 'default' }}>
-          <span className="key-icon" style={{ fontSize: '1.2rem' }}>{iconChar}</span>
-          <span className="key-label" style={{ fontSize: '0.65rem' }}>{labelText}</span>
+        <div key={i} className={`key preview-key ${isConfigured ? 'is-configured' : 'is-unconfigured'} ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`} style={{ cursor: 'default' }}>
+          <div className="keycap-dish">
+            <div className="key-header-meta">
+              <span className="key-number-tag">{displayNum}</span>
+              <span className={`key-status-dot ${isConfigured ? 'active' : ''}`} />
+            </div>
+            <span className="key-icon" style={{ fontSize: '1.2rem' }}>{iconChar}</span>
+            <span className="key-label" style={{ fontSize: '0.65rem' }}>{labelText}</span>
+          </div>
         </div>
       );
     };
@@ -2034,33 +2607,78 @@ function App() {
 
   return (
     <div className="container">
-      <header>
-        <h1>Pico Pad Configurator</h1>
+      <header className="app-header">
+        <div className="header-brand">
+          <div className="brand-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="3" />
+              <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10" />
+            </svg>
+          </div>
+          <div className="brand-titles">
+            <div className="brand-name">
+              <span>PICO PAD</span>
+              <span className="brand-badge">STUDIO</span>
+            </div>
+          </div>
+        </div>
+
         <div className="header-actions">
           <div className="profile-manager">
-            <select value={activeProfile} onChange={(e) => switchProfile(e.target.value)}>
+            <span className="profile-manager-label">Layer:</span>
+            <select value={activeProfile} onChange={(e) => switchProfile(e.target.value)} className="profile-select">
               {Object.keys(profiles).map(name => (
                 <option key={name} value={name}>{name}</option>
               ))}
             </select>
-            <button className="icon-btn" onClick={createProfile} title="New Empty Profile">➕</button>
-            <button className="icon-btn" onClick={saveAsProfile} title="Save Current As New Profile">💾</button>
-            <button className="icon-btn delete" onClick={() => deleteProfile(activeProfile)} title="Delete Profile">🗑️</button>
+            <div className="profile-btn-group">
+              <button className="icon-btn" onClick={createProfile} title="Create New Profile">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <button className="icon-btn" onClick={saveAsProfile} title="Duplicate Profile">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              </button>
+              <button className="icon-btn delete" onClick={() => deleteProfile(activeProfile)} title="Delete Profile">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
           </div>
-          <button className="help-toggle" onClick={openGallery} title="Open mappings presets gallery">
-            🎨 Gallery
+
+          <div className="header-divider" />
+
+          <button className="header-pill-btn" onClick={openGallery} title="Open mappings presets gallery">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Presets</span>
           </button>
-          <button className="help-toggle" onClick={() => setShowHelp(!showHelp)} title="How to use">
-            ❓ Help
+          <button className="header-pill-btn" onClick={() => setShowHelp(!showHelp)} title="Keycodes Reference & Help">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Reference</span>
           </button>
-          <button className="theme-toggle" onClick={toggleTheme} title="Toggle Dark/Light Mode">
-            {theme === 'dark' ? '☀️' : '🌙'}
+          <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle Dark/Light Mode">
+            {theme === 'dark' ? (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            )}
           </button>
+          
           <div className={`status-badge ${status === 'Connected' ? 'connected' : ''}`}>
-            {status}
+            <span className="status-indicator-dot" />
+            <span>{status}</span>
           </div>
-          <button className="btn btn-primary" onClick={dirHandle ? saveConfig : connectKeyboard}>
-            {dirHandle ? '💾 Save Config' : '🔌 Connect'}
+
+          <button className={`btn ${dirHandle ? 'btn-save' : 'btn-primary'}`} onClick={dirHandle ? saveConfig : connectKeyboard}>
+            {dirHandle ? (
+              <>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>Save Config</span>
+              </>
+            ) : (
+              <>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.1"/></svg>
+                <span>Connect</span>
+              </>
+            )}
           </button>
         </div>
       </header>
@@ -2069,137 +2687,306 @@ function App() {
         <div className="help-view">
           <div className="help-card">
             <div className="help-header">
-              <h2>Configurator Help & Reference</h2>
+              <div>
+                <h2>Configurator Help & Standard Keycodes Reference</h2>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-dim)', marginTop: '0.25rem' }}>
+                  Complete reference for all keys on standard keyboards with backward compatibility guide
+                </div>
+              </div>
               <button className="btn btn-primary" onClick={() => setShowHelp(false)}>Close Help</button>
+            </div>
+
+            {/* Backward Compatibility Guarantee Banner */}
+            <div className="help-compatibility-banner">
+              <span className="help-compat-icon">🛡️</span>
+              <div className="help-compat-text">
+                <h4>100% Backward & Forward Compatible</h4>
+                <p>
+                  Both this web configurator and the CircuitPython firmware (<code style={{ color: '#10b981' }}>macros.py</code>) accept standard Adafruit HID names, short aliases (e.g., <strong>CTRL</strong>, <strong>ESC</strong>, <strong>WIN</strong>, <strong>F1–F24</strong>), digits (<strong>0–9</strong>), direct symbols (<strong>-</strong>, <strong>=</strong>, <strong>[</strong>, <strong>]</strong>, etc.), and case-insensitive strings. Existing profiles and JSON files continue to work without any modifications.
+                </p>
+              </div>
             </div>
 
             <div className="help-grid">
               <section className="help-section">
                 <h3>🚀 Quick Start</h3>
                 <ol>
-                  <li>Click <b>Connect</b> and select your <b>CIRCUITPY</b> drive.</li>
-                  <li>Select a key in the grid to edit.</li>
-                  <li>Add actions to the sequence.</li>
-                  <li>Click <b>Save Config</b> to update the keyboard.</li>
+                  <li>Click <b>Connect</b> and select your <b>CIRCUITPY</b> drive root folder.</li>
+                  <li>Click any key on the macro pad grid to view or customize its action sequence.</li>
+                  <li>Add action steps: <b>Hotkey</b> (keypress), <b>Mouse</b>, <b>Text</b>, <b>Media</b>, <b>Delay</b>, <b>App Launch</b>, or <b>Layer Switch</b>.</li>
+                  <li>Click <b>Save Config</b> to write <code style={{ fontSize: '0.75rem' }}>macros.json</code> and <code style={{ fontSize: '0.75rem' }}>settings.toml</code> directly to your keyboard.</li>
                 </ol>
               </section>
 
               <section className="help-section">
-                <h3>⌨️ Special Keys Reference</h3>
-                <p>Use these exact names in the "Keys" field (comma separated):</p>
-                <div className="key-ref-grid">
-                  <code>CONTROL</code> <code>ALT</code> <code>SHIFT</code>
-                  <code>GUI</code> (Win) <code>ENTER</code> <code>SPACE</code>
-                  <code>TAB</code> <code>ESCAPE</code> <code>DELETE</code>
-                  <code>BACKSPACE</code> <code>UP_ARROW</code> <code>DOWN_ARROW</code>
-                </div>
-              </section>
-
-              <section className="help-section">
-                <h3>💡 Common Shortcuts</h3>
+                <h3>💡 Common Shortcuts & Function Key Combos</h3>
                 <ul className="help-list">
-                  <li><b>Copy:</b> <code>CONTROL, C</code></li>
-                  <li><b>Paste:</b> <code>CONTROL, V</code></li>
+                  <li><b>Copy / Paste:</b> <code>CONTROL, C</code> / <code>CONTROL, V</code></li>
+                  <li><b>Close Window:</b> <code>ALT, F4</code></li>
+                  <li><b>Refresh / Dev Tools:</b> <code>F5</code> / <code>F12</code></li>
+                  <li><b>Toggle Fullscreen:</b> <code>F11</code></li>
                   <li><b>Task Manager:</b> <code>CONTROL, SHIFT, ESCAPE</code></li>
-                  <li><b>Lock PC:</b> <code>GUI, L</code></li>
+                  <li><b>Lock PC / Run:</b> <code>GUI, L</code> / <code>GUI, R</code></li>
                 </ul>
               </section>
 
-              <section className="help-section">
+              <section className="help-section" style={{ gridColumn: 'span 2' }}>
                 <h3>🖥️ Opening Applications</h3>
-                <p>You can chain multiple actions to launch apps:</p>
-                <div className="example-box">
-                  <strong>Example: Open VS Code</strong>
-                  <ol>
-                    <li>Action 1 (Keypress): <code>GUI</code></li>
-                    <li>Action 2 (Text): <code>code</code></li>
-                    <li>Action 3 (Keypress): <code>ENTER</code></li>
-                  </ol>
-                </div>
-                <div className="example-box">
-                  <strong>Example: Open Notepad</strong>
-                  <ol>
-                    <li>Action 1 (Keypress): <code>GUI</code></li>
-                    <li>Action 2 (Text): <code>notepad</code></li>
-                    <li>Action 3 (Keypress): <code>ENTER</code></li>
-                  </ol>
+                <p>You can chain multiple actions to launch apps or run system commands:</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
+                  <div className="example-box" style={{ margin: 0 }}>
+                    <strong>Example: Open VS Code</strong>
+                    <ol>
+                      <li>Action 1 (Hotkey): <code>GUI</code></li>
+                      <li>Action 2 (Text): <code>code</code></li>
+                      <li>Action 3 (Hotkey): <code>ENTER</code></li>
+                    </ol>
+                  </div>
+                  <div className="example-box" style={{ margin: 0 }}>
+                    <strong>Example: Open Notepad</strong>
+                    <ol>
+                      <li>Action 1 (Hotkey): <code>GUI</code></li>
+                      <li>Action 2 (Text): <code>notepad</code></li>
+                      <li>Action 3 (Hotkey): <code>ENTER</code></li>
+                    </ol>
+                  </div>
                 </div>
               </section>
+            </div>
+
+            {/* Comprehensive Standard Keyboard Keycodes Guide */}
+            <div className="help-section" style={{ marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h3>⌨️ Complete Standard Keyboard Keycodes Directory</h3>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                  Click any card to copy its keycode to clipboard
+                </span>
+              </div>
+              <p>
+                Use these exact keycodes or their aliases in your Hotkey action's <strong>Keys</strong> field (comma separated, e.g. <code>ALT, F4</code> or <code>CONTROL, SHIFT, ESCAPE</code>):
+              </p>
+
+              {/* Search Bar */}
+              <div className="help-search-bar">
+                <span className="help-search-icon">🔍</span>
+                <input
+                  type="text"
+                  className="help-search-input"
+                  placeholder="Filter keycodes, aliases, or functions (e.g. F1, Enter, PrintScreen, Alt, Arrow, Numpad)..."
+                  value={helpSearchQuery}
+                  onChange={(e) => setHelpSearchQuery(e.target.value)}
+                />
+                {helpSearchQuery && (
+                  <button
+                    type="button"
+                    className="help-search-clear"
+                    onClick={() => setHelpSearchQuery('')}
+                    title="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Category Filter Tabs */}
+              <div className="help-category-tabs">
+                {['All', ...STANDARD_KEYCODES.map(c => c.category)].map(catName => (
+                  <button
+                    key={catName}
+                    type="button"
+                    className={`help-cat-pill ${helpSelectedCategory === catName ? 'active' : ''}`}
+                    onClick={() => setHelpSelectedCategory(catName)}
+                  >
+                    {catName}
+                  </button>
+                ))}
+              </div>
+
+              {/* Keycodes Catalog Cards */}
+              <div className="help-keycodes-catalog">
+                {(() => {
+                  const q = helpSearchQuery.trim().toLowerCase();
+                  const filteredCats = STANDARD_KEYCODES.map(cat => {
+                    if (helpSelectedCategory !== 'All' && cat.category !== helpSelectedCategory) {
+                      return null;
+                    }
+                    const matched = cat.keys.filter(k => {
+                      if (!q) return true;
+                      return (
+                        k.name.toLowerCase().includes(q) ||
+                        k.desc.toLowerCase().includes(q) ||
+                        (k.aliases && k.aliases.some(a => a.toLowerCase().includes(q))) ||
+                        cat.category.toLowerCase().includes(q)
+                      );
+                    });
+                    if (matched.length === 0) return null;
+                    return { ...cat, keys: matched };
+                  }).filter(Boolean);
+
+                  if (filteredCats.length === 0) {
+                    return (
+                      <div className="help-empty-search">
+                        <div style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>🔍</div>
+                        <strong>No keycodes match "{helpSearchQuery}"</strong>
+                        <p style={{ marginTop: '0.4rem', fontSize: '0.82rem' }}>
+                          Try searching for function keys like <code>F1</code>, modifiers like <code>CONTROL</code>, or arrows like <code>UP</code>.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ marginTop: '0.8rem' }}
+                          onClick={() => { setHelpSearchQuery(''); setHelpSelectedCategory('All'); }}
+                        >
+                          Reset Filters
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  return filteredCats.map(cat => (
+                    <div key={cat.category} className="help-category-card">
+                      <div className="help-category-card-header">
+                        <div className="help-cat-title">
+                          <span>{cat.icon}</span>
+                          <span>{cat.category}</span>
+                          <span style={{ fontSize: '0.72rem', background: 'var(--border-color)', color: 'var(--text-dim)', padding: '0.1rem 0.45rem', borderRadius: '10px' }}>
+                            {cat.keys.length} keys
+                          </span>
+                        </div>
+                        <span className="help-cat-desc">{cat.description}</span>
+                      </div>
+
+                      <div className="help-keys-grid">
+                        {cat.keys.map(kItem => {
+                          const isCopied = copiedKeycode === kItem.name;
+                          return (
+                            <div
+                              key={kItem.name}
+                              className={`help-key-badge-card ${isCopied ? 'copied' : ''}`}
+                              onClick={() => copyKeycodeToClipboard(kItem.name)}
+                              title={`Click to copy "${kItem.name}" to clipboard`}
+                            >
+                              <div className="help-key-top-row">
+                                <span className="help-key-name">{kItem.name}</span>
+                                <span className="help-copy-btn">
+                                  {isCopied ? '✓ Copied' : '📋 Copy'}
+                                </span>
+                              </div>
+                              <span className="help-key-desc">{kItem.desc}</span>
+                              {kItem.aliases && kItem.aliases.length > 0 && (
+                                <div className="help-key-aliases">
+                                  <span className="help-alias-label">Aliases:</span>
+                                  {kItem.aliases.map(al => (
+                                    <span key={al} className="help-alias-tag">{al}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
             </div>
           </div>
         </div>
       ) : (
         <div className="main-layout">
           <section className="keyboard-section">
-            <div className="keyboard-hardware-area">
-              <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is4x2 ? 'grid-4x2' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : is5x3_2encoders ? 'grid-5x3_2encoders' : 'grid-3x3'}`}>
-                {is3x3Pro ? (
-                  <>
-                    {/* Row 1 */}
-                    {[0, 1, 2].map(i => renderKey(i))}
-                    {renderKey(9)}
-                    
-                    {/* Row 2 */}
-                    {[3, 4, 5].map(i => renderKey(i))}
-                    <div className="key-placeholder"></div>
-                    
-                    {/* Row 3 */}
-                    {[6, 7, 8].map(i => renderKey(i))}
-                    <div className="key-placeholder"></div>
-                  </>
-                ) : is4x2 ? (
-                  [0, 1, 2, 3, 4, 5, 6, 7].map(i => renderKey(i))
-                ) : is6x2 ? (
-                  <>
-                    {/* Row 1: Keys 1 to 6 */}
-                    {[0, 1, 2, 3, 4, 5].map(i => renderKey(i))}
-                    
-                    {/* Row 2: Keys 7 to 12 */}
-                    {[6, 7, 8, 9, 10, 11].map(i => renderKey(i))}
-                    
-                    {/* Row 3: Encoder Controls */}
-                    <div className="key-placeholder"></div>
-                    <div className="key-placeholder"></div>
-                    <div className="key-placeholder"></div>
-                    {renderKey(12)}
-                    {renderKey(13)}
-                    {renderKey(14)}
-                  </>
-                ) : is5x3_2encoders ? (
-                  <>
-                    {/* Row 1 */}
-                    {[0, 1, 2, 3, 4].map(i => renderKey(i))}
-                    {renderKey(15)}
-                    {renderKey(17)}
-                    {renderKey(18)}
-                    
-                    {/* Row 2 */}
-                    {[5, 6, 7, 8, 9].map(i => renderKey(i))}
-                    {renderKey(16)}
-                    {renderKey(19)}
-                    {renderKey(20)}
-                    
-                    {/* Row 3 */}
-                    {[10, 11, 12, 13, 14].map(i => renderKey(i))}
-                    <div className="key-placeholder"></div>
-                    <div className="key-placeholder"></div>
-                    <div className="key-placeholder"></div>
-                  </>
-                ) : (
-                  [...Array(is1x3 ? 3 : 9)].map((_, i) => renderKey(i))
-                )}
+            <div className="macropad-chassis">
+              <div className="chassis-header">
+                <div className="chassis-badge">
+                  <span className="chassis-indicator"></span>
+                  <span className="chassis-model-name">
+                    {settings.board_model ? settings.board_model.toUpperCase().replace('_', ' ') : '3X3'} MATRIX
+                  </span>
+                </div>
+                <div className="chassis-spec">
+                  <span className="spec-item">CIRCUITPY HID</span>
+                  <span className="spec-dot">•</span>
+                  <span className="spec-item">{settings.debounce || 0.05}s Debounce</span>
+                </div>
               </div>
-              <p className="keyboard-hint-text">
-                {is3x3Pro 
-                  ? "Click keys 1-9 or the SW profile button to edit. You can remap the switcher to any action or keep it as profile switch."
-                  : is4x2
-                  ? "Click keys 1-8 to edit macro sequences for your 4x2 matrix."
-                  : is6x2
-                  ? "Click a key or dial action to edit. ENC is the encoder switch, and ↺/↻ are rotation actions."
-                  : is5x3_2encoders
-                  ? "Click a key or dial action to edit. ENC1/2 are encoder switches, and E1/E2 ↺/↻ are rotation actions."
-                  : "Click a key to edit its macro sequence"}
-              </p>
+
+              <div className="keyboard-hardware-area">
+                <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is4x2 ? 'grid-4x2' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : is5x3_2encoders ? 'grid-5x3_2encoders' : 'grid-3x3'}`}>
+                  {is3x3Pro ? (
+                    <>
+                      {/* Row 1 */}
+                      {[0, 1, 2].map(i => renderKey(i))}
+                      {renderKey(9)}
+                      
+                      {/* Row 2 */}
+                      {[3, 4, 5].map(i => renderKey(i))}
+                      <div className="key-placeholder"></div>
+                      
+                      {/* Row 3 */}
+                      {[6, 7, 8].map(i => renderKey(i))}
+                      <div className="key-placeholder"></div>
+                    </>
+                  ) : is4x2 ? (
+                    [0, 1, 2, 3, 4, 5, 6, 7].map(i => renderKey(i))
+                  ) : is6x2 ? (
+                    <>
+                      {/* Row 1: Keys 1 to 6 */}
+                      {[0, 1, 2, 3, 4, 5].map(i => renderKey(i))}
+                      
+                      {/* Row 2: Keys 7 to 12 */}
+                      {[6, 7, 8, 9, 10, 11].map(i => renderKey(i))}
+                      
+                      {/* Row 3: Encoder Controls */}
+                      <div className="key-placeholder"></div>
+                      <div className="key-placeholder"></div>
+                      <div className="key-placeholder"></div>
+                      {renderKey(12)}
+                      {renderKey(13)}
+                      {renderKey(14)}
+                    </>
+                  ) : is5x3_2encoders ? (
+                    <>
+                      {/* Row 1 */}
+                      {[0, 1, 2, 3, 4].map(i => renderKey(i))}
+                      {renderKey(15)}
+                      {renderKey(17)}
+                      {renderKey(18)}
+                      
+                      {/* Row 2 */}
+                      {[5, 6, 7, 8, 9].map(i => renderKey(i))}
+                      {renderKey(16)}
+                      {renderKey(19)}
+                      {renderKey(20)}
+                      
+                      {/* Row 3 */}
+                      {[10, 11, 12, 13, 14].map(i => renderKey(i))}
+                      <div className="key-placeholder"></div>
+                      <div className="key-placeholder"></div>
+                      <div className="key-placeholder"></div>
+                    </>
+                  ) : (
+                    [...Array(is1x3 ? 3 : 9)].map((_, i) => renderKey(i))
+                  )}
+                </div>
+              </div>
+
+              <div className="chassis-footer">
+                <span className="keyboard-hint-text">
+                  {is3x3Pro 
+                    ? "Click keys 1-9 or the SW profile button to edit."
+                    : is4x2
+                    ? "Click keys 1-8 to edit macro sequences for your 4x2 matrix."
+                    : is6x2
+                    ? "Click a key or dial action to edit. ENC is the encoder switch, and ↺/↻ are rotation actions."
+                    : is5x3_2encoders
+                    ? "Click a key or dial action to edit. ENC1/2 are encoder switches, and E1/E2 ↺/↻ are rotation actions."
+                    : "Click any key to inspect or customize its macro sequence"}
+                </span>
+                <div className="chassis-selected-key-pill">
+                  <span className="pill-dot"></span>
+                  <span>Active: <strong>{getSelectedKeyName()}</strong></span>
+                </div>
+              </div>
             </div>
 
             {/* Visual Action Flow Tree */}
