@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 import img1x3 from './models-images/1x3.jpg';
 import img3x3 from './models-images/3x3.jpg';
 import img3x3Pro from './models-images/3x3_pro.jpg';
-import img6x2 from './models-images/6x2.jpg';
-import img5x3_2encoders from './models-images/5x3_2encoders.png';
 import img4x2 from './models-images/4x2.png';
+import img5x3 from './models-images/5x3.png';
+import img6x2 from './models-images/6x2.png';
 
 
 const DEFAULT_MACRO = {
@@ -71,6 +71,15 @@ const PRESETS = {
         { row: 0, col: 1, label: "Chrome", actions: [{ type: "launch", app: "chrome" }] },
         { row: 0, col: 2, label: "Calculator", actions: [{ type: "launch", app: "calc" }] }
       ]
+    },
+    {
+      name: "Mouse Quick-Clicks",
+      description: "Left Click, Middle Click (Wheel), and Right Click for rapid mouse actions.",
+      macros: [
+        { row: 0, col: 0, label: "Left Click", actions: [{ type: "mouse_click", button: "LEFT", click_type: "click", modifiers: [] }] },
+        { row: 0, col: 1, label: "Mid Click", actions: [{ type: "mouse_click", button: "MIDDLE", click_type: "click", modifiers: [] }] },
+        { row: 0, col: 2, label: "Right Click", actions: [{ type: "mouse_click", button: "RIGHT", click_type: "click", modifiers: [] }] }
+      ]
     }
   ],
   '3x3': [
@@ -87,6 +96,36 @@ const PRESETS = {
         { row: 2, col: 0, label: "Select All", actions: [{ type: "keypress", keys: ["CONTROL", "A"] }] },
         { row: 2, col: 1, label: "Find", actions: [{ type: "keypress", keys: ["CONTROL", "F"] }] },
         { row: 2, col: 2, label: "Print", actions: [{ type: "keypress", keys: ["CONTROL", "P"] }] }
+      ]
+    },
+    {
+      name: "3D Modeling & Numpad Viewports",
+      description: "Blender/CAD standard viewport navigation (Top, Front, Right, Camera, Focus) and numpad combinations.",
+      macros: [
+        { row: 0, col: 0, label: "Top View", actions: [{ type: "keypress", keys: ["NUMPAD_7"] }] },
+        { row: 0, col: 1, label: "Front View", actions: [{ type: "keypress", keys: ["NUMPAD_1"] }] },
+        { row: 0, col: 2, label: "Right View", actions: [{ type: "keypress", keys: ["NUMPAD_3"] }] },
+        { row: 1, col: 0, label: "Focus Sel", actions: [{ type: "keypress", keys: ["NUMPAD_PERIOD"] }] },
+        { row: 1, col: 1, label: "Camera View", actions: [{ type: "keypress", keys: ["NUMPAD_0"] }] },
+        { row: 1, col: 2, label: "Align Cam", actions: [{ type: "keypress", keys: ["CONTROL", "ALT", "NUMPAD_0"] }] },
+        { row: 2, col: 0, label: "Ortho/Persp", actions: [{ type: "keypress", keys: ["NUMPAD_5"] }] },
+        { row: 2, col: 1, label: "Bottom View", actions: [{ type: "keypress", keys: ["CONTROL", "NUMPAD_7"] }] },
+        { row: 2, col: 2, label: "Render", actions: [{ type: "keypress", keys: ["F12"] }] }
+      ]
+    },
+    {
+      name: "Mouse & Desktop Utilities",
+      description: "Mouse clicks, Middle click wheel, Double click, and modifier click combinations.",
+      macros: [
+        { row: 0, col: 0, label: "Left Click", actions: [{ type: "mouse_click", button: "LEFT", click_type: "click", modifiers: [] }] },
+        { row: 0, col: 1, label: "Double Click", actions: [{ type: "mouse_click", button: "LEFT", click_type: "double_click", modifiers: [] }] },
+        { row: 0, col: 2, label: "Right Click", actions: [{ type: "mouse_click", button: "RIGHT", click_type: "click", modifiers: [] }] },
+        { row: 1, col: 0, label: "Ctrl+Click", actions: [{ type: "mouse_click", button: "LEFT", click_type: "click", modifiers: ["CONTROL"] }] },
+        { row: 1, col: 1, label: "Mid Click", actions: [{ type: "mouse_click", button: "MIDDLE", click_type: "click", modifiers: [] }] },
+        { row: 1, col: 2, label: "Shift+Click", actions: [{ type: "mouse_click", button: "LEFT", click_type: "click", modifiers: ["SHIFT"] }] },
+        { row: 2, col: 0, label: "Back", actions: [{ type: "mouse_click", button: "BACK", click_type: "click", modifiers: [] }] },
+        { row: 2, col: 1, label: "Click & Drag", actions: [{ type: "mouse_click", button: "LEFT", click_type: "hold", modifiers: [] }] },
+        { row: 2, col: 2, label: "Forward", actions: [{ type: "mouse_click", button: "FORWARD", click_type: "click", modifiers: [] }] }
       ]
     },
     {
@@ -256,6 +295,9 @@ PRESETS['3x3_pro'] = PRESETS['3x3'].map(preset => ({
   ]
 }));
 
+PRESETS['6x2'] = PRESETS['6x2_encoder'];
+PRESETS['5x3'] = PRESETS['5x3_2encoders'];
+
 function App() {
   const [dirHandle, setDirHandle] = useState(null);
   const [theme, setTheme] = useState('light');
@@ -283,10 +325,68 @@ function App() {
   const [galleryModel, setGalleryModel] = useState('3x3');
   const [selectedPresetIdx, setSelectedPresetIdx] = useState(0);
 
+  // Flow & Action Editor State
+  const [openNumpad, setOpenNumpad] = useState({});
+  const [selectedStepIdx, setSelectedStepIdx] = useState(0);
+  const [boardConfigOpen, setBoardConfigOpen] = useState(false);
+
+  // Toast State
+  const [toastMessage, setToastMessage] = useState('');
+  const toastTimeoutRef = useRef(null);
+
+  const showToast = (msg, duration = 3500) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToastMessage(msg);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage('');
+    }, duration);
+  };
+
   const openGallery = () => {
-    setGalleryModel(settings.board_model || '3x3');
+    let bm = settings.board_model || '3x3';
+    if (bm === '6x2') bm = '6x2_encoder';
+    if (bm === '5x3') bm = '5x3_2encoders';
+    setGalleryModel(bm);
     setSelectedPresetIdx(0);
     setGalleryOpen(true);
+  };
+
+  const applyPresetToProfile = (presetOverride) => {
+    const preset = presetOverride || PRESETS[galleryModel]?.[selectedPresetIdx];
+    if (!preset) return;
+
+    // Deep clone preset macros to ensure presets remain untouched
+    const clonedMacros = JSON.parse(JSON.stringify(preset.macros || []));
+
+    // Normalize board model
+    let targetModel = galleryModel;
+    if (targetModel === '6x2') targetModel = '6x2_encoder';
+    if (targetModel === '5x3') targetModel = '5x3_2encoders';
+
+    const newSettings = { ...settings, board_model: targetModel };
+
+    setMacros(clonedMacros);
+    setSettings(newSettings);
+    setSelectedIdx(0);
+
+    setProfiles(prev => {
+      const updated = {
+        ...prev,
+        [activeProfile]: {
+          macros: clonedMacros,
+          settings: newSettings
+        }
+      };
+      try {
+        localStorage.setItem('macro_profiles', JSON.stringify(updated));
+      } catch (err) {
+        console.error("Failed to save to localStorage", err);
+      }
+      return updated;
+    });
+
+    setGalleryOpen(false);
+    showToast(`✅ Applied "${preset.name}" preset to profile "${activeProfile}"!${dirHandle ? ' Click "Save Config" to flash to keyboard.' : ''}`);
   };
 
   useEffect(() => {
@@ -490,16 +590,18 @@ function App() {
   const is1x3 = settings.board_model === '1x3';
   const is3x3Pro = settings.board_model === '3x3_pro';
   const is4x2 = settings.board_model === '4x2';
-  const is6x2 = settings.board_model === '6x2_encoder';
-  const is5x3_2encoders = settings.board_model === '5x3_2encoders';
+  const is6x2 = settings.board_model === '6x2_encoder' || settings.board_model === '6x2';
+  const is5x3_2encoders = settings.board_model === '5x3_2encoders' || settings.board_model === '5x3';
 
   const getModelImage = (model) => {
     switch (model) {
       case '1x3': return img1x3;
       case '3x3_pro': return img3x3Pro;
       case '4x2': return img4x2;
+      case '6x2':
       case '6x2_encoder': return img6x2;
-      case '5x3_2encoders': return img5x3_2encoders;
+      case '5x3':
+      case '5x3_2encoders': return img5x3;
       case '3x3':
       default:
         return img3x3;
@@ -521,7 +623,7 @@ function App() {
         row: Math.floor(index / 3),
         col: index % 3
       };
-    } else if (model === '6x2_encoder') {
+    } else if (model === '6x2_encoder' || model === '6x2') {
       const keyMap6x2 = [
         { row: 0, col: 0 }, // Key 1
         { row: 0, col: 1 }, // Key 2
@@ -542,7 +644,7 @@ function App() {
       if (index >= 0 && index < keyMap6x2.length) {
         return keyMap6x2[index];
       }
-    } else if (model === '5x3_2encoders') {
+    } else if (model === '5x3_2encoders' || model === '5x3') {
       if (index >= 0 && index <= 14) {
         return { row: Math.floor(index / 5), col: index % 5 };
       } else if (index === 15) {
@@ -569,12 +671,12 @@ function App() {
     if (settings.board_model === '3x3_pro') {
       if (selectedIdx === 9) return 'Profile Switch Button (SW)';
       return `Key ${selectedIdx + 1}`;
-    } else if (settings.board_model === '6x2_encoder') {
+    } else if (settings.board_model === '6x2_encoder' || settings.board_model === '6x2') {
       if (selectedIdx === 12) return 'Encoder Button (ENC)';
       if (selectedIdx === 13) return 'Encoder Rotation CCW (↺)';
       if (selectedIdx === 14) return 'Encoder Rotation CW (↻)';
       return `Key ${selectedIdx + 1}`;
-    } else if (settings.board_model === '5x3_2encoders') {
+    } else if (settings.board_model === '5x3_2encoders' || settings.board_model === '5x3') {
       if (selectedIdx === 15) return 'Encoder 1 Button (ENC1)';
       if (selectedIdx === 16) return 'Encoder 2 Button (ENC2)';
       if (selectedIdx === 17) return 'Encoder 1 Rotation CCW (↺)';
@@ -614,6 +716,17 @@ function App() {
     switchProfile(keys[nextIdx]);
   };
 
+  const handleSelectKey = (i) => {
+    setSelectedIdx(i);
+    const mCoords = getKeyCoordinates(settings.board_model || '3x3', i);
+    const m = macros.find(macro => macro.row === mCoords.row && macro.col === mCoords.col);
+    if (m && m.actions && m.actions.length > 0) {
+      setSelectedStepIdx(0);
+    } else {
+      setSelectedStepIdx('trigger');
+    }
+  };
+
   const renderKey = (i) => {
     const coords = getKeyCoordinates(settings.board_model, i);
     const macro = macros.find(m => m.row === coords.row && m.col === coords.col);
@@ -626,7 +739,7 @@ function App() {
         displayNum = 'SW';
         extraClass = 'profile-btn';
       }
-    } else if (settings.board_model === '6x2_encoder') {
+    } else if (settings.board_model === '6x2_encoder' || settings.board_model === '6x2') {
       if (i === 12) {
         displayNum = 'ENC';
         extraClass = 'encoder-key';
@@ -639,7 +752,7 @@ function App() {
       } else {
         displayNum = i + 1;
       }
-    } else if (settings.board_model === '5x3_2encoders') {
+    } else if (settings.board_model === '5x3_2encoders' || settings.board_model === '5x3') {
       if (i === 15) {
         displayNum = 'ENC1';
         extraClass = 'encoder-key';
@@ -663,14 +776,32 @@ function App() {
     
     const isProfileSwitch = macro?.actions?.some(a => a.type === 'profile_switch' || a.type === 'layer_switch');
     const is3x3ProSwitch = settings.board_model === '3x3_pro' && i === 9;
-    const iconChar = macro?.label ? macro.label[0] : (isProfileSwitch || is3x3ProSwitch) ? '🔄' : displayNum;
-    const labelText = macro?.label ? macro.label : isProfileSwitch ? 'Switch Layer' : is3x3ProSwitch ? 'Profile Switch' : 'Not Configured';
+    const mouseAction = macro?.actions?.find(a => a.type === 'mouse_click' || a.type === 'mouse');
+
+    let iconChar = displayNum;
+    let labelText = isProfileSwitch ? 'Switch Layer' : is3x3ProSwitch ? 'Profile Switch' : 'Not Configured';
+
+    if (macro?.label) {
+      labelText = macro.label;
+      iconChar = mouseAction ? '🖱️' : macro.label[0];
+    } else if (mouseAction) {
+      iconChar = '🖱️';
+      let btnLabel = mouseAction.button === 'RIGHT' ? 'R-Click' : mouseAction.button === 'MIDDLE' ? 'M-Click' : mouseAction.button === 'BACK' ? 'Back' : mouseAction.button === 'FORWARD' ? 'Fwd' : mouseAction.click_type === 'double_click' ? '2x-Click' : mouseAction.click_type === 'hold' ? 'Drag' : 'L-Click';
+      if (mouseAction.modifiers && mouseAction.modifiers.length > 0) {
+        const modPrefix = mouseAction.modifiers.map(m => m === 'CONTROL' ? 'Ctrl' : m === 'SHIFT' ? 'Shift' : m === 'ALT' ? 'Alt' : 'Win').join('+');
+        labelText = `${modPrefix}+${btnLabel}`;
+      } else {
+        labelText = btnLabel;
+      }
+    } else if (isProfileSwitch || is3x3ProSwitch) {
+      iconChar = '🔄';
+    }
 
     return (
       <div
         key={i}
         className={`key ${selectedIdx === i ? 'selected' : ''} ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`}
-        onClick={() => setSelectedIdx(i)}
+        onClick={() => handleSelectKey(i)}
       >
         <span className="key-icon">{iconChar}</span>
         <span className="key-label">{labelText}</span>
@@ -682,7 +813,7 @@ function App() {
     const newActions = [...(selectedMacro.actions || [])];
     let val = value;
     if (field === 'keys' && typeof value === 'string') {
-      val = value.split(',').map(k => k.trim().toUpperCase());
+      val = value.split(',').map(k => k.trim().toUpperCase()).filter(Boolean);
     }
     
     // Create the updated action
@@ -691,26 +822,32 @@ function App() {
     // If we changed the type, clean up old fields and set default values
     if (field === 'type') {
       const type = value;
-      // Remove other fields
       delete updatedAction.keys;
       delete updatedAction.text;
       delete updatedAction.key;
       delete updatedAction.duration;
       delete updatedAction.app;
       delete updatedAction.url;
+      delete updatedAction.button;
+      delete updatedAction.click_type;
+      delete updatedAction.modifiers;
       
       if (type === 'keypress') {
-        updatedAction.keys = [];
+        updatedAction.keys = ['CONTROL', 'C'];
+      } else if (type === 'mouse_click') {
+        updatedAction.button = 'LEFT';
+        updatedAction.click_type = 'click';
+        updatedAction.modifiers = [];
       } else if (type === 'text') {
         updatedAction.text = '';
       } else if (type === 'consumer') {
-        updatedAction.key = '';
+        updatedAction.key = 'PLAY_PAUSE';
       } else if (type === 'delay') {
-        updatedAction.duration = 0.1;
+        updatedAction.duration = 0.2;
       } else if (type === 'launch') {
         updatedAction.app = '';
       } else if (type === 'url') {
-        updatedAction.url = '';
+        updatedAction.url = 'https://';
       } else if (type === 'profile_switch') {
         // No extra parameters needed
       }
@@ -720,13 +857,1015 @@ function App() {
     updateMacroInList({ ...selectedMacro, actions: newActions });
   };
 
+  const insertKeyToKeypress = (actionIdx, keyName) => {
+    const action = selectedMacro.actions?.[actionIdx] || {};
+    const currentKeys = Array.isArray(action.keys) ? [...action.keys] : [];
+    const isModifier = ['CONTROL', 'SHIFT', 'ALT', 'GUI'].includes(keyName);
+    let newKeys;
+    if (isModifier) {
+      if (currentKeys.includes(keyName)) {
+        newKeys = currentKeys.filter(k => k !== keyName);
+      } else {
+        newKeys = [keyName, ...currentKeys];
+      }
+    } else {
+      if (!currentKeys.includes(keyName)) {
+        newKeys = [...currentKeys, keyName];
+      } else {
+        newKeys = currentKeys;
+      }
+    }
+    handleActionChange(actionIdx, 'keys', newKeys.join(', '));
+  };
+
+  const toggleMouseModifier = (actionIdx, modName) => {
+    const action = selectedMacro.actions?.[actionIdx] || {};
+    const currentMods = Array.isArray(action.modifiers) ? [...action.modifiers] : [];
+    let newMods;
+    if (currentMods.includes(modName)) {
+      newMods = currentMods.filter(m => m !== modName);
+    } else {
+      newMods = [...currentMods, modName];
+    }
+    handleActionChange(actionIdx, 'modifiers', newMods);
+  };
+
   const removeAction = (actionIdx) => {
     const newActions = (selectedMacro.actions || []).filter((_, i) => i !== actionIdx);
     updateMacroInList({ ...selectedMacro, actions: newActions });
+    if (newActions.length === 0) {
+      setSelectedStepIdx('trigger');
+    } else if (selectedStepIdx >= newActions.length) {
+      setSelectedStepIdx(newActions.length - 1);
+    } else if (selectedStepIdx === actionIdx) {
+      setSelectedStepIdx(Math.max(0, actionIdx - 1));
+    }
   };
 
   const handleLabelChange = (val) => {
     updateMacroInList({ ...selectedMacro, label: val });
+  };
+
+  const moveAction = (fromIdx, direction) => {
+    const toIdx = fromIdx + direction;
+    const currentActions = [...(selectedMacro.actions || [])];
+    if (toIdx < 0 || toIdx >= currentActions.length) return;
+    const temp = currentActions[fromIdx];
+    currentActions[fromIdx] = currentActions[toIdx];
+    currentActions[toIdx] = temp;
+    updateMacroInList({ ...selectedMacro, actions: currentActions });
+    setSelectedStepIdx(toIdx);
+  };
+
+  const duplicateAction = (idx) => {
+    const currentActions = [...(selectedMacro.actions || [])];
+    const cloned = JSON.parse(JSON.stringify(currentActions[idx]));
+    currentActions.splice(idx + 1, 0, cloned);
+    updateMacroInList({ ...selectedMacro, actions: currentActions });
+    setSelectedStepIdx(idx + 1);
+  };
+
+  const addActionWithType = (type = 'keypress') => {
+    let newAction = { type };
+    if (type === 'keypress') newAction.keys = ['CONTROL', 'C'];
+    else if (type === 'mouse_click') { newAction.button = 'LEFT'; newAction.click_type = 'click'; newAction.modifiers = []; }
+    else if (type === 'text') newAction.text = '';
+    else if (type === 'consumer') newAction.key = 'PLAY_PAUSE';
+    else if (type === 'delay') newAction.duration = 0.2;
+    else if (type === 'launch') newAction.app = '';
+    else if (type === 'url') newAction.url = 'https://';
+    else if (type === 'profile_switch') { /* no extra params */ }
+    
+    const newActions = [...(selectedMacro.actions || []), newAction];
+    updateMacroInList({ ...selectedMacro, actions: newActions });
+    setSelectedStepIdx(newActions.length - 1);
+  };
+
+  const getActionDisplayDetails = (action) => {
+    switch (action.type) {
+      case 'keypress': {
+        const keys = action.keys || [];
+        return {
+          icon: '⌨️',
+          category: 'Key Combination',
+          color: '#3b82f6',
+          renderContent: () => (
+            <div className="flow-keys-wrap">
+              {keys.length > 0 ? (
+                keys.map((k, idx) => (
+                  <React.Fragment key={idx}>
+                    {idx > 0 && <span className="flow-plus">+</span>}
+                    <kbd className="flow-keycap">{k}</kbd>
+                  </React.Fragment>
+                ))
+              ) : (
+                <span className="flow-empty-param">No keys configured (click to edit)</span>
+              )}
+            </div>
+          ),
+          shortDesc: keys.length > 0 ? keys.join(' + ') : 'Empty Hotkey'
+        };
+      }
+      case 'mouse_click': {
+        const btn = action.button || 'LEFT';
+        const mode = action.click_type || 'click';
+        const mods = action.modifiers || [];
+        const modeLabel = mode === 'double_click' ? 'Double Click' : mode === 'hold' ? 'Hold & Drag' : 'Single Click';
+        return {
+          icon: '🖱️',
+          category: 'Mouse Action',
+          color: '#8b5cf6',
+          renderContent: () => (
+            <div className="flow-mouse-wrap">
+              <span className="flow-chip mouse-btn-chip">{btn} BUTTON</span>
+              <span className="flow-chip mouse-mode-chip">{modeLabel}</span>
+              {mods.length > 0 && (
+                <span className="flow-chip mouse-mods-chip">with {mods.join(' + ')}</span>
+              )}
+            </div>
+          ),
+          shortDesc: `${btn} Button (${modeLabel})`
+        };
+      }
+      case 'text': {
+        const textVal = action.text || '';
+        return {
+          icon: '🔤',
+          category: 'Type Text String',
+          color: '#10b981',
+          renderContent: () => (
+            <div className="flow-text-wrap">
+              <code className="flow-code-block">{textVal ? `"${textVal}"` : '(No text entered)'}</code>
+            </div>
+          ),
+          shortDesc: textVal ? `"${textVal.length > 25 ? textVal.slice(0, 25) + '...' : textVal}"` : 'Empty Text'
+        };
+      }
+      case 'consumer': {
+        const consumerKey = action.key || '';
+        const consumerMap = {
+          VOLUME_INCREMENT: 'Volume Up (+)',
+          VOLUME_DECREMENT: 'Volume Down (-)',
+          MUTE: 'Mute Audio',
+          PLAY_PAUSE: 'Play / Pause',
+          SCAN_NEXT_TRACK: 'Next Track (⏩)',
+          SCAN_PREVIOUS_TRACK: 'Previous Track (⏪)'
+        };
+        const friendlyName = consumerMap[consumerKey] || consumerKey || 'No command selected';
+        return {
+          icon: '🎵',
+          category: 'Media & System',
+          color: '#06b6d4',
+          renderContent: () => (
+            <div className="flow-consumer-wrap">
+              <span className="flow-chip consumer-chip">{friendlyName}</span>
+            </div>
+          ),
+          shortDesc: friendlyName
+        };
+      }
+      case 'delay': {
+        const durationSec = action.duration !== undefined ? action.duration : 0.1;
+        const durationMs = Math.round(durationSec * 1000);
+        return {
+          icon: '⏱️',
+          category: 'Wait / Delay',
+          color: '#f59e0b',
+          renderContent: () => (
+            <div className="flow-delay-wrap">
+              <span className="flow-chip delay-chip">⏳ {durationSec.toFixed(2)}s ({durationMs} ms)</span>
+              <div className="flow-delay-bar-bg">
+                <div 
+                  className="flow-delay-bar-fill" 
+                  style={{ width: `${Math.min(100, Math.max(15, (durationSec / 1.0) * 100))}%` }} 
+                />
+              </div>
+            </div>
+          ),
+          shortDesc: `Wait ${durationMs}ms`
+        };
+      }
+      case 'launch': {
+        const appName = action.app || '';
+        return {
+          icon: '🚀',
+          category: 'Launch Application',
+          color: '#ef4444',
+          renderContent: () => (
+            <div className="flow-launch-wrap">
+              <span className="flow-chip launch-chip">run: <code>{appName || 'none'}</code></span>
+            </div>
+          ),
+          shortDesc: appName ? `Open ${appName}` : 'Launch App'
+        };
+      }
+      case 'url': {
+        const urlVal = action.url || '';
+        return {
+          icon: '🌐',
+          category: 'Open Web URL',
+          color: '#0284c7',
+          renderContent: () => (
+            <div className="flow-url-wrap">
+              <span className="flow-chip url-chip">🔗 {urlVal || 'No URL specified'}</span>
+            </div>
+          ),
+          shortDesc: urlVal || 'Open URL'
+        };
+      }
+      case 'profile_switch': {
+        return {
+          icon: '🔄',
+          category: 'Profile / Layer Switch',
+          color: '#d946ef',
+          renderContent: () => (
+            <div className="flow-switch-wrap">
+              <span className="flow-chip switch-chip">Cycle to Next Profile Layer</span>
+            </div>
+          ),
+          shortDesc: 'Switch Profile'
+        };
+      }
+      default:
+        return {
+          icon: '⚡',
+          category: 'Action',
+          color: 'var(--accent-color)',
+          renderContent: () => <span>{action.type}</span>,
+          shortDesc: action.type
+        };
+    }
+  };
+
+  const renderActionFlowTree = () => {
+    const actions = selectedMacro.actions || [];
+    const keyName = getSelectedKeyName();
+    const hasActions = actions.length > 0;
+
+    return (
+      <div className="action-flow-section">
+        <div className="flow-header">
+          <div className="flow-title-group">
+            <div className="flow-title-row">
+              <span className="flow-icon-pulse">⚡</span>
+              <h3 className="flow-heading">Visual Action Flow</h3>
+              <span className="flow-key-badge">{keyName}</span>
+            </div>
+            <p className="flow-subtitle">
+              Execution sequence for <strong>"{selectedMacro.label || 'Untitled Macro'}"</strong> (Row {coords.row}, Col {coords.col})
+            </p>
+          </div>
+
+          <div className="flow-header-actions">
+            <span className="flow-step-counter">
+              {actions.length} {actions.length === 1 ? 'Step' : 'Steps'}
+            </span>
+            {hasActions && (
+              <button 
+                type="button" 
+                className="btn btn-secondary flow-clear-btn"
+                onClick={() => updateMacroInList({ ...selectedMacro, actions: [] })}
+                title="Clear all actions for this key"
+              >
+                Clear Flow
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="flow-tree-container">
+          {/* ROOT TRIGGER NODE */}
+          <div 
+            className={`flow-node flow-trigger-node ${selectedStepIdx === 'trigger' ? 'focused-step' : ''}`}
+            onClick={() => setSelectedStepIdx('trigger')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view Trigger & Key options in the Options Menu"
+          >
+            <div className="flow-node-bullet trigger-bullet">
+              <span className="flow-bullet-ping"></span>
+              <span className="flow-bullet-dot"></span>
+            </div>
+            <div className="flow-node-content trigger-content">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="trigger-badge">EVENT TRIGGER</div>
+                {selectedStepIdx === 'trigger' && (
+                  <span className="flow-active-badge">● Active in Options Menu</span>
+                )}
+              </div>
+              <div className="trigger-title">
+                {is6x2 && selectedIdx >= 12
+                  ? `Hardware Dial: ${keyName}`
+                  : is5x3_2encoders && selectedIdx >= 15
+                  ? `Hardware Encoder: ${keyName}`
+                  : `Key Press: ${keyName}`}
+              </div>
+              <div className="trigger-meta">
+                Row {coords.row}, Col {coords.col} • Hardware Interrupt
+              </div>
+            </div>
+          </div>
+
+          {/* ROOT CONNECTOR LINE */}
+          <div className="flow-connector">
+            <div className="flow-connector-line"></div>
+            <div className="flow-connector-pill">
+              <span className="flow-connector-arrow">↓</span>
+              <span>triggers sequence</span>
+            </div>
+          </div>
+
+          {/* ACTION NODES IN THE PIPELINE */}
+          {hasActions ? (
+            actions.map((action, ai) => {
+              const details = getActionDisplayDetails(action);
+              const isSelected = selectedStepIdx === ai;
+              const isFirst = ai === 0;
+              const isLast = ai === actions.length - 1;
+
+              return (
+                <React.Fragment key={ai}>
+                  <div 
+                    className={`flow-node flow-step-node ${isSelected ? 'focused-step' : ''}`}
+                    onClick={() => setSelectedStepIdx(ai)}
+                    style={{ cursor: 'pointer' }}
+                    title={`Click to open Step ${ai + 1} in the Options Menu`}
+                  >
+                    <div className="flow-node-bullet step-bullet" style={{ borderColor: details.color, color: details.color }}>
+                      {ai + 1}
+                    </div>
+
+                    <div className="flow-node-card" style={{ '--step-accent': details.color }}>
+                      <div className="flow-card-header">
+                        <div className="flow-card-type-row">
+                          <span className="flow-type-icon">{details.icon}</span>
+                          <span className="flow-type-label">{details.category}</span>
+                          <span className="flow-step-num-pill">Step {ai + 1}</span>
+                          {isSelected && (
+                            <span className="flow-active-badge">● Editing in Options</span>
+                          )}
+                        </div>
+
+                        <div className="flow-card-controls" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="flow-ctrl-btn"
+                            disabled={isFirst}
+                            onClick={() => moveAction(ai, -1)}
+                            title="Move step earlier"
+                          >
+                            ▲
+                          </button>
+                          <button
+                            type="button"
+                            className="flow-ctrl-btn"
+                            disabled={isLast}
+                            onClick={() => moveAction(ai, 1)}
+                            title="Move step later"
+                          >
+                            ▼
+                          </button>
+                          <button
+                            type="button"
+                            className="flow-ctrl-btn"
+                            onClick={() => duplicateAction(ai)}
+                            title="Duplicate this step"
+                          >
+                            ⎘
+                          </button>
+                          <button
+                            type="button"
+                            className="flow-ctrl-btn flow-delete-btn"
+                            onClick={() => removeAction(ai)}
+                            title="Remove this step"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flow-card-body">
+                        {details.renderContent()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flow-connector">
+                    <div className="flow-connector-line"></div>
+                    <div className="flow-connector-pill">
+                      <span className="flow-connector-arrow">↓</span>
+                      <span>then</span>
+                    </div>
+                  </div>
+                </React.Fragment>
+              );
+            })
+          ) : (
+            <div className="flow-empty-state">
+              <div className="flow-empty-icon">⚡</div>
+              <div className="flow-empty-title">No Actions Configured Yet</div>
+              <p className="flow-empty-desc">
+                When you press <strong>{keyName}</strong>, nothing will trigger. Add an action below or pick a preset to build your automated workflow!
+              </p>
+            </div>
+          )}
+
+          {/* ADD STEP NODE AT THE END OF THE FLOW */}
+          <div className="flow-add-step-node">
+            <div className="flow-add-header">
+              <span className="flow-add-icon">➕</span>
+              <span>Add Action Step to Pipeline</span>
+            </div>
+            <div className="flow-quick-add-group">
+              <button 
+                type="button" 
+                className="flow-quick-btn keypress-btn"
+                onClick={() => addActionWithType('keypress')}
+              >
+                ⌨️ Hotkey
+              </button>
+              <button 
+                type="button" 
+                className="flow-quick-btn mouse-btn"
+                onClick={() => addActionWithType('mouse_click')}
+              >
+                🖱️ Mouse
+              </button>
+              <button 
+                type="button" 
+                className="flow-quick-btn text-btn"
+                onClick={() => addActionWithType('text')}
+              >
+                🔤 Text
+              </button>
+              <button 
+                type="button" 
+                className="flow-quick-btn consumer-btn"
+                onClick={() => addActionWithType('consumer')}
+              >
+                🎵 Media
+              </button>
+              <button 
+                type="button" 
+                className="flow-quick-btn delay-btn"
+                onClick={() => addActionWithType('delay')}
+              >
+                ⏱️ Delay
+              </button>
+              <button 
+                type="button" 
+                className="flow-quick-btn launch-btn"
+                onClick={() => addActionWithType('launch')}
+              >
+                🚀 Launch
+              </button>
+              <button 
+                type="button" 
+                className="flow-quick-btn url-btn"
+                onClick={() => addActionWithType('url')}
+              >
+                🌐 Web URL
+              </button>
+              <button 
+                type="button" 
+                className="flow-quick-btn switch-btn"
+                onClick={() => addActionWithType('profile_switch')}
+              >
+                🔄 Switch Layer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderContextualOptionsMenu = () => {
+    const actions = selectedMacro.actions || [];
+    const hasActions = actions.length > 0;
+    const isTriggerActive = selectedStepIdx === 'trigger' || !hasActions;
+    const activeStep = hasActions && typeof selectedStepIdx === 'number' && selectedStepIdx < actions.length
+      ? actions[selectedStepIdx]
+      : null;
+
+    if (isTriggerActive || !activeStep) {
+      // TRIGGER / KEY OPTIONS VIEW
+      return (
+        <div className="options-view-container">
+          <div className="options-view-header">
+            <div className="options-header-top">
+              <span className="options-header-tag">⚡ KEY TRIGGER OPTIONS</span>
+              <span className="options-step-count">{actions.length} {actions.length === 1 ? 'Step' : 'Steps'}</span>
+            </div>
+            <h2 className="options-heading">{getSelectedKeyName()}</h2>
+            <div className="options-sub-meta">
+              Row {coords.row}, Col {coords.col} • Hardware Interrupt
+            </div>
+          </div>
+
+          <div className="options-section">
+            <div className="input-group">
+              <label className="options-field-label">Macro Display Label</label>
+              <input
+                type="text"
+                className="options-input"
+                value={selectedMacro.label || ""}
+                onChange={(e) => handleLabelChange(e.target.value)}
+                placeholder="e.g. Photoshop Copy, Mute Mic..."
+              />
+              <span className="options-field-hint">Label displayed on the keycap in the matrix</span>
+            </div>
+          </div>
+
+          <div className="options-section">
+            <label className="options-field-label">Action Pipeline ({actions.length})</label>
+            {hasActions ? (
+              <div className="options-steps-summary-list">
+                {actions.map((act, idx) => {
+                  const details = getActionDisplayDetails(act);
+                  return (
+                    <div 
+                      key={idx} 
+                      className="options-step-chip-item"
+                      onClick={() => setSelectedStepIdx(idx)}
+                      title={`Configure Step ${idx + 1}`}
+                    >
+                      <div className="options-step-chip-left">
+                        <span className="options-step-chip-num">#{idx + 1}</span>
+                        <span className="options-step-chip-icon">{details.icon}</span>
+                        <div className="options-step-chip-info">
+                          <span className="options-step-chip-title">{details.category}</span>
+                          <span className="options-step-chip-desc">{details.shortDesc}</span>
+                        </div>
+                      </div>
+                      <span className="options-step-chip-arrow">➔</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="options-empty-card">
+                <span>No action steps configured for this key yet.</span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '0.4rem' }}>
+                  Use the quick buttons below the flow tree on the left to add your first action!
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ACTIVE ACTION STEP OPTIONS VIEW
+    const currentAction = activeStep;
+    const ai = selectedStepIdx;
+    const details = getActionDisplayDetails(currentAction);
+
+    return (
+      <div className="options-view-container">
+        {/* Step Inspector Navigation & Header */}
+        <div className="options-view-header">
+          <div className="options-header-top">
+            <div className="options-nav-pills">
+              <button 
+                type="button" 
+                className="options-nav-btn"
+                disabled={ai === 0}
+                onClick={() => setSelectedStepIdx(ai - 1)}
+                title="Go to previous step"
+              >
+                ◀ Prev
+              </button>
+              <span className="options-step-badge">
+                Step {ai + 1} of {actions.length}
+              </span>
+              <button 
+                type="button" 
+                className="options-nav-btn"
+                disabled={ai === actions.length - 1}
+                onClick={() => setSelectedStepIdx(ai + 1)}
+                title="Go to next step"
+              >
+                Next ▶
+              </button>
+            </div>
+
+            <div className="options-actions-tools">
+              <button 
+                type="button" 
+                className="options-tool-btn" 
+                onClick={() => duplicateAction(ai)}
+                title="Duplicate step"
+              >
+                ⎘
+              </button>
+              <button 
+                type="button" 
+                className="options-tool-btn delete-tool" 
+                onClick={() => removeAction(ai)}
+                title="Delete this step"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="options-title-row">
+            <span className="options-type-icon">{details.icon}</span>
+            <div>
+              <h2 className="options-heading">{details.category}</h2>
+              <div className="options-sub-meta">Configuring Step #{ai + 1} for {getSelectedKeyName()}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 1. Action Type Selector */}
+        <div className="options-section">
+          <div className="input-group">
+            <label className="options-field-label">Action Type</label>
+            <select
+              className="options-select"
+              value={currentAction.type}
+              onChange={(e) => handleActionChange(ai, 'type', e.target.value)}
+            >
+              <option value="keypress">⌨️ Hotkeys & Key Combinations</option>
+              <option value="mouse_click">🖱️ Mouse Click Action</option>
+              <option value="text">🔤 Type Text String</option>
+              <option value="consumer">🎵 Media & System Keys</option>
+              <option value="delay">⏱️ Introduce Delay / Pause</option>
+              <option value="launch">🚀 Launch Application</option>
+              <option value="url">🌐 Open Web URL</option>
+              <option value="profile_switch">🔄 Switch Profile Layer</option>
+            </select>
+          </div>
+        </div>
+
+        {/* 2. Contextual Parameters Based on Action Type */}
+        <div className="options-section options-params-section">
+          {currentAction.type === 'keypress' && (
+            <div className="options-param-group">
+              <div className="input-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="options-field-label">Keys (Comma Separated)</label>
+                  <span className="options-field-hint">e.g. CONTROL, C</span>
+                </div>
+                <input
+                  type="text"
+                  className="options-input"
+                  value={currentAction.keys?.join(', ') || ""}
+                  onChange={(e) => handleActionChange(ai, 'keys', e.target.value)}
+                  placeholder="CONTROL, C"
+                />
+              </div>
+
+              {/* Modifiers Bar */}
+              <div className="options-sub-group">
+                <label className="options-field-label">Modifier Keys</label>
+                <div className="options-chips-row">
+                  {[
+                    { label: 'Ctrl', key: 'CONTROL' },
+                    { label: 'Shift', key: 'SHIFT' },
+                    { label: 'Alt', key: 'ALT' },
+                    { label: 'Win/Cmd', key: 'GUI' }
+                  ].map(m => {
+                    const isActive = (currentAction.keys || []).includes(m.key);
+                    return (
+                      <button
+                        key={m.key}
+                        type="button"
+                        className={`options-chip-toggle ${isActive ? 'active' : ''}`}
+                        onClick={() => insertKeyToKeypress(ai, m.key)}
+                      >
+                        {isActive ? `✓ ${m.label}` : `+ ${m.label}`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Common Functional Keys */}
+              <div className="options-sub-group">
+                <label className="options-field-label">Quick Function Keys</label>
+                <div className="options-chips-row">
+                  {[
+                    { label: 'Enter ↵', key: 'ENTER' },
+                    { label: 'Tab ⇥', key: 'TAB' },
+                    { label: 'Esc', key: 'ESCAPE' },
+                    { label: 'Backspace ⌫', key: 'BACKSPACE' },
+                    { label: 'Space ␣', key: 'SPACE' },
+                    { label: 'Delete ⌦', key: 'DELETE' },
+                    { label: '↑ Up', key: 'UP_ARROW' },
+                    { label: '↓ Down', key: 'DOWN_ARROW' },
+                    { label: '← Left', key: 'LEFT_ARROW' },
+                    { label: '→ Right', key: 'RIGHT_ARROW' }
+                  ].map(k => (
+                    <button
+                      key={k.key}
+                      type="button"
+                      className="options-key-chip"
+                      onClick={() => insertKeyToKeypress(ai, k.key)}
+                      title={`Insert ${k.key}`}
+                    >
+                      {k.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Numpad Collapsible Drawer */}
+              <div className="options-sub-group">
+                <button
+                  type="button"
+                  className={`options-drawer-toggle ${openNumpad[ai] ? 'active' : ''}`}
+                  onClick={() => setOpenNumpad(prev => ({ ...prev, [ai]: !prev[ai] }))}
+                >
+                  <span>🔢 Numeric Numpad Pad</span>
+                  <span>{openNumpad[ai] ? '▲ Hide' : '▾ Show'}</span>
+                </button>
+
+                {openNumpad[ai] && (
+                  <div className="quick-numpad-grid" style={{ marginTop: '0.6rem' }}>
+                    {[
+                      { label: '7', key: 'NUMPAD_7' },
+                      { label: '8', key: 'NUMPAD_8' },
+                      { label: '9', key: 'NUMPAD_9' },
+                      { label: '/', key: 'NUMPAD_DIVIDE' },
+                      { label: '4', key: 'NUMPAD_4' },
+                      { label: '5', key: 'NUMPAD_5' },
+                      { label: '6', key: 'NUMPAD_6' },
+                      { label: '*', key: 'NUMPAD_MULTIPLY' },
+                      { label: '1', key: 'NUMPAD_1' },
+                      { label: '2', key: 'NUMPAD_2' },
+                      { label: '3', key: 'NUMPAD_3' },
+                      { label: '-', key: 'NUMPAD_MINUS' },
+                      { label: '0', key: 'NUMPAD_0' },
+                      { label: '.', key: 'NUMPAD_PERIOD' },
+                      { label: '+', key: 'NUMPAD_PLUS' },
+                      { label: '↵ Enter', key: 'NUMPAD_ENTER' },
+                      { label: 'NumLk', key: 'NUMPAD_LOCK' }
+                    ].map(np => (
+                      <button
+                        key={np.key}
+                        type="button"
+                        className="numpad-key-btn"
+                        onClick={() => insertKeyToKeypress(ai, np.key)}
+                        title={`Insert ${np.key}`}
+                      >
+                        {np.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {currentAction.type === 'mouse_click' && (
+            <div className="options-param-group">
+              <div className="input-group">
+                <label className="options-field-label">Target Button</label>
+                <div className="options-segmented-bar">
+                  {['LEFT', 'RIGHT', 'MIDDLE'].map(btn => (
+                    <button
+                      key={btn}
+                      type="button"
+                      className={`options-segment-btn ${(currentAction.button || 'LEFT') === btn ? 'active' : ''}`}
+                      onClick={() => handleActionChange(ai, 'button', btn)}
+                    >
+                      {btn === 'LEFT' ? 'Left Click' : btn === 'RIGHT' ? 'Right Click' : 'Middle / Wheel'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label className="options-field-label">Click Type</label>
+                <div className="options-segmented-bar">
+                  {[
+                    { label: 'Single Click', val: 'click' },
+                    { label: 'Double Click', val: 'double_click' },
+                    { label: 'Hold / Drag', val: 'hold' },
+                    { label: 'Release', val: 'release' }
+                  ].map(mode => (
+                    <button
+                      key={mode.val}
+                      type="button"
+                      className={`options-segment-btn ${(currentAction.click_type || 'click') === mode.val ? 'active' : ''}`}
+                      onClick={() => handleActionChange(ai, 'click_type', mode.val)}
+                    >
+                      {mode.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label className="options-field-label">Modifier Keys</label>
+                <div className="options-chips-row">
+                  {[
+                    { label: 'Ctrl', key: 'CONTROL' },
+                    { label: 'Shift', key: 'SHIFT' },
+                    { label: 'Alt', key: 'ALT' },
+                    { label: 'Win/Cmd', key: 'GUI' }
+                  ].map(m => {
+                    const isActive = (currentAction.modifiers || []).includes(m.key);
+                    return (
+                      <button
+                        key={m.key}
+                        type="button"
+                        className={`options-chip-toggle ${isActive ? 'active' : ''}`}
+                        onClick={() => toggleMouseModifier(ai, m.key)}
+                      >
+                        {isActive ? `✓ ${m.label}` : `+ ${m.label}`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentAction.type === 'text' && (
+            <div className="options-param-group">
+              <div className="input-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="options-field-label">Text to Type</label>
+                  <span className="options-field-hint">{(currentAction.text || '').length} characters</span>
+                </div>
+                <textarea
+                  className="options-textarea"
+                  rows={4}
+                  value={currentAction.text || ""}
+                  onChange={(e) => handleActionChange(ai, 'text', e.target.value)}
+                  placeholder="Enter characters, code snippets, or text to type automatically..."
+                />
+                <span className="options-field-hint">Simulates typing character-by-character on hardware trigger</span>
+              </div>
+            </div>
+          )}
+
+          {currentAction.type === 'consumer' && (
+            <div className="options-param-group">
+              <label className="options-field-label">Media / System Command</label>
+              <div className="options-media-grid">
+                {[
+                  { label: 'Volume Up', key: 'VOLUME_INCREMENT', icon: '🔊' },
+                  { label: 'Volume Down', key: 'VOLUME_DECREMENT', icon: '🔉' },
+                  { label: 'Mute Audio', key: 'MUTE', icon: '🔇' },
+                  { label: 'Play / Pause', key: 'PLAY_PAUSE', icon: '⏯️' },
+                  { label: 'Next Track', key: 'SCAN_NEXT_TRACK', icon: '⏭️' },
+                  { label: 'Previous Track', key: 'SCAN_PREVIOUS_TRACK', icon: '⏮️' }
+                ].map(cmd => (
+                  <button
+                    key={cmd.key}
+                    type="button"
+                    className={`options-media-btn ${(currentAction.key || 'PLAY_PAUSE') === cmd.key ? 'active' : ''}`}
+                    onClick={() => handleActionChange(ai, 'key', cmd.key)}
+                  >
+                    <span className="options-media-icon">{cmd.icon}</span>
+                    <span className="options-media-label">{cmd.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {currentAction.type === 'delay' && (
+            <div className="options-param-group">
+              <div className="input-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="options-field-label">Delay Duration</label>
+                  <span style={{ fontWeight: 700, color: 'var(--accent-color)' }}>
+                    {currentAction.duration || 0.2}s ({Math.round((currentAction.duration || 0.2) * 1000)}ms)
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.05"
+                  max="2.0"
+                  step="0.05"
+                  value={currentAction.duration || 0.2}
+                  onChange={(e) => handleActionChange(ai, 'duration', parseFloat(e.target.value) || 0.2)}
+                  className="options-range-slider"
+                />
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0.01"
+                  max="10.0"
+                  className="options-input"
+                  value={currentAction.duration || 0.2}
+                  onChange={(e) => handleActionChange(ai, 'duration', parseFloat(e.target.value) || 0.2)}
+                />
+              </div>
+
+              <div className="options-sub-group">
+                <label className="options-field-label">Quick Presets</label>
+                <div className="options-chips-row">
+                  {[0.05, 0.1, 0.25, 0.5, 1.0, 2.0].map(sec => (
+                    <button
+                      key={sec}
+                      type="button"
+                      className={`options-chip-toggle ${(currentAction.duration || 0.2) === sec ? 'active' : ''}`}
+                      onClick={() => handleActionChange(ai, 'duration', sec)}
+                    >
+                      {sec < 1 ? `${Math.round(sec * 1000)}ms` : `${sec}s`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentAction.type === 'launch' && (
+            <div className="options-param-group">
+              <div className="input-group">
+                <label className="options-field-label">Application Executable or Command</label>
+                <input
+                  type="text"
+                  className="options-input"
+                  value={currentAction.app || ""}
+                  onChange={(e) => handleActionChange(ai, 'app', e.target.value)}
+                  placeholder="e.g. code, chrome, calc, discord"
+                />
+              </div>
+
+              <div className="options-sub-group">
+                <label className="options-field-label">Popular App Presets</label>
+                <div className="options-chips-row">
+                  {[
+                    { label: 'VS Code', app: 'code' },
+                    { label: 'Google Chrome', app: 'chrome' },
+                    { label: 'Terminal / CMD', app: 'cmd' },
+                    { label: 'Calculator', app: 'calc' },
+                    { label: 'Discord', app: 'discord' },
+                    { label: 'OBS Studio', app: 'obs64' },
+                    { label: 'Spotify', app: 'spotify' },
+                    { label: 'Notepad', app: 'notepad' }
+                  ].map(p => (
+                    <button
+                      key={p.app}
+                      type="button"
+                      className={`options-chip-toggle ${(currentAction.app || '') === p.app ? 'active' : ''}`}
+                      onClick={() => handleActionChange(ai, 'app', p.app)}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentAction.type === 'url' && (
+            <div className="options-param-group">
+              <div className="input-group">
+                <label className="options-field-label">Web URL Destination</label>
+                <input
+                  type="text"
+                  className="options-input"
+                  value={currentAction.url || ""}
+                  onChange={(e) => handleActionChange(ai, 'url', e.target.value)}
+                  placeholder="https://example.com"
+                />
+              </div>
+
+              {currentAction.url && (
+                <a 
+                  href={currentAction.url} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="options-test-url-btn"
+                >
+                  🔗 Test Open URL ↗
+                </a>
+              )}
+            </div>
+          )}
+
+          {currentAction.type === 'profile_switch' && (
+            <div className="options-param-group">
+              <div className="profile-switch-info-box" style={{ margin: 0 }}>
+                <span>🔄 <strong>Layer Switcher:</strong> When this action triggers, the firmware immediately cycles to the next active profile layer and changes the status indicator NeoPixel LED color.</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. Macro Label Footer */}
+        <div className="options-footer-label-box">
+          <div className="input-group" style={{ margin: 0 }}>
+            <label className="options-field-label">Key Macro Label</label>
+            <input
+              type="text"
+              className="options-input"
+              value={selectedMacro.label || ""}
+              onChange={(e) => handleLabelChange(e.target.value)}
+              placeholder="e.g. Copy, Play, Undo"
+            />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderPreviewGrid = () => {
@@ -739,8 +1878,8 @@ function App() {
     const is3x3 = galleryModel === '3x3';
     const is3x3Pro = galleryModel === '3x3_pro';
     const is4x2 = galleryModel === '4x2';
-    const is6x2 = galleryModel === '6x2_encoder';
-    const is5x3 = galleryModel === '5x3_2encoders';
+    const is6x2 = galleryModel === '6x2_encoder' || galleryModel === '6x2';
+    const is5x3 = galleryModel === '5x3_2encoders' || galleryModel === '5x3';
     
     const getGridClass = () => {
       if (is3x3Pro) return 'grid-3x3-pro';
@@ -763,7 +1902,7 @@ function App() {
           displayNum = 'SW';
           extraClass = 'profile-btn';
         }
-      } else if (galleryModel === '6x2_encoder') {
+      } else if (galleryModel === '6x2_encoder' || galleryModel === '6x2') {
         if (i === 12) {
           displayNum = 'ENC';
           extraClass = 'encoder-key';
@@ -776,7 +1915,7 @@ function App() {
         } else {
           displayNum = i + 1;
         }
-      } else if (galleryModel === '5x3_2encoders') {
+      } else if (galleryModel === '5x3_2encoders' || galleryModel === '5x3') {
         if (i === 15) {
           displayNum = 'ENC1';
           extraClass = 'encoder-key';
@@ -800,8 +1939,26 @@ function App() {
 
       const isProfileSwitch = m?.actions?.some(a => a.type === 'profile_switch' || a.type === 'layer_switch');
       const is3x3ProSwitch = galleryModel === '3x3_pro' && i === 9;
-      const iconChar = m?.label ? m.label[0] : (isProfileSwitch || is3x3ProSwitch) ? '🔄' : displayNum;
-      const labelText = m?.label || (isProfileSwitch || is3x3ProSwitch ? 'Switch Layer' : 'Empty');
+      const mouseAction = m?.actions?.find(a => a.type === 'mouse_click' || a.type === 'mouse');
+
+      let iconChar = displayNum;
+      let labelText = isProfileSwitch || is3x3ProSwitch ? 'Switch Layer' : 'Empty';
+
+      if (m?.label) {
+        labelText = m.label;
+        iconChar = mouseAction ? '🖱️' : m.label[0];
+      } else if (mouseAction) {
+        iconChar = '🖱️';
+        let btnLabel = mouseAction.button === 'RIGHT' ? 'R-Click' : mouseAction.button === 'MIDDLE' ? 'M-Click' : mouseAction.button === 'BACK' ? 'Back' : mouseAction.button === 'FORWARD' ? 'Fwd' : mouseAction.click_type === 'double_click' ? '2x-Click' : mouseAction.click_type === 'hold' ? 'Drag' : 'L-Click';
+        if (mouseAction.modifiers && mouseAction.modifiers.length > 0) {
+          const modPrefix = mouseAction.modifiers.map(mod => mod === 'CONTROL' ? 'Ctrl' : mod === 'SHIFT' ? 'Shift' : mod === 'ALT' ? 'Alt' : 'Win').join('+');
+          labelText = `${modPrefix}+${btnLabel}`;
+        } else {
+          labelText = btnLabel;
+        }
+      } else if (isProfileSwitch || is3x3ProSwitch) {
+        iconChar = '🔄';
+      }
 
       return (
         <div key={i} className={`key preview-key ${extraClass} ${isProfileSwitch || is3x3ProSwitch ? 'profile-btn' : ''}`} style={{ cursor: 'default' }}>
@@ -974,261 +2131,166 @@ function App() {
       ) : (
         <div className="main-layout">
           <section className="keyboard-section">
-            <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is4x2 ? 'grid-4x2' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : is5x3_2encoders ? 'grid-5x3_2encoders' : 'grid-3x3'}`}>
-              {is3x3Pro ? (
-                <>
-                  {/* Row 1 */}
-                  {[0, 1, 2].map(i => renderKey(i))}
-                  {renderKey(9)}
-                  
-                  {/* Row 2 */}
-                  {[3, 4, 5].map(i => renderKey(i))}
-                  <div className="key-placeholder"></div>
-                  
-                  {/* Row 3 */}
-                  {[6, 7, 8].map(i => renderKey(i))}
-                  <div className="key-placeholder"></div>
-                </>
-              ) : is4x2 ? (
-                [0, 1, 2, 3, 4, 5, 6, 7].map(i => renderKey(i))
-              ) : is6x2 ? (
-                <>
-                  {/* Row 1: Keys 1 to 6 */}
-                  {[0, 1, 2, 3, 4, 5].map(i => renderKey(i))}
-                  
-                  {/* Row 2: Keys 7 to 12 */}
-                  {[6, 7, 8, 9, 10, 11].map(i => renderKey(i))}
-                  
-                  {/* Row 3: Encoder Controls */}
-                  <div className="key-placeholder"></div>
-                  <div className="key-placeholder"></div>
-                  <div className="key-placeholder"></div>
-                  {renderKey(12)}
-                  {renderKey(13)}
-                  {renderKey(14)}
-                </>
-              ) : is5x3_2encoders ? (
-                <>
-                  {/* Row 1 */}
-                  {[0, 1, 2, 3, 4].map(i => renderKey(i))}
-                  {renderKey(15)}
-                  {renderKey(17)}
-                  {renderKey(18)}
-                  
-                  {/* Row 2 */}
-                  {[5, 6, 7, 8, 9].map(i => renderKey(i))}
-                  {renderKey(16)}
-                  {renderKey(19)}
-                  {renderKey(20)}
-                  
-                  {/* Row 3 */}
-                  {[10, 11, 12, 13, 14].map(i => renderKey(i))}
-                  <div className="key-placeholder"></div>
-                  <div className="key-placeholder"></div>
-                  <div className="key-placeholder"></div>
-                </>
-              ) : (
-                [...Array(is1x3 ? 3 : 9)].map((_, i) => renderKey(i))
-              )}
+            <div className="keyboard-hardware-area">
+              <div className={`grid ${is3x3Pro ? 'grid-3x3-pro' : is4x2 ? 'grid-4x2' : is6x2 ? 'grid-6x2' : is1x3 ? 'grid-1x3' : is5x3_2encoders ? 'grid-5x3_2encoders' : 'grid-3x3'}`}>
+                {is3x3Pro ? (
+                  <>
+                    {/* Row 1 */}
+                    {[0, 1, 2].map(i => renderKey(i))}
+                    {renderKey(9)}
+                    
+                    {/* Row 2 */}
+                    {[3, 4, 5].map(i => renderKey(i))}
+                    <div className="key-placeholder"></div>
+                    
+                    {/* Row 3 */}
+                    {[6, 7, 8].map(i => renderKey(i))}
+                    <div className="key-placeholder"></div>
+                  </>
+                ) : is4x2 ? (
+                  [0, 1, 2, 3, 4, 5, 6, 7].map(i => renderKey(i))
+                ) : is6x2 ? (
+                  <>
+                    {/* Row 1: Keys 1 to 6 */}
+                    {[0, 1, 2, 3, 4, 5].map(i => renderKey(i))}
+                    
+                    {/* Row 2: Keys 7 to 12 */}
+                    {[6, 7, 8, 9, 10, 11].map(i => renderKey(i))}
+                    
+                    {/* Row 3: Encoder Controls */}
+                    <div className="key-placeholder"></div>
+                    <div className="key-placeholder"></div>
+                    <div className="key-placeholder"></div>
+                    {renderKey(12)}
+                    {renderKey(13)}
+                    {renderKey(14)}
+                  </>
+                ) : is5x3_2encoders ? (
+                  <>
+                    {/* Row 1 */}
+                    {[0, 1, 2, 3, 4].map(i => renderKey(i))}
+                    {renderKey(15)}
+                    {renderKey(17)}
+                    {renderKey(18)}
+                    
+                    {/* Row 2 */}
+                    {[5, 6, 7, 8, 9].map(i => renderKey(i))}
+                    {renderKey(16)}
+                    {renderKey(19)}
+                    {renderKey(20)}
+                    
+                    {/* Row 3 */}
+                    {[10, 11, 12, 13, 14].map(i => renderKey(i))}
+                    <div className="key-placeholder"></div>
+                    <div className="key-placeholder"></div>
+                    <div className="key-placeholder"></div>
+                  </>
+                ) : (
+                  [...Array(is1x3 ? 3 : 9)].map((_, i) => renderKey(i))
+                )}
+              </div>
+              <p className="keyboard-hint-text">
+                {is3x3Pro 
+                  ? "Click keys 1-9 or the SW profile button to edit. You can remap the switcher to any action or keep it as profile switch."
+                  : is4x2
+                  ? "Click keys 1-8 to edit macro sequences for your 4x2 matrix."
+                  : is6x2
+                  ? "Click a key or dial action to edit. ENC is the encoder switch, and ↺/↻ are rotation actions."
+                  : is5x3_2encoders
+                  ? "Click a key or dial action to edit. ENC1/2 are encoder switches, and E1/E2 ↺/↻ are rotation actions."
+                  : "Click a key to edit its macro sequence"}
+              </p>
             </div>
-            <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: '500' }}>
-              {is3x3Pro 
-                ? "Click keys 1-9 or the SW profile button to edit. You can remap the switcher to any action or keep it as profile switch."
-                : is4x2
-                ? "Click keys 1-8 to edit macro sequences for your 4x2 matrix."
-                : is6x2
-                ? "Click a key or dial action to edit. ENC is the encoder switch, and ↺/↻ are rotation actions."
-                : is5x3_2encoders
-                ? "Click a key or dial action to edit. ENC1/2 are encoder switches, and E1/E2 ↺/↻ are rotation actions."
-                : "Click a key to edit its macro sequence"}
-            </p>
+
+            {/* Visual Action Flow Tree */}
+            {renderActionFlowTree()}
           </section>
 
-          <aside className="editor-panel">
-            {/* Global Settings Section */}
-            <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1.25rem', marginBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.8rem', color: 'var(--accent-color)' }}>Keyboard Config</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <div className="input-group">
-                  <label>Board Model</label>
-                  <select
-                    value={settings.board_model || '3x3'}
-                    onChange={(e) => {
-                      const modelVal = e.target.value;
-                      const newSettings = { ...settings, board_model: modelVal };
-                      setSettings(newSettings);
-                      updateCurrentProfile(null, newSettings);
-                      
-                      let maxIdx = 8;
-                      if (modelVal === '1x3') maxIdx = 2;
-                      else if (modelVal === '4x2') maxIdx = 7;
-                      else if (modelVal === '3x3_pro') maxIdx = 9;
-                      else if (modelVal === '6x2_encoder') maxIdx = 14;
-                      else if (modelVal === '5x3_2encoders') maxIdx = 20;
-                      
-                      if (selectedIdx > maxIdx) {
-                        setSelectedIdx(0);
-                      }
-                    }}
-                    style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem' }}
-                  >
-                    <option value="3x3">3x3 Model</option>
-                    <option value="1x3">1x3 Model</option>
-                    <option value="4x2">4x2 Model (8 Keys)</option>
-                    <option value="3x3_pro">3x3 Pro Model</option>
-                    <option value="6x2_encoder">6x2 Encoder Model</option>
-                    <option value="5x3_2encoders">5x3 2-Encoder Model</option>
-                  </select>
+          <aside className="editor-panel options-inspector-panel">
+            {/* 1. Sleek Hardware Board Config Accordion */}
+            <div className="board-config-accordion">
+              <button 
+                type="button" 
+                className="board-config-accordion-toggle"
+                onClick={() => setBoardConfigOpen(!boardConfigOpen)}
+                title="Toggle Keyboard Hardware Settings"
+              >
+                <div className="board-config-toggle-left">
+                  <span className="board-config-icon">⌨️</span>
+                  <div>
+                    <div className="board-config-title">Hardware Config</div>
+                    <div className="board-config-sub">
+                      {settings.board_model || '3x3'} • {settings.debounce || 0.05}s debounce
+                    </div>
+                  </div>
                 </div>
-                <div className="input-group">
-                  <label>Debounce (s)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    max="1.0"
-                    value={settings.debounce || 0.05}
-                    onChange={(e) => {
-                      const newSettings = { ...settings, debounce: parseFloat(e.target.value) || 0.05 };
-                      setSettings(newSettings);
-                      updateCurrentProfile(null, newSettings);
-                    }}
-                    style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem' }}
-                  />
-                </div>
-              </div>
-              
-              {/* Board Layout Reference Image */}
-              {modelImage && (
-                <div className="board-preview-card">
-                  <h3>Layout Reference</h3>
-                  <img src={modelImage} alt={`${settings.board_model} layout reference`} className="board-preview-img" />
+                <span className="accordion-chevron">{boardConfigOpen ? '▲' : '▾'}</span>
+              </button>
+
+              {boardConfigOpen && (
+                <div className="board-config-expanded-body">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1fr)', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <div className="input-group" style={{ minWidth: 0 }}>
+                      <label>Board Model</label>
+                      <select
+                        value={settings.board_model || '3x3'}
+                        onChange={(e) => {
+                          const modelVal = e.target.value;
+                          const newSettings = { ...settings, board_model: modelVal };
+                          setSettings(newSettings);
+                          updateCurrentProfile(null, newSettings);
+                          
+                          let maxIdx = 8;
+                          if (modelVal === '1x3') maxIdx = 2;
+                          else if (modelVal === '4x2') maxIdx = 7;
+                          else if (modelVal === '3x3_pro') maxIdx = 9;
+                          else if (modelVal === '6x2_encoder' || modelVal === '6x2') maxIdx = 14;
+                          else if (modelVal === '5x3_2encoders' || modelVal === '5x3') maxIdx = 20;
+                          
+                          if (selectedIdx > maxIdx) {
+                            setSelectedIdx(0);
+                            setSelectedStepIdx(0);
+                          }
+                        }}
+                        style={{ padding: '0.5rem 0.6rem', fontSize: '0.82rem', width: '100%', textOverflow: 'ellipsis' }}
+                      >
+                        <option value="3x3">3x3 Model (9 Keys)</option>
+                        <option value="1x3">1x3 Model (3 Keys)</option>
+                        <option value="4x2">4x2 Model (8 Keys)</option>
+                        <option value="3x3_pro">3x3 Pro (9 Keys + Switch)</option>
+                        <option value="6x2_encoder">6x2 Dial (12 Keys + Dial)</option>
+                        <option value="5x3_2encoders">5x3 Dual Dial (15 Keys + 2 Dials)</option>
+                      </select>
+                    </div>
+                    <div className="input-group" style={{ minWidth: 0 }}>
+                      <label>Debounce (s)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        max="1.0"
+                        value={settings.debounce || 0.05}
+                        onChange={(e) => {
+                          const newSettings = { ...settings, debounce: parseFloat(e.target.value) || 0.05 };
+                          setSettings(newSettings);
+                          updateCurrentProfile(null, newSettings);
+                        }}
+                        style={{ padding: '0.5rem 0.6rem', fontSize: '0.82rem', width: '100%' }}
+                      />
+                    </div>
+                  </div>
+                  
+                  {modelImage && (
+                    <div className="board-preview-card" style={{ marginTop: '0.65rem' }}>
+                      <img src={modelImage} alt={`${settings.board_model} layout reference`} className="board-preview-img" />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            <h2 style={{ fontSize: '1.2rem' }}>Edit {getSelectedKeyName()}</h2>
-
-            <div className="input-group">
-              <label>Macro Label</label>
-              <input
-                type="text"
-                value={selectedMacro.label || ""}
-                onChange={(e) => handleLabelChange(e.target.value)}
-                placeholder="e.g. Photoshop Copy"
-              />
-            </div>
-
-            <div className="action-list">
-              <label>Actions Sequence</label>
-              {selectedMacro.actions?.map((action, ai) => (
-                <div key={ai} className="action-item">
-                  <div className="action-header">
-                    <select
-                      value={action.type}
-                      onChange={(e) => handleActionChange(ai, 'type', e.target.value)}
-                    >
-                      <option value="keypress">Hotkeys / Combinations</option>
-                      <option value="text">Type Text String</option>
-                      <option value="consumer">Media & System Keys</option>
-                      <option value="delay">Introduce Delay</option>
-                      <option value="launch">Launch Application</option>
-                      <option value="url">Open Web URL</option>
-                      <option value="profile_switch">🔄 Switch Profile / Layer</option>
-                    </select>
-                    <button className="remove-btn" onClick={() => removeAction(ai)} title="Remove Action">×</button>
-                  </div>
-
-                  {action.type === 'keypress' && (
-                    <div className="input-group">
-                      <label style={{ fontSize: '0.75rem' }}>Keys (comma separated)</label>
-                      <input
-                        type="text"
-                        value={action.keys?.join(', ') || ""}
-                        onChange={(e) => handleActionChange(ai, 'keys', e.target.value)}
-                        placeholder="CONTROL, C"
-                      />
-                    </div>
-                  )}
-
-                  {action.type === 'text' && (
-                    <div className="input-group">
-                      <label style={{ fontSize: '0.75rem' }}>Text to Type</label>
-                      <input
-                        type="text"
-                        value={action.text || ""}
-                        onChange={(e) => handleActionChange(ai, 'text', e.target.value)}
-                        placeholder="Enter your text here..."
-                      />
-                    </div>
-                  )}
-
-                  {action.type === 'consumer' && (
-                    <div className="input-group">
-                      <label style={{ fontSize: '0.75rem' }}>Select Command</label>
-                      <select
-                        value={action.key}
-                        onChange={(e) => handleActionChange(ai, 'key', e.target.value)}
-                      >
-                        <option value="">Select an action...</option>
-                        <option value="VOLUME_INCREMENT">Volume Up</option>
-                        <option value="VOLUME_DECREMENT">Volume Down</option>
-                        <option value="MUTE">Mute Audio</option>
-                        <option value="PLAY_PAUSE">Play / Pause</option>
-                        <option value="SCAN_NEXT_TRACK">Next Track</option>
-                        <option value="SCAN_PREVIOUS_TRACK">Previous Track</option>
-                      </select>
-                    </div>
-                  )}
-
-                  {action.type === 'delay' && (
-                    <div className="input-group">
-                      <label style={{ fontSize: '0.75rem' }}>Delay Duration (seconds)</label>
-                      <input
-                        type="number"
-                        step="0.05"
-                        min="0.01"
-                        max="10.0"
-                        value={action.duration || 0.1}
-                        onChange={(e) => handleActionChange(ai, 'duration', parseFloat(e.target.value) || 0.1)}
-                        placeholder="e.g. 0.5"
-                      />
-                    </div>
-                  )}
-
-                  {action.type === 'launch' && (
-                    <div className="input-group">
-                      <label style={{ fontSize: '0.75rem' }}>Application Name / Run Command</label>
-                      <input
-                        type="text"
-                        value={action.app || ""}
-                        onChange={(e) => handleActionChange(ai, 'app', e.target.value)}
-                        placeholder="e.g. notepad, chrome, cmd"
-                      />
-                    </div>
-                  )}
-
-                  {action.type === 'url' && (
-                    <div className="input-group">
-                      <label style={{ fontSize: '0.75rem' }}>URL Link (https://...)</label>
-                      <input
-                        type="text"
-                        value={action.url || ""}
-                        onChange={(e) => handleActionChange(ai, 'url', e.target.value)}
-                        placeholder="e.g. https://github.com"
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <button className="btn btn-secondary" style={{ marginTop: 'auto' }} onClick={() => {
-              const newActions = [...(selectedMacro.actions || []), { type: 'keypress', keys: [] }];
-              updateMacroInList({ ...selectedMacro, actions: newActions });
-            }}>
-              ➕ Add Action
-            </button>
+            {/* 2. Contextual Options Menu for the Selected Flow Step */}
+            {renderContextualOptionsMenu()}
           </aside>
         </div>
       )}
@@ -1269,19 +2331,19 @@ function App() {
                 <div className="input-group">
                   <label style={{ fontWeight: '700' }}>Filter by Model</label>
                   <select 
-                    value={galleryModel} 
+                    value={galleryModel === '6x2' ? '6x2_encoder' : galleryModel === '5x3' ? '5x3_2encoders' : galleryModel} 
                     onChange={(e) => {
                       setGalleryModel(e.target.value);
                       setSelectedPresetIdx(0);
                     }}
                     style={{ marginBottom: '1rem' }}
                   >
-                    <option value="3x3">3x3 Model</option>
-                    <option value="1x3">1x3 Model</option>
+                    <option value="3x3">3x3 Model (9 Keys)</option>
+                    <option value="1x3">1x3 Model (3 Keys)</option>
                     <option value="4x2">4x2 Model (8 Keys)</option>
-                    <option value="3x3_pro">3x3 Pro Model</option>
-                    <option value="6x2_encoder">6x2 Encoder Model</option>
-                    <option value="5x3_2encoders">5x3 2-Encoder Model</option>
+                    <option value="3x3_pro">3x3 Pro (9 Keys + Switch)</option>
+                    <option value="6x2_encoder">6x2 Dial (12 Keys + Dial)</option>
+                    <option value="5x3_2encoders">5x3 Dual Dial (15 Keys + 2 Dials)</option>
                   </select>
                 </div>
                 
@@ -1307,9 +2369,16 @@ function App() {
               
               {/* Right Panel: Interactive Grid Preview */}
               <div className="gallery-preview-panel">
-                <h3>Layout Map Preview</h3>
-                <div className="preview-info">
-                  Showing mapping for: <strong>{PRESETS[galleryModel]?.[selectedPresetIdx]?.name || 'N/A'}</strong>
+                <div className="gallery-preview-header-row">
+                  <div>
+                    <h3>Layout Map Preview</h3>
+                    <div className="preview-info">
+                      Showing mapping for: <strong>{PRESETS[galleryModel]?.[selectedPresetIdx]?.name || 'N/A'}</strong>
+                    </div>
+                  </div>
+                  {getModelImage(galleryModel) && (
+                    <img src={getModelImage(galleryModel)} alt="Model layout reference" className="gallery-model-thumb" />
+                  )}
                 </div>
                 
                 {/* Visual Preview Grid */}
@@ -1322,24 +2391,22 @@ function App() {
                   <button 
                     className="btn btn-primary" 
                     disabled={!PRESETS[galleryModel]?.[selectedPresetIdx]}
-                    onClick={() => {
-                      const preset = PRESETS[galleryModel][selectedPresetIdx];
-                      if (confirm(`Apply "${preset.name}"? This will overwrite the macros in your active profile ("${activeProfile}").`)) {
-                        setMacros(preset.macros);
-                        const newSettings = { ...settings, board_model: galleryModel };
-                        setSettings(newSettings);
-                        updateCurrentProfile(preset.macros, newSettings);
-                        setSelectedIdx(0);
-                        setGalleryOpen(false);
-                      }
-                    }}
+                    onClick={() => applyPresetToProfile()}
                   >
-                    💾 Apply Preset to Profile
+                    💾 Apply Preset to "{activeProfile}"
                   </button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="toast-notification">
+          <span>{toastMessage}</span>
+          <button className="toast-close-btn" onClick={() => setToastMessage('')}>✕</button>
         </div>
       )}
     </div>

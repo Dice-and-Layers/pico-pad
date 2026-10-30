@@ -12,10 +12,8 @@ CONSOLE_ENABLE = no         # Console for debug
 COMMAND_ENABLE = no         # Commands for debug and configuration
 NKRO_ENABLE = yes           # Enable N-Key Rollover
 
-# OLED Display Support
-OLED_ENABLE = yes
-OLED_DRIVER = ssd1306
-I2C_DRIVER = vendor
+# OLED Display Support (disabled for 4x2 backlight model)
+OLED_ENABLE = no
 
 # Optimization
 LTO_ENABLE = yes

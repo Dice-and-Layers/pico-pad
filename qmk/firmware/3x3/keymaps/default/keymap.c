@@ -7,21 +7,21 @@ enum custom_keycodes {
 
 // Define standard keymaps for 3 layers (Profile 1, 2, and 3)
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    // Profile 1 (Layer 0): Default Numpad Keys 1-9 & Profile Switcher
+    // Profile 1 (Layer 0): Default Numpad Keys 1-9
     [0] = LAYOUT(
-        KC_1,    KC_2,    KC_3,    KC_PROF_SW,
+        KC_1,    KC_2,    KC_3,
         KC_4,    KC_5,    KC_6,
         KC_7,    KC_8,    KC_9
     ),
     // Profile 2 (Layer 1): Media & Shortcuts
     [1] = LAYOUT(
-        KC_MPRV, KC_MPLY, KC_MNXT, KC_PROF_SW,
+        KC_MPRV, KC_MPLY, KC_MNXT,
         KC_VOLD, KC_MUTE, KC_VOLU,
         KC_TRNS, KC_TRNS, KC_TRNS
     ),
     // Profile 3 (Layer 2): Design/Coding Macros (F13-F21)
     [2] = LAYOUT(
-        KC_F13,  KC_F14,  KC_F15,  KC_PROF_SW,
+        KC_F13,  KC_F14,  KC_F15,
         KC_F16,  KC_F17,  KC_F18,
         KC_F19,  KC_F20,  KC_F21
     )

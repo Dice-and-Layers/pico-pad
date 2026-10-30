@@ -1,171 +1,229 @@
 #include QMK_KEYBOARD_H
 
-// Define custom keycode for profile switching
+// Custom keycodes
 enum custom_keycodes {
-    KC_PROF_SW = SAFE_RANGE
+    KC_PROF_SW = SAFE_RANGE,
+    KC_BL_STEP,
+    KC_BL_TOGG
 };
 
-// Define standard keymaps for 3 layers (Profile 1, 2, and 3)
+// Backlight operation modes
+enum backlight_modes {
+    BL_MODE_ALL_ON = 0,    // Default: Solid illumination for all 8 keys
+    BL_MODE_REACTIVE,      // Reactive: Keys illuminate when pressed
+    BL_MODE_LAYER_IND,     // Layer Indicator: Row 0 indicates active profile + reactive keys
+    BL_MODE_OFF,           // Backlight disabled
+    BL_MODE_COUNT
+};
+
+static uint8_t bl_mode = BL_MODE_ALL_ON;
+
+// Standard 4-layer keymap configuration (fully customizable via VIA)
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    // Profile 1 (Layer 0): Default Numpad Keys 1-9 & Profile Switcher
+    // Profile 1 (Layer 0): Default Numpad Keys 1-8
     [0] = LAYOUT(
-        KC_1,    KC_2,    KC_3,    KC_PROF_SW,
-        KC_4,    KC_5,    KC_6,
-        KC_7,    KC_8,    KC_9
+        KC_1,    KC_2,    KC_3,    KC_4,
+        KC_5,    KC_6,    KC_7,    KC_8
     ),
-    // Profile 2 (Layer 1): Media & Shortcuts
+    // Profile 2 (Layer 1): Media & Shortcuts + Backlight / Profile Controls
     [1] = LAYOUT(
-        KC_MPRV, KC_MPLY, KC_MNXT, KC_PROF_SW,
-        KC_VOLD, KC_MUTE, KC_VOLU,
-        KC_TRNS, KC_TRNS, KC_TRNS
+        KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE,
+        KC_VOLD, KC_VOLU, KC_BL_STEP, KC_PROF_SW
     ),
-    // Profile 3 (Layer 2): Design/Coding Macros (F13-F21)
+    // Profile 3 (Layer 2): Coding / Design Shortcuts (F13-F20)
     [2] = LAYOUT(
-        KC_F13,  KC_F14,  KC_F15,  KC_PROF_SW,
-        KC_F16,  KC_F17,  KC_F18,
-        KC_F19,  KC_F20,  KC_F21
+        KC_F13,  KC_F14,  KC_F15,  KC_F16,
+        KC_F17,  KC_F18,  KC_F19,  KC_F20
+    ),
+    // Profile 4 (Layer 3): Navigation
+    [3] = LAYOUT(
+        KC_HOME, KC_UP,   KC_END,  KC_PGUP,
+        KC_LEFT, KC_DOWN, KC_RGHT, KC_PGDN
     )
 };
 
-// Track currently pressed macro keys (excluding switcher button)
-static bool pressed_keys[3][3] = {
-    {false, false, false},
-    {false, false, false},
-    {false, false, false}
+// Track currently pressed keys (2 rows x 4 cols)
+static bool pressed_keys[2][4] = {
+    {false, false, false, false},
+    {false, false, false, false}
 };
 
-// Process custom keycodes and track keypress states
+// Target LED states for multiplexing (2 rows x 4 cols)
+static bool led_state[2][4] = {
+    {true, true, true, true},
+    {true, true, true, true}
+};
+
+// LED Matrix Pin Definitions
+// LED Columns (Cathodes, active low): GP7, GP8, GP9, GP10 (LC1, LC2, LC3, LC4)
+// LED Rows (Anodes, active high): GP11, GP12 (LR1, LR2)
+static const pin_t led_col_pins[] = {GP7, GP8, GP9, GP10};
+static const pin_t led_row_pins[] = {GP11, GP12};
+
+// Process custom keycodes and atomic shortcuts
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint8_t row = record->event.key.row;
     uint8_t col = record->event.key.col;
 
-    // Track pressed state for 3x3 matrix keys to drive the backlights
-    if (row < 3 && col < 3) {
+    // Track pressed state for 2x4 matrix keys
+    if (row < 2 && col < 4) {
         pressed_keys[row][col] = record->event.pressed;
     }
 
+    // Hardware shortcut: Holding Top-Left (S1) and Top-Right (S4) together cycles backlight mode
+    if (record->event.pressed && pressed_keys[0][0] && pressed_keys[0][3]) {
+        bl_mode = (bl_mode + 1) % BL_MODE_COUNT;
+        return false;
+    }
+
+    // Hardware shortcut: Holding Bottom-Left (S5) and Bottom-Right (S8) together cycles profile/layer
+    if (record->event.pressed && pressed_keys[1][0] && pressed_keys[1][3]) {
+        uint8_t next_layer = (get_highest_layer(layer_state) + 1) % 4;
+        layer_clear();
+        layer_on(next_layer);
+        return false;
+    }
+
     switch (keycode) {
+        // Atomic OS shortcuts to avoid stuck modifiers
         case KC_CUT:
-            if (record->event.pressed) {
-                tap_code16(C(KC_X));
-            }
+            if (record->event.pressed) tap_code16(C(KC_X));
             return false;
         case KC_COPY:
-            if (record->event.pressed) {
-                tap_code16(C(KC_C));
-            }
+            if (record->event.pressed) tap_code16(C(KC_C));
             return false;
         case KC_PASTE:
-            if (record->event.pressed) {
-                tap_code16(C(KC_V));
-            }
+            if (record->event.pressed) tap_code16(C(KC_V));
             return false;
         case KC_UNDO:
-            if (record->event.pressed) {
-                tap_code16(C(KC_Z));
-            }
+            if (record->event.pressed) tap_code16(C(KC_Z));
             return false;
         case KC_FIND:
-            if (record->event.pressed) {
-                tap_code16(C(KC_F));
-            }
+            if (record->event.pressed) tap_code16(C(KC_F));
             return false;
 
+        // Profile switcher keycode
         case KC_PROF_SW:
             if (record->event.pressed) {
-                // Cycle through profiles 0 -> 1 -> 2 -> 0
-                uint8_t next_layer = (get_highest_layer(layer_state) + 1) % 3;
+                uint8_t next_layer = (get_highest_layer(layer_state) + 1) % 4;
                 layer_clear();
                 layer_on(next_layer);
             }
-            return false; // Handled
-        default:
-            return true; // Pass through to QMK
-    }
-}
+            return false;
 
-// Initialize GPIO pins for 3x3 LED matrix control
-void keyboard_pre_init_user(void) {
-    // LED Columns (Cathodes, Active Low): GP7, GP8, GP9
-    gpio_set_pin_output(GP7); gpio_write_pin_high(GP7);
-    gpio_set_pin_output(GP8); gpio_write_pin_high(GP8);
-    gpio_set_pin_output(GP9); gpio_write_pin_high(GP9);
-
-    // LED Rows (Anodes, Active High): GP10, GP11, GP12
-    gpio_set_pin_output(GP10); gpio_write_pin_low(GP10);
-    gpio_set_pin_output(GP11); gpio_write_pin_low(GP11);
-    gpio_set_pin_output(GP12); gpio_write_pin_low(GP12);
-}
-
-// Multiplex backlights and active profile indicator
-void matrix_scan_user(void) {
-    // Turn off all LED matrix pins first to clear state
-    gpio_write_pin_high(GP7);
-    gpio_write_pin_high(GP8);
-    gpio_write_pin_high(GP9);
-    gpio_write_pin_low(GP10);
-    gpio_write_pin_low(GP11);
-    gpio_write_pin_low(GP12);
-
-    bool key_is_pressed = false;
-    uint8_t active_row = 0;
-    uint8_t active_col = 0;
-
-    // Check if any key is currently held
-    for (uint8_t r = 0; r < 3; r++) {
-        for (uint8_t c = 0; c < 3; c++) {
-            if (pressed_keys[r][c]) {
-                key_is_pressed = true;
-                active_row = r;
-                active_col = c;
-                break;
+        // Backlight mode step keycode
+        case KC_BL_STEP:
+            if (record->event.pressed) {
+                bl_mode = (bl_mode + 1) % BL_MODE_COUNT;
             }
-        }
-        if (key_is_pressed) break;
-    }
+            return false;
 
-    if (key_is_pressed) {
-        // Light up the specific pressed key LED
-        pin_t row_pin = (active_row == 0) ? GP10 : (active_row == 1) ? GP11 : GP12;
-        pin_t col_pin = (active_col == 0) ? GP7  : (active_col == 1) ? GP8  : GP9;
+        // Backlight on/off toggle keycode
+        case KC_BL_TOGG:
+            if (record->event.pressed) {
+                bl_mode = (bl_mode == BL_MODE_OFF) ? BL_MODE_ALL_ON : BL_MODE_OFF;
+            }
+            return false;
 
-        gpio_write_pin_high(row_pin);
-        gpio_write_pin_low(col_pin);
-    } else {
-        // Idle: Indicate active profile/layer on row 0 (LED 0-2)
-        uint8_t current_layer = get_highest_layer(layer_state);
-        pin_t col_pin = (current_layer == 0) ? GP7 : (current_layer == 1) ? GP8 : GP9;
-        
-        gpio_write_pin_high(GP10); // Row 0 HIGH
-        gpio_write_pin_low(col_pin); // Active column cathode LOW
-    }
-}
-
-// Draw configuration data on OLED display (SSD1306)
-#ifdef OLED_ENABLE
-bool oled_task_user(void) {
-    oled_write_ln("  MACRO KEYPAD  ", false);
-    oled_write_ln("================", false);
-    oled_write_ln("", false);
-    
-    oled_write_ln("Active Profile:", false);
-    uint8_t current_layer = get_highest_layer(layer_state);
-    switch (current_layer) {
-        case 0:
-            oled_write_ln("> PROFILE 1 (NUM)", false);
-            break;
-        case 1:
-            oled_write_ln("> PROFILE 2 (MED)", false);
-            break;
-        case 2:
-            oled_write_ln("> PROFILE 3 (COD)", false);
-            break;
         default:
-            oled_write_ln("> DEFAULT", false);
+            return true;
+    }
+}
+
+// Initialize GPIO pins for 4x2 LED matrix control
+void keyboard_pre_init_user(void) {
+    for (int i = 0; i < 4; i++) {
+        gpio_set_pin_output(led_col_pins[i]);
+        gpio_write_pin_high(led_col_pins[i]); // Cathode high = OFF
+    }
+    for (int i = 0; i < 2; i++) {
+        gpio_set_pin_output(led_row_pins[i]);
+        gpio_write_pin_low(led_row_pins[i]);  // Anode low = OFF
+    }
+}
+
+// Startup animation: quick sweep across all 8 LEDs on boot
+void keyboard_post_init_user(void) {
+    // Sweep top row (L1 -> L4)
+    gpio_write_pin_high(led_row_pins[0]);
+    for (int c = 0; c < 4; c++) {
+        gpio_write_pin_low(led_col_pins[c]);
+        wait_ms(25);
+        gpio_write_pin_high(led_col_pins[c]);
+    }
+    gpio_write_pin_low(led_row_pins[0]);
+
+    // Sweep bottom row (L8 -> L5)
+    gpio_write_pin_high(led_row_pins[1]);
+    for (int c = 3; c >= 0; c--) {
+        gpio_write_pin_low(led_col_pins[c]);
+        wait_ms(25);
+        gpio_write_pin_high(led_col_pins[c]);
+    }
+    gpio_write_pin_low(led_row_pins[1]);
+}
+
+// Non-blocking high-frequency row multiplexer for 4x2 LED backlight matrix
+void matrix_scan_user(void) {
+    // 1. Calculate target LED buffer based on current mode
+    switch (bl_mode) {
+        case BL_MODE_ALL_ON:
+            for (uint8_t r = 0; r < 2; r++) {
+                for (uint8_t c = 0; c < 4; c++) {
+                    led_state[r][c] = true;
+                }
+            }
+            break;
+
+        case BL_MODE_REACTIVE:
+            for (uint8_t r = 0; r < 2; r++) {
+                for (uint8_t c = 0; c < 4; c++) {
+                    led_state[r][c] = pressed_keys[r][c];
+                }
+            }
+            break;
+
+        case BL_MODE_LAYER_IND: {
+            uint8_t active_layer = get_highest_layer(layer_state) % 4;
+            for (uint8_t r = 0; r < 2; r++) {
+                for (uint8_t c = 0; c < 4; c++) {
+                    led_state[r][c] = pressed_keys[r][c];
+                }
+            }
+            // Indicate active profile on row 0
+            led_state[0][active_layer] = true;
+            break;
+        }
+
+        case BL_MODE_OFF:
+        default:
+            for (uint8_t r = 0; r < 2; r++) {
+                for (uint8_t c = 0; c < 4; c++) {
+                    led_state[r][c] = false;
+                }
+            }
             break;
     }
-    oled_write_ln("", false);
-    oled_write_ln("================", false);
-    return false;
+
+    // 2. Multiplex LED matrix row-by-row
+    static uint8_t active_scan_row = 0;
+
+    // Blank row anodes first to eliminate ghosting
+    gpio_write_pin_low(led_row_pins[0]);
+    gpio_write_pin_low(led_row_pins[1]);
+
+    // Set column cathodes for active row (Active Low: LOW = ON, HIGH = OFF)
+    for (uint8_t col = 0; col < 4; col++) {
+        if (led_state[active_scan_row][col]) {
+            gpio_write_pin_low(led_col_pins[col]);
+        } else {
+            gpio_write_pin_high(led_col_pins[col]);
+        }
+    }
+
+    // Assert the current row anode HIGH
+    gpio_write_pin_high(led_row_pins[active_scan_row]);
+
+    // Advance to the opposite row for the next scan cycle
+    active_scan_row = (active_scan_row + 1) % 2;
 }
-#endif

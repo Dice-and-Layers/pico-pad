@@ -64,10 +64,12 @@ The LED matrix consists of 9 backlight LEDs located directly under the main 3x3 
 
 ### Visual Indicators:
 1. **Keypress Feedback:** When a key is pressed, QMK drives the corresponding row anode HIGH and column cathode LOW to light up the key backlight.
-2. **Active Profile Indication:** When no keys are pressed, the first row of the LED matrix indicates which profile is active:
-   - **Profile 1:** LED 0 (Row 0, Col 0) lights up.
-   - **Profile 2:** LED 1 (Row 0, Col 1) lights up.
-   - **Profile 3:** LED 2 (Row 0, Col 2) lights up.
+2. **Active Profile Indication:** When no keys are pressed, the LED matrix indicates which profile is active:
+   - **Profile 1 (NUMPAD):** LED 1 (Row 0, Col 0) lights up.
+   - **Profile 2 (EXCEL):** LED 2 (Row 0, Col 1) lights up.
+   - **Profile 3 (CODING):** LED 3 (Row 0, Col 2) lights up.
+   - **Profile 4 (OBS STREAM):** LED 4 (Row 1, Col 0) lights up.
+   - **Profile 5 (CUSTOM):** LED 5 (Row 1, Col 1) lights up.
 
 ---
 
@@ -85,16 +87,16 @@ The LED matrix consists of 9 backlight LEDs located directly under the main 3x3 
 
 ## 🔄 Restoring / Remapping the Profile Switch in VIA
 
-The Profile Switcher button is the standalone button located at matrix position **Row 0, Col 3 (`0,3`)**. In the firmware ([keymap.c](file:///c:/Users/Sathish/Downloads/macro-keyboard/qmk/firmware/3x3_pro/keymaps/default/keymap.c)), this button runs custom code (`KC_PROF_SW = SAFE_RANGE` / `0x7E00`) that cycles through layers `0 -> 1 -> 2 -> 0` and updates the OLED and LED matrix indicators.
+The Profile Switcher button is the standalone button located at matrix position **Row 0, Col 3 (`0,3`)**. In the firmware ([3x3_pro.h](file:///c:/Users/Sathish/Downloads/macro-keyboard/qmk/firmware/3x3_pro/3x3_pro.h) & [keymap.c](file:///c:/Users/Sathish/Downloads/macro-keyboard/qmk/firmware/3x3_pro/keymaps/default/keymap.c)), this button runs custom code (`KC_PROF_SW = QK_KB_0` / `0x7E00`) that cycles through 5 layers (`0 -> 1 -> 2 -> 3 -> 4 -> 0`) and updates the OLED and LED matrix indicators.
 
 If this button has been remapped in VIA, restore it using one of the following methods:
 
-### Method 1: Using the "Custom" Tab (with updated `via_3x3_pro.json`)
+### Method 1: Using the "Custom" Tab (with `via_3x3_pro.json`)
 1. In VIA, go to the **Design** tab and load [via_3x3_pro.json](file:///c:/Users/Sathish/Downloads/macro-keyboard/qmk/via_3x3_pro.json).
 2. Go to the **Configure** tab and select the top-right button (`0,3`).
 3. In the keycode selector at the bottom, click the **CUSTOM** tab.
 4. Click **`PROF_SW`**.
-5. Repeat for **all 3 layers** (Layer 0, Layer 1, and Layer 2) so the switcher works regardless of the active profile.
+5. Repeat for **all 5 layers** (Layer 0 through Layer 4) so the switcher works regardless of the active profile.
 
 ### Method 2: Using the "Any" Key in VIA
 1. In the **Configure** tab, select the top-right button (`0,3`).
@@ -105,7 +107,7 @@ If this button has been remapped in VIA, restore it using one of the following m
    0x7E00
    ```
    *(or enter `USER00`)*
-5. Repeat for **all 3 layers** (Layer 0, Layer 1, and Layer 2).
+5. Repeat for **all 5 layers** (Layer 0 through Layer 4).
 
 ### Method 3: Reset EEPROM to Factory Defaults
 - In VIA, go to **Settings** / **Tools** and select **Reset EEPROM** to wipe stored customizations and revert all keys back to the firmware's default layout.

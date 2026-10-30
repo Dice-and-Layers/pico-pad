@@ -22,6 +22,26 @@ kbd = Keyboard(usb_hid.devices)
 layout = KeyboardLayoutUS(kbd)
 cc = ConsumerControl(usb_hid.devices)
 
+# Initialize Mouse HID with safe fallback
+mouse = None
+MOUSE_BUTTONS = {
+    "LEFT": 1,
+    "RIGHT": 2,
+    "MIDDLE": 4,
+    "BACK": 8,
+    "FORWARD": 16,
+}
+try:
+    from adafruit_hid.mouse import Mouse
+    mouse = Mouse(usb_hid.devices)
+    MOUSE_BUTTONS["LEFT"] = Mouse.LEFT_BUTTON
+    MOUSE_BUTTONS["RIGHT"] = Mouse.RIGHT_BUTTON
+    MOUSE_BUTTONS["MIDDLE"] = Mouse.MIDDLE_BUTTON
+    MOUSE_BUTTONS["BACK"] = Mouse.BACK_BUTTON
+    MOUSE_BUTTONS["FORWARD"] = Mouse.FORWARD_BUTTON
+except Exception as e:
+    print("Warning: Mouse HID could not be initialized:", e)
+
 # Load configuration
 config = {}
 profiles_list = []
@@ -92,6 +112,26 @@ KEY_ALIASES = {
     "LEFT": "LEFT_ARROW",
     "RIGHT": "RIGHT_ARROW",
     "RETURN": "ENTER",
+    # Numpad Digits (0 - 9)
+    "NUMPAD_0": "KEYPAD_ZERO", "NUMPAD0": "KEYPAD_ZERO", "KP_0": "KEYPAD_ZERO", "KP0": "KEYPAD_ZERO", "NUM_0": "KEYPAD_ZERO", "PAD_0": "KEYPAD_ZERO",
+    "NUMPAD_1": "KEYPAD_ONE",  "NUMPAD1": "KEYPAD_ONE",  "KP_1": "KEYPAD_ONE",  "KP1": "KEYPAD_ONE",  "NUM_1": "KEYPAD_ONE",  "PAD_1": "KEYPAD_ONE",
+    "NUMPAD_2": "KEYPAD_TWO",  "NUMPAD2": "KEYPAD_TWO",  "KP_2": "KEYPAD_TWO",  "KP2": "KEYPAD_TWO",  "NUM_2": "KEYPAD_TWO",  "PAD_2": "KEYPAD_TWO",
+    "NUMPAD_3": "KEYPAD_THREE","NUMPAD3": "KEYPAD_THREE","KP_3": "KEYPAD_THREE","KP3": "KEYPAD_THREE","NUM_3": "KEYPAD_THREE","PAD_3": "KEYPAD_THREE",
+    "NUMPAD_4": "KEYPAD_FOUR", "NUMPAD4": "KEYPAD_FOUR", "KP_4": "KEYPAD_FOUR", "KP4": "KEYPAD_FOUR", "NUM_4": "KEYPAD_FOUR", "PAD_4": "KEYPAD_FOUR",
+    "NUMPAD_5": "KEYPAD_FIVE", "NUMPAD5": "KEYPAD_FIVE", "KP_5": "KEYPAD_FIVE", "KP5": "KEYPAD_FIVE", "NUM_5": "KEYPAD_FIVE", "PAD_5": "KEYPAD_FIVE",
+    "NUMPAD_6": "KEYPAD_SIX",  "NUMPAD6": "KEYPAD_SIX",  "KP_6": "KEYPAD_SIX",  "KP6": "KEYPAD_SIX",  "NUM_6": "KEYPAD_SIX",  "PAD_6": "KEYPAD_SIX",
+    "NUMPAD_7": "KEYPAD_SEVEN","NUMPAD7": "KEYPAD_SEVEN","KP_7": "KEYPAD_SEVEN","KP7": "KEYPAD_SEVEN","NUM_7": "KEYPAD_SEVEN","PAD_7": "KEYPAD_SEVEN",
+    "NUMPAD_8": "KEYPAD_EIGHT","NUMPAD8": "KEYPAD_EIGHT","KP_8": "KEYPAD_EIGHT","KP8": "KEYPAD_EIGHT","NUM_8": "KEYPAD_EIGHT","PAD_8": "KEYPAD_EIGHT",
+    "NUMPAD_9": "KEYPAD_NINE", "NUMPAD9": "KEYPAD_NINE", "KP_9": "KEYPAD_NINE", "KP9": "KEYPAD_NINE", "NUM_9": "KEYPAD_NINE", "PAD_9": "KEYPAD_NINE",
+    # Numpad Operators & Controls
+    "NUMPAD_DOT": "KEYPAD_PERIOD", "NUMPAD_PERIOD": "KEYPAD_PERIOD", "KP_DOT": "KEYPAD_PERIOD", "KP_PERIOD": "KEYPAD_PERIOD", "NUM_DOT": "KEYPAD_PERIOD",
+    "NUMPAD_PLUS": "KEYPAD_PLUS", "NUMPAD_ADD": "KEYPAD_PLUS", "KP_PLUS": "KEYPAD_PLUS", "KP_ADD": "KEYPAD_PLUS",
+    "NUMPAD_MINUS": "KEYPAD_MINUS", "NUMPAD_SUBTRACT": "KEYPAD_MINUS", "KP_MINUS": "KEYPAD_MINUS", "KP_SUBTRACT": "KEYPAD_MINUS",
+    "NUMPAD_MULTIPLY": "KEYPAD_ASTERISK", "NUMPAD_STAR": "KEYPAD_ASTERISK", "KP_MULTIPLY": "KEYPAD_ASTERISK", "KP_STAR": "KEYPAD_ASTERISK", "KEYPAD_MULTIPLY": "KEYPAD_ASTERISK", "KEYPAD_STAR": "KEYPAD_ASTERISK",
+    "NUMPAD_DIVIDE": "KEYPAD_FORWARD_SLASH", "NUMPAD_SLASH": "KEYPAD_FORWARD_SLASH", "KP_DIVIDE": "KEYPAD_FORWARD_SLASH", "KP_SLASH": "KEYPAD_FORWARD_SLASH", "KEYPAD_DIVIDE": "KEYPAD_FORWARD_SLASH", "KEYPAD_SLASH": "KEYPAD_FORWARD_SLASH",
+    "NUMPAD_ENTER": "KEYPAD_ENTER", "KP_ENTER": "KEYPAD_ENTER",
+    "NUMPAD_EQUALS": "KEYPAD_EQUALS", "KP_EQUALS": "KEYPAD_EQUALS",
+    "NUMLOCK": "KEYPAD_NUMLOCK", "NUM_LOCK": "KEYPAD_NUMLOCK"
 }
 
 def resolve_keycodes(key_names):
@@ -152,6 +192,29 @@ def execute_macro(macro):
                 cc.send(getattr(ConsumerControlCode, ckey))
             else:
                 print(f"Error: Consumer key '{ckey}' not found in ConsumerControlCode")
+        elif atype in ("mouse_click", "mouse"):
+            if mouse:
+                btn_str = str(action.get("button", "LEFT")).strip().upper()
+                btn = MOUSE_BUTTONS.get(btn_str, MOUSE_BUTTONS["LEFT"])
+                click_type = action.get("click_type", "click")
+                mods = resolve_keycodes(action.get("modifiers", []))
+
+                if mods:
+                    kbd.press(*mods)
+                    time.sleep(0.01)
+
+                if click_type == "double_click":
+                    mouse.click(btn)
+                    time.sleep(0.05)
+                    mouse.click(btn)
+                else:
+                    mouse.click(btn)
+
+                if mods:
+                    time.sleep(0.01)
+                    kbd.release(*mods)
+            else:
+                print("Warning: Mouse not available for mouse action")
         elif atype == "launch":
             app_name = action.get("app", "")
             if app_name:
@@ -209,11 +272,25 @@ def run_macros(display, get_keys):
     debounce_time = config.get("settings", {}).get("debounce", 0.05)
     last_profile_btn_state = False
     
-    # Track keys that are currently held down per matrix position (row, col) -> list of keycodes
-    held_keys = {}
+    # Track keys and mouse buttons that are currently held down per matrix position (row, col)
+    held_keys = {}       # (r, c) -> list of keycodes
+    held_mouse = {}      # (r, c) -> (button_code, list of modifier keycodes)
     
     if display:
         update_display(display)
+
+    def release_all_inputs():
+        if held_keys:
+            kbd.release_all()
+            held_keys.clear()
+        if held_mouse:
+            if mouse:
+                try:
+                    mouse.release_all()
+                except Exception:
+                    pass
+            kbd.release_all()
+            held_mouse.clear()
 
     try:
         while True:
@@ -221,9 +298,7 @@ def run_macros(display, get_keys):
             
             # Exit to menu if display exists
             if display and (0, 0) in keys and (0, 2) in keys:
-                if held_keys:
-                    kbd.release_all()
-                    held_keys.clear()
+                release_all_inputs()
                 return
 
             # Handle profile switch for 3x3_pro model (dedicated GP6 pin at (0, 3))
@@ -232,9 +307,7 @@ def run_macros(display, get_keys):
                 # Fallback profile switch if dedicated button (0, 3) is unassigned in JSON
                 if get_macro(0, 3) is None:
                     if profile_btn_pressed and not last_profile_btn_state:
-                        if held_keys:
-                            kbd.release_all()
-                            held_keys.clear()
+                        release_all_inputs()
                         new_prof = switch_to_next_profile()
                         print("Switched profile to:", new_prof)
                         utils.flash_neopixel_profile(active_profile_idx)
@@ -247,9 +320,7 @@ def run_macros(display, get_keys):
                 if get_macro(0, 5) is None:
                     profile_btn_pressed = (0, 5) in keys
                     if profile_btn_pressed and not last_profile_btn_state:
-                        if held_keys:
-                            kbd.release_all()
-                            held_keys.clear()
+                        release_all_inputs()
                         new_prof = switch_to_next_profile()
                         print("Switched profile to:", new_prof)
                         utils.flash_neopixel_profile(active_profile_idx)
@@ -272,19 +343,31 @@ def run_macros(display, get_keys):
                         macro = get_macro(r, c)
                         if macro:
                             actions = macro.get("actions", [])
-                            # If macro is a single keypress action, keep it pressed until physically released
+                            # Case 1: Single keypress action -> keep pressed until physically released
                             if len(actions) == 1 and actions[0].get("type") == "keypress":
                                 kcodes = resolve_keycodes(actions[0].get("keys", []))
                                 if kcodes:
                                     print(f"Holding: {macro.get('label', 'Unnamed')} -> {kcodes}")
                                     kbd.press(*kcodes)
                                     held_keys[(r, c)] = kcodes
+                            # Case 2: Single mouse click action with hold mode -> keep mouse button & modifiers pressed
+                            elif len(actions) == 1 and actions[0].get("type") in ("mouse_click", "mouse") and actions[0].get("click_type") == "hold":
+                                if mouse:
+                                    btn_str = str(actions[0].get("button", "LEFT")).strip().upper()
+                                    btn = MOUSE_BUTTONS.get(btn_str, MOUSE_BUTTONS["LEFT"])
+                                    mods = resolve_keycodes(actions[0].get("modifiers", []))
+                                    if mods:
+                                        kbd.press(*mods)
+                                        time.sleep(0.01)
+                                    mouse.press(btn)
+                                    held_mouse[(r, c)] = (btn, mods)
+                                    print(f"Holding Mouse: {macro.get('label', 'Unnamed')} -> {btn_str}")
+                                else:
+                                    print("Warning: Mouse not available for hold")
                             else:
                                 switched = execute_macro(macro)
                                 if switched:
-                                    if held_keys:
-                                        kbd.release_all()
-                                        held_keys.clear()
+                                    release_all_inputs()
                                     if display:
                                         update_display(display)
                         time.sleep(debounce_time)
@@ -297,20 +380,31 @@ def run_macros(display, get_keys):
                             except Exception as e:
                                 print("Error releasing keys:", e)
                                 kbd.release_all()
+                        if (r, c) in held_mouse:
+                            btn, mods = held_mouse.pop((r, c))
+                            if mouse:
+                                try:
+                                    mouse.release(btn)
+                                except Exception as e:
+                                    print("Error releasing mouse button:", e)
+                                    mouse.release_all()
+                            if mods:
+                                try:
+                                    kbd.release(*mods)
+                                except Exception as e:
+                                    print("Error releasing modifiers:", e)
+                                    kbd.release_all()
                         time.sleep(debounce_time)
 
                     last_state[r][c] = is_pressed
             
-            # Safety net: if no keys physically pressed, ensure no stuck held keys
-            if not current_pressed and held_keys:
-                kbd.release_all()
-                held_keys.clear()
+            # Safety net: if no keys physically pressed, ensure no stuck held keys or mouse buttons
+            if not current_pressed and (held_keys or held_mouse):
+                release_all_inputs()
 
             time.sleep(0.01)
     finally:
-        if held_keys:
-            kbd.release_all()
-            held_keys.clear()
+        release_all_inputs()
 
 
 

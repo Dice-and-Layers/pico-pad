@@ -12,17 +12,6 @@
     "bootloader": "rp2040",
     "board": "GENERIC_RP_RP2040",
     "diode_direction": "ROW2COL",
-    "features": {
-        "bootmagic": true,
-        "command": false,
-        "console": false,
-        "extrakey": true,
-        "mousekey": true,
-        "nkro": true,
-        "rgblight": true,
-        "oled": true,
-        "via": true
-    },
     "matrix_pins": {
         "cols": ["GP3", "GP4", "GP5", "GP6"],
         "rows": ["GP0", "GP1"]

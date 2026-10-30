@@ -9,7 +9,7 @@
   "customKeycodes": [
     {
       "name": "Profile Switch",
-      "title": "Cycle Profile (1 -> 2 -> 3)",
+      "title": "Cycle Profile (1 -> 2 -> 3 -> 4 -> 5)",
       "shortName": "PROF_SW"
     }
   ],
