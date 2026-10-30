@@ -2893,9 +2893,9 @@ function App() {
           </div>
         </div>
       ) : (
-        <div className="main-layout">
+        <div className={`main-layout ${is5x3_2encoders ? 'layout-wide-model' : ''}`}>
           <section className="keyboard-section">
-            <div className="macropad-chassis">
+            <div className={`macropad-chassis ${is5x3_2encoders ? 'chassis-5x3' : ''}`}>
               <div className="chassis-header">
                 <div className="chassis-badge">
                   <span className="chassis-indicator"></span>
